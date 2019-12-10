@@ -1,11 +1,9 @@
 from discord.ext.commands import Bot
 from discord import Game
-from .Cogs.Operations import Operations
-from discord.ext import commands
-from json import load
+from src.Cogs.Operations import Operations
 
 bot_prefix = "-"
-with open('token.txt', 'r') as f:
+with open('src/token.txt', 'r') as f:
     token = f.read()
 
 client = Bot(command_prefix=bot_prefix)
