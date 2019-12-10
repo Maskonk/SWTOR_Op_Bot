@@ -14,4 +14,10 @@ async def on_ready():
     await client.change_presence(activity=Game(name='SWTOR'))
     print("Online")
 
+@client.event
+async def on_command_error(ctx, error):
+    print(error)
+    await ctx.send("An error has occurred with this command, please try again, if this persists please report it "
+                   "to Gatters.")
+
 client.run(token)
