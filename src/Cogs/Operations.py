@@ -9,8 +9,8 @@ class Operations(Cog):
         with open('src/Ops.json', 'r') as f:
             self.ops = load(f)
 
-    @commands.command()
-    async def list_ops(self, ctx):
+    @commands.command(aliases=["list", "operations"])
+    async def list_all_operations(self, ctx):
         """Lists all operations currently stored."""
         msg = "The Operations I currently have listed are: \n"
         for op in self.ops:
