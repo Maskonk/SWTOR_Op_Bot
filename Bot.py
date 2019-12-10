@@ -1,5 +1,6 @@
 from discord.ext.commands import Bot
 from discord import Game
+from .Cogs.Operations import Operations
 from discord.ext import commands
 from json import load
 
@@ -9,10 +10,12 @@ with open('token.txt', 'r') as f:
 
 client = Bot(command_prefix=bot_prefix)
 
+
 @client.event
 async def on_ready():
     await client.change_presence(activity=Game(name='SWTOR'))
     print("Online")
+
 
 @client.event
 async def on_command_error(ctx, error):
@@ -20,4 +23,5 @@ async def on_command_error(ctx, error):
     await ctx.send("An error has occurred with this command, please try again, if this persists please report it "
                    "to Gatters.")
 
+client.add_cog(Operations(client))
 client.run(token)
