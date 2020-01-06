@@ -4,7 +4,7 @@ from discord.ext import commands
 from src.Cogs.Operations import Operations
 
 bot_prefix = "-"
-with open('src/token.txt', 'r') as f:
+with open('./token.txt', 'r') as f:
     token = f.read()
 
 client = Bot(command_prefix=bot_prefix)
