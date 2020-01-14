@@ -16,14 +16,14 @@ async def on_ready():
     print("Online")
 
 
-@client.event
-async def on_command_error(ctx, error):
-    if isinstance(error, commands.CommandNotFound):
-        await ctx.send("That is not a valid command. Please use **.help** for a list of all commands.")
-    else:
-        print(error)
-        await ctx.send("An error has occurred with this command, please try again, if this persists please report it "
-                       "to Gatters.")
+# @client.event
+# async def on_command_error(ctx, error):
+#     if isinstance(error, commands.CommandNotFound):
+#         await ctx.send("That is not a valid command. Please use **.help** for a list of all commands.")
+#     else:
+#         print(error)
+#         await ctx.send("An error has occurred with this command, please try again, if this persists please report it "
+#                        "to Gatters.")
 
 client.add_cog(Operations(client))
 client.run(token)

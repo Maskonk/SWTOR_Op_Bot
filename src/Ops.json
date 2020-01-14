@@ -4,9 +4,10 @@
     "difficulty": "SM",
     "size": "16",
     "date": "10/12/19",
-    "time": "2000",
+    "time": "20:00",
     "owner": 168009927015661568,
     "guild": 323229951098748928,
+    "link": null,
     "members": {
       "count": 0,
       "tanks": [],
@@ -19,9 +20,10 @@
     "difficulty": "SM",
     "size": "16",
     "date": "10/12/20",
-    "time": "2000",
+    "time": "20:00",
     "owner": 168009927015661568,
     "guild": 323229951098748928,
+    "link": null,
     "members": {
       "count": 0,
       "tanks": [],
