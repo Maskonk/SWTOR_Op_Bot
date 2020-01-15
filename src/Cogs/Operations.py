@@ -58,4 +58,10 @@ class Operations(Cog):
             msg += f"{h.nick}, "
         msg += f"\nTo sign up see this post: {op['link']}"
 
-        await ctx.send(msg)
+        message = await ctx.send(msg)
+        await message.delete(delay=10)
+
+    @commands.command(aliases=["new", "new_op"])
+    async def new_operation(self, ctx, operation, difficulty, size, date, time):
+        owner = ctx.author.id
+        guild = ctx.guild.id

@@ -25,5 +25,9 @@ async def on_ready():
 #         await ctx.send("An error has occurred with this command, please try again, if this persists please report it "
 #                        "to Gatters.")
 
+@client.event
+async def on_reaction_add(reaction, user):
+    print(reaction.message)
+
 client.add_cog(Operations(client))
 client.run(token)
