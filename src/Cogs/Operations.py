@@ -47,7 +47,8 @@ class Operations(Cog):
             return
 
         op = self.ops.get(str(ctx.guild.id)).get(str(op_number))
-        msg = await self.make_operation_message(ctx, op, op_number)
+        dt = datetime.strptime(f"{op['Date']} {op['Time']}", "%d/%m/%y %H:%M")
+        msg = await self.make_operation_message(ctx, dt, op, op_number)
 
         message = await ctx.send(msg)
         await message.delete(delay=10)
@@ -62,6 +63,15 @@ class Operations(Cog):
         :param date: The date of the operation.
         :param time: The start time of the operation.
         """
+        if not await self.validate_operation_input(operation):
+            await ctx.send("That is not a valid operation.")
+            return
+
+        if not await self.validate_time_input(date, time):
+            message = await ctx.send("That date has already passed.")
+            await message.delete(delay=10)
+            return
+
         op_id = int(list(self.ops.get(str(ctx.guild.id), {0: None}).keys())[-1]) + 1
         op = {"Operation": operation,
               "Size": size,
@@ -71,9 +81,10 @@ class Operations(Cog):
               "Owner": ctx.author.nick,
               "Post_id": None,
               "Open": True,
+              "Signed": 0,
               "Sign-ups": {
                 "Tank": [],
-                "DPS": [],
+                "Dps": [],
                 "Healer": [],
                 "Reserve": [],
                 "Alternate_Tank": [],
@@ -81,11 +92,13 @@ class Operations(Cog):
                 "Alternate_Healer": []
             }}
 
-        msg = await self.make_operation_message(ctx, op, op_id)
+        dt = datetime.strptime(f"{date} {time}", "%d/%m/%y %H:%M")
+        msg = await self.make_operation_message(ctx, dt, op, op_id)
         message = await ctx.send(msg)
         op["Post_id"] = message.id
         self.ops[str(ctx.guild.id)] = self.ops.get(str(ctx.guild.id), {})
         self.ops[str(ctx.guild.id)][op_id] = op
+        print(self.ops)
         with open('./Ops.json', 'w') as f:
             dump(self.ops, f)
 
@@ -96,28 +109,28 @@ class Operations(Cog):
             message = await ctx.send("There is no Operation with that number.")
             await message.delete(delay=10)
             return
+
         if secondary_role:
             name = f"{ctx.author.nick} ({secondary_role.capitalize()})"
+            op["Sign-ups"][f"Alternate_{secondary_role.capitalize()}"] += [ctx.author.nick]
         else:
             name = ctx.author.nick
+
         op["Sign-ups"][main_role.capitalize()] += [name]
-        op["Sign-ups"][f"Alternate_{main_role.capitalize()}"] += [name]
+        op["Signed"] += 1
         self.ops[str(ctx.guild.id)][str(op_number)] = op
+        print(self.ops)
         with open('./Ops.json', 'w') as f:
             dump(self.ops, f)
 
     @staticmethod
-    async def make_operation_message(ctx: context, op: dict, op_id: int):
+    async def make_operation_message(ctx: context, dt: datetime, op: dict, op_id: int):
         """
         Composes operation message.
+        :param dt: The Datetime of the operation
         :param op: The operation dictionary.
         :param op_id: The id of the operation.
         """
-        dt = datetime.strptime(f"{op['Date']} {op['Time']}", "%d/%m/%y %H:%M")
-        if dt < datetime.today():
-            message = await ctx.send("That date has already passed.")
-            await message.delete(delay=10)
-            return
         msg = f"{op['Size']}m {op['Operation']} {op['Difficulty']} on {dt.date().day}/{dt.date().month}/{dt.date().year} " \
               f"starting at {dt.time().hour}:{dt.time().minute} CEST.\nCurrent signups:\nTanks: "
         for tank in op['Sign-ups']['Tank']:
@@ -133,3 +146,13 @@ class Operations(Cog):
             msg += f"{res}, "
         msg += f"\nTo sign up use -sign {op_id}"
         return msg
+
+    async def validate_operation_input(self, op: str):
+        return op.lower() in self.operations.keys() or op.lower() in self.operations.values()
+
+    async def validate_time_input(self, date: str, time: str):
+        dt = datetime.strptime(f"{date} {time}", "%d/%m/%y %H:%M")
+        if dt < datetime.today():
+            return False
+        else:
+            return True
