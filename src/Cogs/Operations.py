@@ -72,6 +72,11 @@ class Operations(Cog):
             await message.delete(delay=10)
             return
 
+        if not await self.validate_difficulty_input(difficulty):
+            message = await ctx.send("That is not a valid difficulty.")
+            await message.delete(delay=10)
+            return
+
         op_id = int(list(self.ops.get(str(ctx.guild.id), {0: None}).keys())[-1]) + 1
         op = {"Operation": operation,
               "Size": size,
@@ -123,6 +128,16 @@ class Operations(Cog):
         with open('./Ops.json', 'w') as f:
             dump(self.ops, f)
 
+    async def validate_operation_input(self, op: str):
+        return op.lower() in self.operations.keys() or op.lower() in self.operations.values()
+
+    async def validate_time_input(self, date: str, time: str):
+        dt = datetime.strptime(f"{date} {time}", "%d/%m/%y %H:%M")
+        if dt < datetime.today():
+            return False
+        else:
+            return True
+
     @staticmethod
     async def make_operation_message(ctx: context, dt: datetime, op: dict, op_id: int):
         """
@@ -147,12 +162,6 @@ class Operations(Cog):
         msg += f"\nTo sign up use -sign {op_id}"
         return msg
 
-    async def validate_operation_input(self, op: str):
-        return op.lower() in self.operations.keys() or op.lower() in self.operations.values()
-
-    async def validate_time_input(self, date: str, time: str):
-        dt = datetime.strptime(f"{date} {time}", "%d/%m/%y %H:%M")
-        if dt < datetime.today():
-            return False
-        else:
-            return True
+    @staticmethod
+    async def validate_difficulty_input(difficulty: str):
+        return difficulty.lower() in ["sm", "hm", "nim", "na"]
