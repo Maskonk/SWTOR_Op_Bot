@@ -169,7 +169,7 @@ class Operations(Cog):
 
     @staticmethod
     async def validate_difficulty_input(difficulty: str):
-        return difficulty.lower() in ["sm", "hm", "nim", "na"]
+        return difficulty.lower() in ["sm", "hm", "nim", "na", "vm", "mm"]
 
     @staticmethod
     async def validate_size_input(difficulty: str):
