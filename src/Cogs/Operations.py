@@ -77,6 +77,11 @@ class Operations(Cog):
             await message.delete(delay=10)
             return
 
+        if not await self.validate_size_input(size):
+            message = await ctx.send("That is not a valid size.")
+            await message.delete(delay=10)
+            return
+
         op_id = int(list(self.ops.get(str(ctx.guild.id), {0: None}).keys())[-1]) + 1
         op = {"Operation": operation,
               "Size": size,
@@ -165,3 +170,7 @@ class Operations(Cog):
     @staticmethod
     async def validate_difficulty_input(difficulty: str):
         return difficulty.lower() in ["sm", "hm", "nim", "na"]
+
+    @staticmethod
+    async def validate_size_input(difficulty: str):
+        return difficulty in [4, 8, 16, 24]
