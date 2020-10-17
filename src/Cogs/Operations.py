@@ -151,7 +151,7 @@ class Operations(Cog):
             return True
 
     @staticmethod
-    async def make_operation_message(ctx: context, dt: datetime, op: dict, op_id: int):
+    async def make_operation_message(dt: datetime, op: dict, op_id: int):
         """
         Composes operation message.
         :param dt: The Datetime of the operation
@@ -179,5 +179,5 @@ class Operations(Cog):
         return difficulty.lower() in ["sm", "hm", "nim", "na", "vm", "mm"]
 
     @staticmethod
-    async def validate_size_input(difficulty: str):
+    async def validate_size_input(difficulty: int):
         return difficulty in [4, 8, 16, 24]
