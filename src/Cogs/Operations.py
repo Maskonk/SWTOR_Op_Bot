@@ -13,6 +13,7 @@ class Operations(Cog):
                            "tc": "Toborro's Courtyard", "cm": "Colossal Monolith", "gq": "Geonosian Queen",
                            "wb": "World Boss", "gf": "Group finder", "other": "Other activity", "eyeless": "Eyeless",
                            "xeno": "Xenoanalyst"}
+        self.sizes = {4: [1, 1, 1], 8: [2, 4, 2], 16: [2, 10, 4]}
         with open('./Ops.json', 'r') as f:
             self.ops = load(f)
 
@@ -105,6 +106,12 @@ class Operations(Cog):
         dt = datetime.strptime(f"{date} {time}", "%d/%m/%y %H:%M")
         msg = await self.make_operation_message(ctx, dt, op, op_id)
         message = await ctx.send(msg)
+
+        try:
+            await message.pin()
+        except Exception as e:
+            print(e)
+
         op["Post_id"] = message.id
         self.ops[str(ctx.guild.id)] = self.ops.get(str(ctx.guild.id), {})
         self.ops[str(ctx.guild.id)][op_id] = op
