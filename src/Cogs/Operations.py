@@ -140,10 +140,14 @@ class Operations(Cog):
         with open('./Ops.json', 'w') as f:
             dump(self.ops, f)
 
-    async def validate_operation_input(self, op: str):
+    async def validate_operation_input(self, op: str) -> bool:
         return op.lower() in self.operations.keys() or op.lower() in self.operations.values()
 
-    async def validate_time_input(self, date: str, time: str):
+    async def check_duplicate(self, op: dict, user_nick: str) -> bool:
+        pass
+
+    @staticmethod
+    async def validate_time_input(date: str, time: str) -> bool:
         dt = datetime.strptime(f"{date} {time}", "%d/%m/%y %H:%M")
         if dt < datetime.today():
             return False
@@ -151,7 +155,7 @@ class Operations(Cog):
             return True
 
     @staticmethod
-    async def make_operation_message(dt: datetime, op: dict, op_id: int):
+    async def make_operation_message(dt: datetime, op: dict, op_id: int) -> str:
         """
         Composes operation message.
         :param dt: The Datetime of the operation
@@ -175,9 +179,9 @@ class Operations(Cog):
         return msg
 
     @staticmethod
-    async def validate_difficulty_input(difficulty: str):
+    async def validate_difficulty_input(difficulty: str) -> bool:
         return difficulty.lower() in ["sm", "hm", "nim", "na", "vm", "mm"]
 
     @staticmethod
-    async def validate_size_input(difficulty: int):
+    async def validate_size_input(difficulty: int) -> bool:
         return difficulty in [4, 8, 16, 24]
