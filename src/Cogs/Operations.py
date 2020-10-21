@@ -132,7 +132,7 @@ class Operations(Cog):
                 return
             else:
                 await ctx.send("Change")
-                return
+                op = await self.remove_signup(op, ctx.author.nick)
 
         if secondary_role:
             name = f"{ctx.author.nick} ({secondary_role.capitalize()})"
@@ -175,6 +175,15 @@ class Operations(Cog):
                 alt_change = True
 
         return main_change or alt_change
+
+    async def remove_signup(self, op: dict, user_nick) -> dict:
+        for role in ["Tank", "Healer", "Dps"]:
+            for i, user in enumerate(op["Sign-ups"][role]):
+                if user_nick in user:
+                    op["Sign-ups"][role].pop(i)
+            if user_nick in op["Sign-ups"][f"Alternate_{role}"]:
+                op["Sign-ups"][f"Alternate_{role}"].remove(user_nick)
+        return op
 
     @staticmethod
     async def validate_time_input(date: str, time: str) -> bool:
