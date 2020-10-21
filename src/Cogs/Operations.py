@@ -18,9 +18,9 @@ class Operations(Cog):
             self.ops = load(f)
 
     @command(aliases=["ops", "operations", "list"])
-    async def list_all_operations(self, ctx):
+    async def list_all_operations(self, ctx) -> None:
         """
-        Lists all operations currently stored.
+        Lists all operations currently stored for the server.
         """
         ops = self.ops.get(str(ctx.guild.id))
         if not ops:
@@ -35,9 +35,9 @@ class Operations(Cog):
         await message.delete(delay=30)
 
     @command(aliases=["op", "operation", "show"])
-    async def list_operation(self, ctx, op_number: int):
+    async def list_operation(self, ctx, op_number: int) -> None:
         """
-        List a spefic operation
+        List a spefic operations details.
         :param op_number: The id of the operation.
         """
         await ctx.message.delete()
@@ -54,7 +54,7 @@ class Operations(Cog):
         await message.delete(delay=10)
 
     @command(aliases=["new", "new_op", "create", "c"])
-    async def new_operation(self, ctx, operation: str, difficulty: str, size: int, date: str, time: str):
+    async def new_operation(self, ctx, operation: str, difficulty: str, size: int, date: str, time: str) -> None:
         """
         Create a new operation.
         :param operation: The operation to be created.
@@ -119,7 +119,13 @@ class Operations(Cog):
             dump(self.ops, f)
 
     @command(aliases=["sign", "join"])
-    async def sign_up(self, ctx: context, op_number: str, main_role: str, secondary_role: str = None):
+    async def sign_up(self, ctx: context, op_number: str, main_role: str, alt_role: str = None) -> None:
+        """
+        Signup to a given operation with the given roles.
+        :param op_number: The operation id to sign up to.
+        :param main_role: The main role to sign up as.
+        :param alt_role: Optional alternative role to sign up as.
+        """
         op = self.ops.get(str(ctx.guild.id), {}).get(str(op_number))
         if not op:
             message = await ctx.send("There is no Operation with that number.")
@@ -127,16 +133,16 @@ class Operations(Cog):
             return
 
         if await self.check_duplicate(op, ctx.author.nick):
-            if not await self.check_role_change(op, ctx.author.nick, main_role, secondary_role):
+            if not await self.check_role_change(op, ctx.author.nick, main_role, alt_role):
                 await ctx.send("You have already signed-up for that operation.")
                 return
             else:
                 await ctx.send("Change")
                 op = await self.remove_signup(op, ctx.author.nick)
 
-        if secondary_role:
-            name = f"{ctx.author.nick} ({secondary_role.capitalize()})"
-            op["Sign-ups"][f"Alternate_{secondary_role.capitalize()}"] += [ctx.author.nick]
+        if alt_role:
+            name = f"{ctx.author.nick} ({alt_role.capitalize()})"
+            op["Sign-ups"][f"Alternate_{alt_role.capitalize()}"] += [ctx.author.nick]
         else:
             name = ctx.author.nick
 
@@ -148,7 +154,11 @@ class Operations(Cog):
             dump(self.ops, f)
 
     @command(aliases=["unsign", "quit", "ihateyouall"])
-    async def unsign_up(self, ctx: context, op_number: str):
+    async def unsign_up(self, ctx: context, op_number: str) -> None:
+        """
+        Remove sign up from the given operation.
+        :param op_number: The operation id to remove sign up from.
+        """
         op = self.ops.get(str(ctx.guild.id), {}).get(str(op_number))
         if not op:
             message = await ctx.send("There is no Operation with that number.")
@@ -160,15 +170,21 @@ class Operations(Cog):
         with open('./Ops.json', 'w') as f:
             dump(self.ops, f)
 
-
     async def validate_operation_input(self, op: str) -> bool:
         """
         Checks the users input to ensure the operation input is valid.
         :param op: The Operation input by the user.
+        :return: Booleon True if the operation input is valid.
         """
         return op.lower() in self.operations.keys() or op.lower() in self.operations.values()
 
     async def check_duplicate(self, op: dict, user_nick: str) -> bool:
+        """
+        Checks if the user is already signed up to the given operation.
+        :param op: The operation details dictionary.
+        :param user_nick: The users nickname
+        :return: Booleon True if the user is already signed up to the operation.
+        """
         sign_ups = [op["Sign-ups"]["Tank"] + op["Sign-ups"]["Dps"] + op["Sign-ups"]["Healer"]]
         for sign in sign_ups:
             if user_nick in sign:
@@ -176,6 +192,14 @@ class Operations(Cog):
         return False
 
     async def check_role_change(self, op: dict, user_nick: str, main_role: str, alt_role: str) -> bool:
+        """
+        Checks if the user has changed their role.
+        :param op: The operation details dictionary.
+        :param user_nick: The users nickname
+        :param main_role: The new main role of the user.
+        :param alt_role: The optional alternative role of the user.
+        :return: Booleon True if the user has changed one of both of the roles they are signing up as.
+        """
         alt_change = False
         main_change = False
         for user in op["Sign-ups"][main_role.capitalize()]:
@@ -202,9 +226,10 @@ class Operations(Cog):
     @staticmethod
     async def validate_time_input(date: str, time: str) -> bool:
         """
-        Checks the users input to ensure the date and time inputs is valid and not yet passed.
+        Checks the users input to ensure the date and time inputs are valid and not yet passed.
         :param date: The Date input by the user.
         :param time: The Time input by the user.
+        :return: Booleon True if the date and time inputs are valid.
         """
         dt = datetime.strptime(f"{date} {time}", "%d/%m/%y %H:%M")
         if dt < datetime.today():
@@ -215,9 +240,10 @@ class Operations(Cog):
     async def make_operation_message(self, dt: datetime, op: dict, op_id: int) -> str:
         """
         Composes operation message.
-        :param dt: The Datetime of the operation
-        :param op: The operation dictionary.
+        :param dt: The Datetime object of the operation
+        :param op: The operation details dictionary.
         :param op_id: The id of the operation.
+        :return: String of the message to send composed of the operations details.
         """
         operation_name = self.operations[op['Operation'].lower()]
         msg = f"{op['Size']}m {operation_name} {op['Difficulty'].capitalize()} on {dt.date().day}/{dt.date().month}/{dt.date().year} " \
@@ -241,6 +267,7 @@ class Operations(Cog):
         """
         Checks the users input to ensure the difficulty input is valid.
         :param difficulty: The difficulty input by the user.
+        :return: Booleon True if the difficulty input is valid.
         """
         return difficulty.lower() in ["sm", "hm", "nim", "na", "vm", "mm"]
 
@@ -249,5 +276,6 @@ class Operations(Cog):
         """
         Checks the users input to ensure the size input is valid.
         :param size: The size input by the user.
+        :return: Booleon True if the size input is valid.
         """
         return size in [4, 8, 16, 24]
