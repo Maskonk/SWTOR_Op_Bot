@@ -147,6 +147,20 @@ class Operations(Cog):
         with open('./Ops.json', 'w') as f:
             dump(self.ops, f)
 
+    @command(aliases=["unsign", "quit", "ihateyouall"])
+    async def unsign_up(self, ctx: context, op_number: str):
+        op = self.ops.get(str(ctx.guild.id), {}).get(str(op_number))
+        if not op:
+            message = await ctx.send("There is no Operation with that number.")
+            await message.delete(delay=10)
+            return
+        op = await self.remove_signup(op, ctx.author.nick)
+        self.ops[str(ctx.guild.id)][str(op_number)] = op
+        print(self.ops)
+        with open('./Ops.json', 'w') as f:
+            dump(self.ops, f)
+
+
     async def validate_operation_input(self, op: str) -> bool:
         """
         Checks the users input to ensure the operation input is valid.
@@ -219,7 +233,7 @@ class Operations(Cog):
         msg += "\nReserves: "
         for res in op['Sign-ups']['Reserve']:
             msg += f"{res}, "
-        msg += f"\nTo sign up use -sign {op_id}"
+        msg += f"\nTo sign up use -sign {op_id} <role> <alt role>"
         return msg
 
     @staticmethod
