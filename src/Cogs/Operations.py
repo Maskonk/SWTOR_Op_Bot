@@ -49,7 +49,7 @@ class Operations(Cog):
 
         op = self.ops.get(str(ctx.guild.id)).get(str(op_number))
         dt = datetime.strptime(f"{op['Date']} {op['Time']}", "%d/%m/%y %H:%M")
-        msg = await self.make_operation_message(ctx, dt, op, op_number)
+        msg = await self.make_operation_message(dt, op, op_number)
 
         message = await ctx.send(msg)
         await message.delete(delay=10)
@@ -104,7 +104,7 @@ class Operations(Cog):
             }}
 
         dt = datetime.strptime(f"{date} {time}", "%d/%m/%y %H:%M")
-        msg = await self.make_operation_message(ctx, dt, op, op_id)
+        msg = await self.make_operation_message(dt, op, op_id)
         message = await ctx.send(msg)
 
         try:
@@ -141,6 +141,10 @@ class Operations(Cog):
             dump(self.ops, f)
 
     async def validate_operation_input(self, op: str) -> bool:
+        """
+        Checks the users input to ensure the operation input is valid.
+        :param op: The Operation input by the user.
+        """
         return op.lower() in self.operations.keys() or op.lower() in self.operations.values()
 
     async def check_duplicate(self, op: dict, user_nick: str) -> bool:
@@ -148,6 +152,11 @@ class Operations(Cog):
 
     @staticmethod
     async def validate_time_input(date: str, time: str) -> bool:
+        """
+        Checks the users input to ensure the date and time inputs is valid and not yet passed.
+        :param date: The Date input by the user.
+        :param time: The Time input by the user.
+        """
         dt = datetime.strptime(f"{date} {time}", "%d/%m/%y %H:%M")
         if dt < datetime.today():
             return False
@@ -180,8 +189,16 @@ class Operations(Cog):
 
     @staticmethod
     async def validate_difficulty_input(difficulty: str) -> bool:
+        """
+        Checks the users input to ensure the difficulty input is valid.
+        :param difficulty: The difficulty input by the user.
+        """
         return difficulty.lower() in ["sm", "hm", "nim", "na", "vm", "mm"]
 
     @staticmethod
-    async def validate_size_input(difficulty: int) -> bool:
-        return difficulty in [4, 8, 16, 24]
+    async def validate_size_input(size: int) -> bool:
+        """
+        Checks the users input to ensure the size input is valid.
+        :param size: The size input by the user.
+        """
+        return size in [4, 8, 16, 24]
