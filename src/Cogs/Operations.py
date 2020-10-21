@@ -28,8 +28,7 @@ class Operations(Cog):
             return
         msg = "The Operations I currently have listed are: \n"
         for op in ops:
-            # owner = ctx.guild.get_member(ops[op]['Owner'])
-            msg += f"{op}: {ops[op]['Operation']} {ops[op]['Size']}m {ops[op]['Difficulty']} " \
+            msg += f"{op}: {ops[op]['Operation'].upper()} {ops[op]['Size']}m {ops[op]['Difficulty']} " \
                    f"at {ops[op]['Time']} on {ops[op]['Date']} organiser {ops[op]['Owner']}\n"
         message = await ctx.send(msg)
         await ctx.message.delete(delay=30)
@@ -163,15 +162,15 @@ class Operations(Cog):
         else:
             return True
 
-    @staticmethod
-    async def make_operation_message(dt: datetime, op: dict, op_id: int) -> str:
+    async def make_operation_message(self, dt: datetime, op: dict, op_id: int) -> str:
         """
         Composes operation message.
         :param dt: The Datetime of the operation
         :param op: The operation dictionary.
         :param op_id: The id of the operation.
         """
-        msg = f"{op['Size']}m {op['Operation']} {op['Difficulty']} on {dt.date().day}/{dt.date().month}/{dt.date().year} " \
+        operation_name = self.operations[op['Operation'].lower()]
+        msg = f"{op['Size']}m {operation_name} {op['Difficulty'].capitalize()} on {dt.date().day}/{dt.date().month}/{dt.date().year} " \
               f"starting at {dt.time().hour}:{dt.time().minute} CEST.\nCurrent signups:\nTanks: "
         for tank in op['Sign-ups']['Tank']:
             msg += f"{tank}, "
