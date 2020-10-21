@@ -137,7 +137,6 @@ class Operations(Cog):
                 await ctx.send("You have already signed-up for that operation.")
                 return
             else:
-                await ctx.send("Change")
                 op = await self.remove_signup(op, ctx.author.display_name)
 
         if alt_role:
