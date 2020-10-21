@@ -164,6 +164,11 @@ class Operations(Cog):
             message = await ctx.send("There is no Operation with that number.")
             await message.delete(delay=10)
             return
+
+        if not await self.check_duplicate(op, ctx.author.nick):
+            await ctx.send("You are not currently signed up to that operation.")
+            return
+
         op = await self.remove_signup(op, ctx.author.nick)
         self.ops[str(ctx.guild.id)][str(op_number)] = op
         print(self.ops)
