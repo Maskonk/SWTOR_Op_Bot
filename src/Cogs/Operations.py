@@ -148,6 +148,14 @@ class Operations(Cog):
 
         op["Sign-ups"][main_role.capitalize()] += [name]
         op["Signed"] += 1
+
+        op = self.ops.get(str(ctx.guild.id)).get(str(op_number))
+        dt = datetime.strptime(f"{op['Date']} {op['Time']}", "%d/%m/%y %H:%M")
+        msg = await self.make_operation_message(dt, op, op_number)
+
+        message = await ctx.fetch_message(op["Post_id"])
+        await message.edit(content=msg)
+
         self.ops[str(ctx.guild.id)][str(op_number)] = op
         print(self.ops)
         with open('./Ops.json', 'w') as f:
@@ -242,7 +250,7 @@ class Operations(Cog):
         else:
             return True
 
-    async def make_operation_message(self, dt: datetime, op: dict, op_id: int) -> str:
+    async def make_operation_message(self, dt: datetime, op: dict, op_id: str) -> str:
         """
         Composes operation message.
         :param dt: The Datetime object of the operation
