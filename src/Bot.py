@@ -38,9 +38,9 @@ async def github(ctx):
     """Link to the github repo for this bot."""
     await ctx.send("The code for this bot is not currently available at this time but will be uploaded soon.")
 
-@client.event
-async def on_reaction_add(reaction, user):
-    print(reaction.message)
+# @client.event
+# async def on_reaction_add(reaction, user):
+#     print(reaction.message)
 
 client.add_cog(Operations(client))
 client.run(token)

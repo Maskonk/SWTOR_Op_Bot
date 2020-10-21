@@ -88,7 +88,7 @@ class Operations(Cog):
               "Difficulty": difficulty,
               "Date": date,
               "Time": time,
-              "Owner": ctx.author.nick,
+              "Owner": ctx.author.display_name,
               "Post_id": None,
               "Open": True,
               "Signed": 0,
@@ -132,19 +132,19 @@ class Operations(Cog):
             await message.delete(delay=10)
             return
 
-        if await self.check_duplicate(op, ctx.author.nick):
-            if not await self.check_role_change(op, ctx.author.nick, main_role, alt_role):
+        if await self.check_duplicate(op, ctx.author.display_name):
+            if not await self.check_role_change(op, ctx.author.display_name, main_role, alt_role):
                 await ctx.send("You have already signed-up for that operation.")
                 return
             else:
                 await ctx.send("Change")
-                op = await self.remove_signup(op, ctx.author.nick)
+                op = await self.remove_signup(op, ctx.author.display_name)
 
         if alt_role:
-            name = f"{ctx.author.nick} ({alt_role.capitalize()})"
-            op["Sign-ups"][f"Alternate_{alt_role.capitalize()}"] += [ctx.author.nick]
+            name = f"{ctx.author.display_name} ({alt_role.capitalize()})"
+            op["Sign-ups"][f"Alternate_{alt_role.capitalize()}"] += [ctx.author.display_name]
         else:
-            name = ctx.author.nick
+            name = ctx.author.display_name
 
         op["Sign-ups"][main_role.capitalize()] += [name]
         op["Signed"] += 1
@@ -165,11 +165,11 @@ class Operations(Cog):
             await message.delete(delay=10)
             return
 
-        if not await self.check_duplicate(op, ctx.author.nick):
+        if not await self.check_duplicate(op, ctx.author.display_name):
             await ctx.send("You are not currently signed up to that operation.")
             return
 
-        op = await self.remove_signup(op, ctx.author.nick)
+        op = await self.remove_signup(op, ctx.author.display_name)
         self.ops[str(ctx.guild.id)][str(op_number)] = op
         print(self.ops)
         with open('./Ops.json', 'w') as f:
