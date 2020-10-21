@@ -3,7 +3,8 @@ from discord.ext import commands
 from datetime import datetime
 from json import load, dump
 
-
+# TODO: add pin edit to remove
+# TODO: fix space in name issue
 class Operations(Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -182,6 +183,10 @@ class Operations(Cog):
         with open('./Ops.json', 'w') as f:
             dump(self.ops, f)
 
+    @command()
+    async def update_operation(self, ctx: context, attribute: str, value: str) -> None:
+        pass
+
     async def validate_operation_input(self, op: str) -> bool:
         """
         Checks the users input to ensure the operation input is valid.
@@ -197,7 +202,7 @@ class Operations(Cog):
         :param user_nick: The users nickname
         :return: Booleon True if the user is already signed up to the operation.
         """
-        sign_ups = [op["Sign-ups"]["Tank"] + op["Sign-ups"]["Dps"] + op["Sign-ups"]["Healer"]]
+        sign_ups = op["Sign-ups"]["Tank"] + op["Sign-ups"]["Dps"] + op["Sign-ups"]["Healer"]
         for sign in sign_ups:
             if user_nick in sign:
                 return True
