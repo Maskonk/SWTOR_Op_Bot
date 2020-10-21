@@ -12,7 +12,7 @@ class Operations(Cog):
                            "dp": "Dread Palace", "dxun": "Dxun", "gftm": "Gods from the Machine",
                            "tc": "Toborro's Courtyard", "cm": "Colossal Monolith", "gq": "Geonosian Queen",
                            "wb": "World Boss", "gf": "Group finder", "other": "Other activity", "eyeless": "Eyeless",
-                           "xeno": "Xenoanalyst"}
+                           "xeno": "Xenoanalyst", "rav": "Ravagers", "tos": "Temple of Sacrifice"}
         self.sizes = {4: [1, 1, 1], 8: [2, 4, 2], 16: [2, 10, 4]}
         with open('./Ops.json', 'r') as f:
             self.ops = load(f)
