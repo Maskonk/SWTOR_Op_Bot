@@ -3,8 +3,7 @@ from discord.ext import commands
 from datetime import datetime
 from json import load, dump
 
-# TODO: add pin edit to remove
-# TODO: fix space in name issue
+
 class Operations(Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -178,6 +177,12 @@ class Operations(Cog):
             return
 
         op = await self.remove_signup(op, ctx.author.display_name)
+        dt = datetime.strptime(f"{op['Date']} {op['Time']}", "%d/%m/%y %H:%M")
+        msg = await self.make_operation_message(dt, op, op_number)
+
+        message = await ctx.fetch_message(op["Post_id"])
+        await message.edit(content=msg)
+
         self.ops[str(ctx.guild.id)][str(op_number)] = op
         print(self.ops)
         with open('./Ops.json', 'w') as f:
