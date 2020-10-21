@@ -126,6 +126,10 @@ class Operations(Cog):
             await message.delete(delay=10)
             return
 
+        if await self.check_duplicate(op, ctx.author.nick):
+            await ctx.send("You have already signed-up for that operation.")
+            return
+
         if secondary_role:
             name = f"{ctx.author.nick} ({secondary_role.capitalize()})"
             op["Sign-ups"][f"Alternate_{secondary_role.capitalize()}"] += [ctx.author.nick]
@@ -147,7 +151,11 @@ class Operations(Cog):
         return op.lower() in self.operations.keys() or op.lower() in self.operations.values()
 
     async def check_duplicate(self, op: dict, user_nick: str) -> bool:
-        pass
+        sign_ups = [op["Sign-ups"]["Tank"] + op["Sign-ups"]["Dps"] + op["Sign-ups"]["Healer"]]
+        for sign in sign_ups:
+            if user_nick in sign:
+                return True
+        return False
 
     @staticmethod
     async def validate_time_input(date: str, time: str) -> bool:
