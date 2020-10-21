@@ -127,8 +127,12 @@ class Operations(Cog):
             return
 
         if await self.check_duplicate(op, ctx.author.nick):
-            await ctx.send("You have already signed-up for that operation.")
-            return
+            if not await self.check_role_change(op, ctx.author.nick, main_role, secondary_role):
+                await ctx.send("You have already signed-up for that operation.")
+                return
+            else:
+                await ctx.send("Change")
+                return
 
         if secondary_role:
             name = f"{ctx.author.nick} ({secondary_role.capitalize()})"
@@ -156,6 +160,21 @@ class Operations(Cog):
             if user_nick in sign:
                 return True
         return False
+
+    async def check_role_change(self, op: dict, user_nick: str, main_role: str, alt_role: str) -> bool:
+        alt_change = False
+        main_change = False
+        for user in op["Sign-ups"][main_role.capitalize()]:
+            if user_nick in user:
+                break
+        else:
+            main_change = True
+
+        if alt_role:
+            if user_nick not in op["Sign-ups"][f"Alternate_{alt_role.capitalize()}"]:
+                alt_change = True
+
+        return main_change or alt_change
 
     @staticmethod
     async def validate_time_input(date: str, time: str) -> bool:
