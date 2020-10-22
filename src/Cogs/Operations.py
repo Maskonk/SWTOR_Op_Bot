@@ -190,7 +190,6 @@ class Operations(Cog):
         if attribute.capitalize() not in ["Operation", "Date", "Time", "Size", "Difficulty"]:
             await ctx.send("That is not a valid attribute to update.")
 
-
         if not op:
             message = await ctx.send("There is no Operation with that number.")
             await message.delete(delay=10)
@@ -227,6 +226,23 @@ class Operations(Cog):
 
         self.ops[str(ctx.guild.id)][str(op_number)] = op
         print(self.ops)
+        with open('./Ops.json', 'w') as f:
+            dump(self.ops, f)
+
+    @command(aliases=["delete"])
+    async def delete_operation(self, ctx: context, op_number: str):
+        op = self.ops.get(str(ctx.guild.id), {}).get(str(op_number))
+        if not await self.is_owner_or_admin(ctx, op):
+            await ctx.send("You are not authorised to use this command. Only an Admin or the person who created "
+                           "this operation may update it.")
+            return
+
+        if not op:
+            message = await ctx.send("There is no Operation with that number.")
+            await message.delete(delay=10)
+            return
+
+        self.ops[str(ctx.guild.id)].pop(op_number)
         with open('./Ops.json', 'w') as f:
             dump(self.ops, f)
 
