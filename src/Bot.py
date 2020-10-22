@@ -2,6 +2,7 @@ from discord.ext.commands import Bot
 from discord import Game
 from discord.ext import commands
 from src.Cogs.Operations import Operations
+from src.Cogs.Swtor import Swtor
 
 bot_prefix = "-"
 with open('./token.txt', 'r') as f:
@@ -44,4 +45,5 @@ async def github(ctx):
 #     print(reaction.message)
 
 client.add_cog(Operations(client))
+client.add_cog(Swtor(client))
 client.run(token)
