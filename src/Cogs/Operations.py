@@ -4,6 +4,7 @@ from datetime import datetime
 from json import load, dump
 
 
+# TODO: Role validation
 class Operations(Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -29,7 +30,7 @@ class Operations(Cog):
         msg = "The Operations I currently have listed are: \n"
         for op in ops:
             msg += f"{op}: {ops[op]['Operation'].upper()} {ops[op]['Size']}m {ops[op]['Difficulty']} " \
-                   f"at {ops[op]['Time']} on {ops[op]['Date']} organiser {ops[op]['Owner']}\n"
+                   f"at {ops[op]['Time']} on {ops[op]['Date']} organiser {ops[op]['Owner_name']}\n"
         message = await ctx.send(msg)
         await ctx.message.delete(delay=30)
         await message.delete(delay=30)
@@ -48,7 +49,7 @@ class Operations(Cog):
 
         op = self.ops.get(str(ctx.guild.id)).get(str(op_number))
         dt = datetime.strptime(f"{op['Date']} {op['Time']}", "%d/%m/%y %H:%M")
-        msg = await self.make_operation_message(dt, op, op_number)
+        msg = await self.make_operation_message(dt, op, str(op_number))
 
         message = await ctx.send(msg)
         await message.delete(delay=10)
@@ -88,7 +89,8 @@ class Operations(Cog):
               "Difficulty": difficulty,
               "Date": date,
               "Time": time,
-              "Owner": ctx.author.display_name,
+              "Owner_name": ctx.author.display_name,
+              "Owner_id": ctx.author.id,
               "Post_id": None,
               "Open": True,
               "Signed": 0,
@@ -103,7 +105,7 @@ class Operations(Cog):
             }}
 
         dt = datetime.strptime(f"{date} {time}", "%d/%m/%y %H:%M")
-        msg = await self.make_operation_message(dt, op, op_id)
+        msg = await self.make_operation_message(dt, op, str(op_id))
         message = await ctx.send(msg)
 
         try:
@@ -114,7 +116,6 @@ class Operations(Cog):
         op["Post_id"] = message.id
         self.ops[str(ctx.guild.id)] = self.ops.get(str(ctx.guild.id), {})
         self.ops[str(ctx.guild.id)][op_id] = op
-        print(self.ops)
         with open('./Ops.json', 'w') as f:
             dump(self.ops, f)
 
@@ -148,7 +149,6 @@ class Operations(Cog):
         op["Sign-ups"][main_role.capitalize()] += [name]
         op["Signed"] += 1
 
-        op = self.ops.get(str(ctx.guild.id)).get(str(op_number))
         dt = datetime.strptime(f"{op['Date']} {op['Time']}", "%d/%m/%y %H:%M")
         msg = await self.make_operation_message(dt, op, op_number)
 
@@ -188,9 +188,54 @@ class Operations(Cog):
         with open('./Ops.json', 'w') as f:
             dump(self.ops, f)
 
-    @command()
-    async def update_operation(self, ctx: context, attribute: str, value: str) -> None:
-        pass
+    @command(aliases=["update"])
+    async def update_operation(self, ctx: context, op_number: str, attribute: str, value: str) -> None:
+        if attribute.capitalize() not in ["Operation", "Date", "Time", "Size", "Difficulty"]:
+            await ctx.send("That is not a valid attribute to update.")
+
+        op = self.ops.get(str(ctx.guild.id), {}).get(str(op_number))
+        if not op:
+            message = await ctx.send("There is no Operation with that number.")
+            await message.delete(delay=10)
+            return
+
+        if attribute.capitalize() == "Operation":
+            if not await self.validate_operation_input(value):
+                await ctx.send("That is not a valid operation.")
+                return
+        elif attribute.capitalize() == "Date":
+            if not await self.validate_time_input(value, op["Time"]):
+                message = await ctx.send("That date has already passed.")
+                await message.delete(delay=10)
+                return
+        elif attribute.capitalize() == "Time":
+            if not await self.validate_time_input(op["Date"], value):
+                message = await ctx.send("That date has already passed.")
+                await message.delete(delay=10)
+                return
+        elif attribute.capitalize() == "Difficulty":
+            if not await self.validate_difficulty_input(value):
+                message = await ctx.send("That is not a valid difficulty.")
+                await message.delete(delay=10)
+                return
+        elif attribute.capitalize() == "Size":
+            if not await self.validate_size_input(int(value)):
+                message = await ctx.send("That is not a valid size.")
+                await message.delete(delay=10)
+                return
+
+        op[attribute.capitalize()] = value
+
+        dt = datetime.strptime(f"{op['Date']} {op['Time']}", "%d/%m/%y %H:%M")
+        msg = await self.make_operation_message(dt, op, op_number)
+
+        message = await ctx.fetch_message(op["Post_id"])
+        await message.edit(content=msg)
+
+        self.ops[str(ctx.guild.id)][str(op_number)] = op
+        print(self.ops)
+        with open('./Ops.json', 'w') as f:
+            dump(self.ops, f)
 
     async def validate_operation_input(self, op: str) -> bool:
         """
