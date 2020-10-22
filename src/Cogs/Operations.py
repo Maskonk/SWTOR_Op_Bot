@@ -1,5 +1,4 @@
-from discord.ext.commands import Cog, context, command, check
-from discord.ext import commands
+from discord.ext.commands import Cog, context, command
 from datetime import datetime
 from json import load, dump
 
