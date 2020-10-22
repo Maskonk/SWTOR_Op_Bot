@@ -13,6 +13,8 @@ class Operations(Cog):
                            "wb": "World Boss", "gf": "Group finder", "other": "Other activity", "eyeless": "Eyeless",
                            "xeno": "Xenoanalyst", "rav": "Ravagers", "tos": "Temple of Sacrifice"}
         self.sizes = {4: [1, 1, 1], 8: [2, 4, 2], 16: [2, 10, 4]}
+        self.difficulties = {"sm": "Story Mode", "hm": "Veteran Mode", "nim": "Master Mode", "vm": "Veteran mode",
+                             "mm": "Master Mode"}
         with open('./Ops.json', 'r') as f:
             self.ops = load(f)
 
@@ -356,7 +358,8 @@ class Operations(Cog):
         :return: String of the message to send composed of the operations details.
         """
         operation_name = self.operations[op['Operation'].lower()]
-        msg = f"{op['Size']}m {operation_name} {op['Difficulty'].capitalize()} on {dt.date().day}/{dt.date().month}/{dt.date().year} " \
+        difficulty = self.difficulties[op['Difficulty'].lower()]
+        msg = f"{op['Size']}m {operation_name} {difficulty} on {dt.date().day}/{dt.date().month}/{dt.date().year} " \
               f"starting at {dt.time().hour}:{dt.time().minute} CEST.\nCurrent signups:\nTanks: "
         for tank in op['Sign-ups']['Tank']:
             msg += f"{tank}, "
