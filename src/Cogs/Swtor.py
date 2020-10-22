@@ -5,6 +5,12 @@ from random import choice
 class Swtor(Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.operations = {"s&v": "Scum and Villainy", "tfb": "Terror From Beyond", "kp": "Karagga's Palace",
+                           "ev": "Eternity Vault", "ec": "Explosive Conflict", "df": "Dread Fortress",
+                           "dp": "Dread Palace", "dxun": "Dxun", "gftm": "Gods from the Machine",
+                           "tc": "Toborro's Courtyard", "cm": "Colossal Monolith", "gq": "Geonosian Queen",
+                           "wb": "World Boss", "gf": "Group finder", "other": "Other activity", "eyeless": "Eyeless",
+                           "xeno": "Xenoanalyst", "rav": "Ravagers", "tos": "Temple of Sacrifice"}
 
     @command()
     async def spec(self, ctx: context, role: str = "all") -> None:
@@ -31,3 +37,10 @@ class Swtor(Cog):
             await ctx.send("That is not a valid role. Please choose from All, DPS, Heals or Tank.")
             return
         await ctx.send(f"The spec chosen is: {choice(select)}")
+
+    @command()
+    async def op_codes(self, ctx: context):
+        msg = ""
+        for op in self.operations.keys():
+            msg += f"{op.capitalize()}: {self.operations[op]}\n"
+        await ctx.send(msg)
