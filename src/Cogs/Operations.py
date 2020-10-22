@@ -3,7 +3,6 @@ from datetime import datetime
 from json import load, dump
 
 
-# TODO: Role validation
 class Operations(Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -263,6 +262,20 @@ class Operations(Cog):
         self.ops[str(ctx.guild.id)].pop(op_number)
         with open('./Ops.json', 'w') as f:
             dump(self.ops, f)
+
+    @command(aliases=["howto"])
+    async def user_guide(self, ctx: context):
+        msg = "**Basic user guide:**\n__Creating a new operation:__```-new <operation> <mode> <size> <date> <time>```" \
+              "Will create a new operation, Example:```-new TFB MM 8 22/10/20 19:00```" \
+              "Will create a new 8m Terror From Beyond Master Mode on the 22nd of October 2020 at 19:00 CEST. " \
+              "The operation is the short code not the full name.\n\n__Signing up__\nOnce an operation has been " \
+              "created anyone can sign up using the following```-sign <operation number> <main role> " \
+              "<alternative role>```Will add you to the sign ups for the operation. Alternative role is optional. " \
+              "Example:```-sign 1 Tank DPS``` Will add you as a Tank and backup DPS to operation number one.\n\n" \
+              "__Changing roles:__\nUsing the sign up command again with different roles will automatically change " \
+              "the roles you are signed up as.\n\n__Removing your sign up__\n```-unsign <operation number>``` " \
+              "Will remove your sign up from the operation."
+        await ctx.send(msg)
 
     async def validate_operation_input(self, op: str) -> bool:
         """
