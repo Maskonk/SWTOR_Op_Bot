@@ -182,10 +182,15 @@ class Operations(Cog):
 
     @command(aliases=["update"])
     async def update_operation(self, ctx: context, op_number: str, attribute: str, value: str) -> None:
+        op = self.ops.get(str(ctx.guild.id), {}).get(str(op_number))
+        if not await self.is_owner_or_admin(ctx, op):
+            await ctx.send("You are not authorised to use this command.")
+            return
+
         if attribute.capitalize() not in ["Operation", "Date", "Time", "Size", "Difficulty"]:
             await ctx.send("That is not a valid attribute to update.")
 
-        op = self.ops.get(str(ctx.guild.id), {}).get(str(op_number))
+
         if not op:
             message = await ctx.send("There is no Operation with that number.")
             await message.delete(delay=10)
@@ -349,3 +354,7 @@ class Operations(Cog):
 
         message = await ctx.fetch_message(op["Post_id"])
         await message.edit(content=msg)
+
+    @staticmethod
+    async def is_owner_or_admin(ctx, op):
+        return ctx.author.id in [op["Owner_id"], 1]
