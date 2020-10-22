@@ -115,7 +115,8 @@ class Operations(Cog):
 
         op["Post_id"] = message.id
         self.ops[str(ctx.guild.id)] = self.ops.get(str(ctx.guild.id), {})
-        self.ops[str(ctx.guild.id)][op_id] = op
+        self.ops[str(ctx.guild.id)][str(op_id)] = op
+        print(self.ops)
         with open('./Ops.json', 'w') as f:
             dump(self.ops, f)
 
