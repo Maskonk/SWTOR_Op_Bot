@@ -181,6 +181,12 @@ class Operations(Cog):
 
     @command(aliases=["update"])
     async def update_operation(self, ctx: context, op_number: str, attribute: str, value: str) -> None:
+        """
+        Updates the given attribute for the operation. Restricted to the creator or an admin.
+        :param op_number: The operation id.
+        :param attribute: Attribute to change.
+        :param value: The new value of the attribute.
+        """
         op = self.ops.get(str(ctx.guild.id), {}).get(str(op_number))
         if not await self.is_owner_or_admin(ctx, op):
             await ctx.send("You are not authorised to use this command. Only an Admin or the person who created "
@@ -230,7 +236,11 @@ class Operations(Cog):
             dump(self.ops, f)
 
     @command(aliases=["delete"])
-    async def delete_operation(self, ctx: context, op_number: str):
+    async def delete_operation(self, ctx: context, op_number: str) -> None:
+        """
+        Deletes a given operation. Restricted to the creator or an admin.
+        :param op_number: The operation id.
+        """
         op = self.ops.get(str(ctx.guild.id), {}).get(str(op_number))
         if not await self.is_owner_or_admin(ctx, op):
             await ctx.send("You are not authorised to use this command. Only an Admin or the person who created "
@@ -372,5 +382,10 @@ class Operations(Cog):
         await message.edit(content=msg)
 
     @staticmethod
-    async def is_owner_or_admin(ctx, op):
+    async def is_owner_or_admin(ctx: context, op: dict) -> bool:
+        """
+        Checks if the user is the owner of the given operation or an Admin.
+        :param op: The Operation details dictionary.
+        :return: Booleon True is the user owns the operation or is an Admin.
+        """
         return ctx.author.id in [op["Owner_id"], 1]
