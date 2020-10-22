@@ -1,4 +1,4 @@
-from discord.ext.commands import Cog, context, command
+from discord.ext.commands import Cog, context, command, check
 from discord.ext import commands
 from datetime import datetime
 from json import load, dump
@@ -149,11 +149,7 @@ class Operations(Cog):
         op["Sign-ups"][main_role.capitalize()] += [name]
         op["Signed"] += 1
 
-        dt = datetime.strptime(f"{op['Date']} {op['Time']}", "%d/%m/%y %H:%M")
-        msg = await self.make_operation_message(dt, op, op_number)
-
-        message = await ctx.fetch_message(op["Post_id"])
-        await message.edit(content=msg)
+        await self.edit_pinned_message(ctx, op, op_number)
 
         self.ops[str(ctx.guild.id)][str(op_number)] = op
         print(self.ops)
@@ -177,11 +173,7 @@ class Operations(Cog):
             return
 
         op = await self.remove_signup(op, ctx.author.display_name)
-        dt = datetime.strptime(f"{op['Date']} {op['Time']}", "%d/%m/%y %H:%M")
-        msg = await self.make_operation_message(dt, op, op_number)
-
-        message = await ctx.fetch_message(op["Post_id"])
-        await message.edit(content=msg)
+        await self.edit_pinned_message(ctx, op, op_number)
 
         self.ops[str(ctx.guild.id)][str(op_number)] = op
         print(self.ops)
@@ -226,11 +218,7 @@ class Operations(Cog):
 
         op[attribute.capitalize()] = value
 
-        dt = datetime.strptime(f"{op['Date']} {op['Time']}", "%d/%m/%y %H:%M")
-        msg = await self.make_operation_message(dt, op, op_number)
-
-        message = await ctx.fetch_message(op["Post_id"])
-        await message.edit(content=msg)
+        await self.edit_pinned_message(ctx, op, op_number)
 
         self.ops[str(ctx.guild.id)][str(op_number)] = op
         print(self.ops)
@@ -245,7 +233,8 @@ class Operations(Cog):
         """
         return op.lower() in self.operations.keys() or op.lower() in self.operations.values()
 
-    async def check_duplicate(self, op: dict, user_nick: str) -> bool:
+    @staticmethod
+    async def check_duplicate(op: dict, user_nick: str) -> bool:
         """
         Checks if the user is already signed up to the given operation.
         :param op: The operation details dictionary.
@@ -258,7 +247,8 @@ class Operations(Cog):
                 return True
         return False
 
-    async def check_role_change(self, op: dict, user_nick: str, main_role: str, alt_role: str) -> bool:
+    @staticmethod
+    async def check_role_change(op: dict, user_nick: str, main_role: str, alt_role: str) -> bool:
         """
         Checks if the user has changed their role.
         :param op: The operation details dictionary.
@@ -281,7 +271,8 @@ class Operations(Cog):
 
         return main_change or alt_change
 
-    async def remove_signup(self, op: dict, user_nick) -> dict:
+    @staticmethod
+    async def remove_signup(op: dict, user_nick) -> dict:
         for role in ["Tank", "Healer", "Dps"]:
             for i, user in enumerate(op["Sign-ups"][role]):
                 if user_nick in user:
@@ -346,3 +337,15 @@ class Operations(Cog):
         :return: Booleon True if the size input is valid.
         """
         return size in [4, 8, 16, 24]
+
+    async def edit_pinned_message(self, ctx: context, op: dict, op_number: str) -> None:
+        """
+        Edits the pinned message for the operation.
+        :param op: The operation details dictionary.
+        :param op_number: The operation id.
+        """
+        dt = datetime.strptime(f"{op['Date']} {op['Time']}", "%d/%m/%y %H:%M")
+        msg = await self.make_operation_message(dt, op, op_number)
+
+        message = await ctx.fetch_message(op["Post_id"])
+        await message.edit(content=msg)
