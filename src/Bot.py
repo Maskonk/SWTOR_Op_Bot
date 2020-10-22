@@ -36,7 +36,8 @@ async def on_ready():
 @client.command(aliases=["code", "Code"])
 async def github(ctx):
     """Link to the github repo for this bot."""
-    await ctx.send("The code for this bot is not currently available at this time but will be uploaded soon.")
+    await ctx.send("The bot is written in Python using the discord.py framework. The code is available here: "
+                   "https://github.com/Maskonk/SWTOR_Op_Bot")
 
 # @client.event
 # async def on_reaction_add(reaction, user):

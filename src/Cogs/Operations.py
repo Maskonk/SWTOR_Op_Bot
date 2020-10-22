@@ -132,6 +132,18 @@ class Operations(Cog):
             await message.delete(delay=10)
             return
 
+        main_role = await self.validate_role(main_role)
+        if not main_role:
+            await ctx.send("Main role is not valid. Please enter a valid role.")
+            return
+
+        if alt_role:
+            alt_role = await self.validate_role(alt_role)
+            if not alt_role:
+                await ctx.send("Alternative role is not valid. Please enter a valid role.")
+                return
+            print(alt_role)
+
         if await self.check_duplicate(op, ctx.author.display_name):
             if not await self.check_role_change(op, ctx.author.display_name, main_role, alt_role):
                 await ctx.send("You have already signed-up for that operation.")
@@ -389,3 +401,20 @@ class Operations(Cog):
         :return: Booleon True is the user owns the operation or is an Admin.
         """
         return ctx.author.id in [op["Owner_id"], 1]
+
+    @staticmethod
+    async def validate_role(role: str) -> str:
+        """
+        Checks the role given is valid and converts any short hand role to the proper name.
+        :param role: The role of the user.
+        :return: The long version of the users role.
+        """
+        if role.lower() in ["t", "tank", "d", "dps", "h", "heals", "healer"]:
+            if role[0].lower() == "t":
+                return "Tank"
+            elif role[0].lower() == "d":
+                return "Dps"
+            elif role[0].lower() == "h":
+                return "Healer"
+        else:
+            return
