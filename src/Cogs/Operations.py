@@ -142,7 +142,6 @@ class Operations(Cog):
             if not alt_role:
                 await ctx.send("Alternative role is not valid. Please enter a valid role.")
                 return
-            print(alt_role)
 
         if await self.check_duplicate(op, ctx.author.display_name):
             if not await self.check_role_change(op, ctx.author.display_name, main_role, alt_role):
@@ -163,7 +162,6 @@ class Operations(Cog):
         await self.edit_pinned_message(ctx, op, op_number)
 
         self.ops[str(ctx.guild.id)][str(op_number)] = op
-        print(self.ops)
         with open('./Ops.json', 'w') as f:
             dump(self.ops, f)
 
@@ -187,7 +185,6 @@ class Operations(Cog):
         await self.edit_pinned_message(ctx, op, op_number)
 
         self.ops[str(ctx.guild.id)][str(op_number)] = op
-        print(self.ops)
         with open('./Ops.json', 'w') as f:
             dump(self.ops, f)
 
@@ -243,7 +240,6 @@ class Operations(Cog):
         await self.edit_pinned_message(ctx, op, op_number)
 
         self.ops[str(ctx.guild.id)][str(op_number)] = op
-        print(self.ops)
         with open('./Ops.json', 'w') as f:
             dump(self.ops, f)
 
@@ -417,4 +413,4 @@ class Operations(Cog):
             elif role[0].lower() == "h":
                 return "Healer"
         else:
-            return
+            return ""
