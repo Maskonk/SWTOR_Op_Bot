@@ -183,7 +183,8 @@ class Operations(Cog):
     async def update_operation(self, ctx: context, op_number: str, attribute: str, value: str) -> None:
         op = self.ops.get(str(ctx.guild.id), {}).get(str(op_number))
         if not await self.is_owner_or_admin(ctx, op):
-            await ctx.send("You are not authorised to use this command.")
+            await ctx.send("You are not authorised to use this command. Only an Admin or the person who created "
+                           "this operation may update it.")
             return
 
         if attribute.capitalize() not in ["Operation", "Date", "Time", "Size", "Difficulty"]:
