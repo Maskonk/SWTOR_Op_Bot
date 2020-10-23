@@ -116,7 +116,6 @@ class Operations(Cog):
         op["Post_id"] = message.id
         self.ops[str(ctx.guild.id)] = self.ops.get(str(ctx.guild.id), {})
         self.ops[str(ctx.guild.id)][str(op_id)] = op
-        print(self.ops)
         with open('./Ops.json', 'w') as f:
             dump(self.ops, f)
 
@@ -261,6 +260,9 @@ class Operations(Cog):
             message = await ctx.send("There is no Operation with that number.")
             await message.delete(delay=10)
             return
+
+        message = await ctx.fetch_message(op["Post_id"])
+        await message.unpin()
 
         self.ops[str(ctx.guild.id)].pop(op_number)
         with open('./Ops.json', 'w') as f:

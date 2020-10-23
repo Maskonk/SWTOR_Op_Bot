@@ -9,7 +9,7 @@ class Swtor(Cog):
                            "ev": "Eternity Vault", "ec": "Explosive Conflict", "df": "Dread Fortress",
                            "dp": "Dread Palace", "dxun": "Dxun", "gftm": "Gods from the Machine",
                            "tc": "Toborro's Courtyard", "cm": "Colossal Monolith", "gq": "Geonosian Queen",
-                           "wb": "World Boss", "gf": "Group finder", "other": "Other activity", "eyeless": "Eyeless",
+                           "wb": "World Boss", "gf": "Group finder", "other": "Other activity", "eye": "Eyeless",
                            "xeno": "Xenoanalyst", "rav": "Ravagers", "tos": "Temple of Sacrifice"}
 
     @command()
