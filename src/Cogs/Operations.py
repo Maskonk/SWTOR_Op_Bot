@@ -1,6 +1,7 @@
 from discord.ext.commands import Cog, context, command
 from datetime import datetime
 from json import load, dump
+from dateutil.parser import parse
 
 
 class Operations(Cog):
@@ -48,7 +49,7 @@ class Operations(Cog):
             return
 
         op = self.ops.get(str(ctx.guild.id)).get(str(op_number))
-        dt = datetime.strptime(f"{op['Date']} {op['Time']}", "%d/%m/%y %H:%M")
+        dt = await self.parse_date(op["Date"], op["Time"])
         msg = await self.make_operation_message(dt, op, str(op_number))
 
         message = await ctx.send(msg)
@@ -104,7 +105,7 @@ class Operations(Cog):
                 "Alternate_Healer": []
             }}
 
-        dt = datetime.strptime(f"{date} {time}", "%d/%m/%y %H:%M")
+        dt = await self.parse_date(date, time)
         msg = await self.make_operation_message(dt, op, str(op_id))
         message = await ctx.send(msg)
 
@@ -346,7 +347,7 @@ class Operations(Cog):
         :param time: The Time input by the user.
         :return: Booleon True if the date and time inputs are valid.
         """
-        dt = datetime.strptime(f"{date} {time}", "%d/%m/%y %H:%M")
+        dt = parse(f"{date} {time}")
         if dt < datetime.today():
             return False
         else:
@@ -402,7 +403,7 @@ class Operations(Cog):
         :param op: The operation details dictionary.
         :param op_number: The operation id.
         """
-        dt = datetime.strptime(f"{op['Date']} {op['Time']}", "%d/%m/%y %H:%M")
+        dt = await self.parse_date(op["Date"], op["Time"])
         msg = await self.make_operation_message(dt, op, op_number)
 
         message = await ctx.fetch_message(op["Post_id"])
@@ -433,3 +434,13 @@ class Operations(Cog):
                 return "Healer"
         else:
             return ""
+
+    @staticmethod
+    async def parse_date(date: str, time: str) -> datetime:
+        """
+        Takes a date and time as a string and returns a datetime object.
+        :param date: The given date.
+        :param time: The given time
+        :return: datetime object of the given date and time.
+        """
+        return parse(f"{date} {time}")
