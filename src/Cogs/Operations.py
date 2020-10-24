@@ -85,7 +85,11 @@ class Operations(Cog):
             await message.delete(delay=10)
             return
 
-        op_id = int(list(self.ops.get(str(ctx.guild.id), {0: None}).keys())[-1]) + 1
+        op_keys = list(self.ops.get(str(ctx.guild.id), {0: None}).keys())
+        if op_keys:
+            op_id = int(op_keys[-1]) + 1
+        else:
+            op_id = 1
         op = {"Operation": operation,
               "Size": size,
               "Difficulty": difficulty,
