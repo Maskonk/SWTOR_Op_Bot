@@ -1,8 +1,8 @@
 from discord.ext.commands import Bot
 from discord import Game
 from discord.ext import commands
-from src.Cogs.Operations import Operations
-from src.Cogs.Swtor import Swtor
+from Cogs.Operations import Operations
+from Cogs.Swtor import Swtor
 
 bot_prefix = "-"
 with open('./token.txt', 'r') as f:
