@@ -45,7 +45,7 @@ class Swtor(Cog):
             msg += f"{op.capitalize()}: {self.operations[op]}\n"
         await ctx.send(msg)
 
-    @command(alaises=["guide"])
+    @command(aliases=["guide"])
     async def bot_guide(self, ctx: context):
         await ctx.send("A full guide to all bot commands is here: "
                        "https://github.com/Maskonk/SWTOR_Op_Bot/wiki/Operation-Commands.")
