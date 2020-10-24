@@ -2,6 +2,7 @@ from discord.ext.commands import Cog, context, command
 from datetime import datetime
 from json import load, dump
 from dateutil.parser import parse
+from calendar import month_name, day_name
 
 
 class Operations(Cog):
@@ -363,16 +364,18 @@ class Operations(Cog):
         """
         operation_name = self.operations[op['Operation'].lower()]
         difficulty = self.difficulties[op['Difficulty'].lower()]
-        msg = f"{op['Size']}m {operation_name} {difficulty} on {dt.date().day}/{dt.date().month}/{dt.date().year} " \
+        extension = await self.date_extention(dt.day)
+        msg = f"{op['Size']}m {operation_name} {difficulty}\n{day_name[dt.weekday()]} the " \
+              f"{extension} of {month_name[dt.month]} " \
               f"starting at {dt.time().hour}:{dt.time().minute} CEST.\nCurrent signups:\nTanks: "
         for tank in op['Sign-ups']['Tank']:
             msg += f"{tank}, "
-        msg += "\nHealers: "
-        for heal in op['Sign-ups']['Healer']:
-            msg += f"{heal}, "
         msg += "\nDPS: "
         for dps in op['Sign-ups']['Dps']:
             msg += f"{dps}, "
+        msg += "\nHealers: "
+        for heal in op['Sign-ups']['Healer']:
+            msg += f"{heal}, "
         msg += "\nReserves: "
         for res in op['Sign-ups']['Reserve']:
             msg += f"{res}, "
@@ -444,3 +447,19 @@ class Operations(Cog):
         :return: datetime object of the given date and time.
         """
         return parse(f"{date} {time}")
+
+    @staticmethod
+    async def date_extention(number: int) -> str:
+        """
+        Gives number extension for date.
+        :param number: The date number the extension is for.
+        :return: String of the Number extension.
+        """
+        if number % 10 == 1:
+            return '%dst' % number
+        if number % 10 == 2:
+            return '%dnd' % number
+        if number % 10 == 3:
+            return '%drd' % number
+        if (number % 10 >= 4) or (number % 10 == 0):
+            return '%dth' % number
