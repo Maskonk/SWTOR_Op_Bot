@@ -21,7 +21,7 @@ class Operations(Cog):
             self.ops = load(f)
 
     @command(aliases=["ops", "operations", "list"])
-    async def list_all_operations(self, ctx) -> None:
+    async def list_all_operations(self, ctx: context) -> None:
         """
         Lists all operations currently stored for the server.
         """
@@ -38,7 +38,7 @@ class Operations(Cog):
         await message.delete(delay=30)
 
     @command(aliases=["op", "operation", "show"])
-    async def list_operation(self, ctx, op_number: int) -> None:
+    async def list_operation(self, ctx: context, op_number: int) -> None:
         """
         List a spefic operations details.
         :param op_number: The id of the operation.
@@ -57,7 +57,7 @@ class Operations(Cog):
         await message.delete(delay=10)
 
     @command(aliases=["new", "new_op", "create", "c"])
-    async def new_operation(self, ctx, operation: str, difficulty: str, size: int, date: str, time: str) -> None:
+    async def new_operation(self, ctx: context, operation: str, difficulty: str, size: int, date: str, time: str) -> None:
         """
         Create a new operation.
         :param operation: The operation to be created.
