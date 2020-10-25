@@ -318,6 +318,8 @@ class Operations(Cog):
         with open('./Ops.json', 'w') as f:
             dump(self.ops, f)
 
+        await ctx.message.add_reaction('\U0001f44d')
+
     @command(aliases=["howto"])
     async def user_guide(self, ctx: context):
         msg = "**Basic user guide:**\n__Creating a new operation:__```-new <operation> <mode> <size> <date> <time>```" \
