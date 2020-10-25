@@ -205,6 +205,8 @@ class Operations(Cog):
         with open('./Ops.json', 'w') as f:
             dump(self.ops, f)
 
+        await ctx.message.add_reaction('\U0001f44d')
+
     @command(aliases=["update"])
     async def update_operation(self, ctx: context, op_number: str, attribute: str, value: str) -> None:
         """
