@@ -274,6 +274,35 @@ class Operations(Cog):
         with open('./Ops.json', 'w') as f:
             dump(self.ops, f)
 
+    @command(aliases=["remove"])
+    async def remove_sign_up(self, ctx: context, op_number: str, name: str) -> None:
+        op = self.ops.get(str(ctx.guild.id), {}).get(str(op_number))
+        if not op:
+            message = await ctx.send("There is no Operation with that number.")
+            await message.delete(delay=10)
+            return
+
+        if not await self.is_owner_or_admin(ctx, op):
+            await ctx.send("You are not authorised to use this command. Only an Admin or the person who created "
+                           "this operation may update it.")
+            return
+
+        for tank in op["Sign-ups"]["Tank"]:
+            if name in tank:
+                op["Sign-ups"]["Tank"].remove(tank)
+        for dps in op["Sign-ups"]["Dps"]:
+            if name in dps:
+                op["Sign-ups"]["Dps"].remove(dps)
+        for heal in op["Sign-ups"]["Healer"]:
+            if name in heal:
+                op["Sign-ups"]["Healer"].remove(heal)
+
+        await self.edit_pinned_message(ctx, op, op_number)
+
+        self.ops[str(ctx.guild.id)][str(op_number)] = op
+        with open('./Ops.json', 'w') as f:
+            dump(self.ops, f)
+
     @command(aliases=["howto"])
     async def user_guide(self, ctx: context):
         msg = "**Basic user guide:**\n__Creating a new operation:__```-new <operation> <mode> <size> <date> <time>```" \
