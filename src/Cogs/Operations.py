@@ -417,7 +417,7 @@ class Operations(Cog):
         extension = await self.date_extention(dt.day)
         msg = f"{op_id}: {op['Size']}m {operation_name} {difficulty} {op['Side']}\n{day_name[dt.weekday()]} the " \
               f"{extension} of {month_name[dt.month]} " \
-              f"starting at {dt.time().hour}:{dt.time().minute} CEST.\nCurrent signups:\nTanks: "
+              f"starting at {dt.time().hour}:{dt.time().minute} CET.\nCurrent signups:\nTanks: "
         for tank in op['Sign-ups']['Tank']:
             msg += f"{tank}, "
         msg += "\nDPS: "
