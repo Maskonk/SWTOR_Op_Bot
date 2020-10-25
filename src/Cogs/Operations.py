@@ -180,6 +180,8 @@ class Operations(Cog):
         with open('./Ops.json', 'w') as f:
             dump(self.ops, f)
 
+        await ctx.message.add_reaction('\U0001f44d')
+
     @command(aliases=["unsign", "quit", "ihateyouall"])
     async def unsign_up(self, ctx: context, op_number: str) -> None:
         """
@@ -202,6 +204,8 @@ class Operations(Cog):
         self.ops[str(ctx.guild.id)][str(op_number)] = op
         with open('./Ops.json', 'w') as f:
             dump(self.ops, f)
+
+        await ctx.message.add_reaction('\U0001f44d')
 
     @command(aliases=["update"])
     async def update_operation(self, ctx: context, op_number: str, attribute: str, value: str) -> None:
@@ -257,6 +261,7 @@ class Operations(Cog):
         self.ops[str(ctx.guild.id)][str(op_number)] = op
         with open('./Ops.json', 'w') as f:
             dump(self.ops, f)
+        await ctx.message.add_reaction('\U0001f44d')
 
     @command(aliases=["delete"])
     async def delete_operation(self, ctx: context, op_number: str) -> None:
@@ -281,6 +286,8 @@ class Operations(Cog):
         self.ops[str(ctx.guild.id)].pop(op_number)
         with open('./Ops.json', 'w') as f:
             dump(self.ops, f)
+
+        await ctx.message.add_reaction('\U0001f44d')
 
     @command(aliases=["remove"])
     async def remove_sign_up(self, ctx: context, op_number: str, name: str) -> None:
@@ -310,6 +317,8 @@ class Operations(Cog):
         self.ops[str(ctx.guild.id)][str(op_number)] = op
         with open('./Ops.json', 'w') as f:
             dump(self.ops, f)
+
+        await ctx.message.add_reaction('\U0001f44d')
 
     @command(aliases=["howto"])
     async def user_guide(self, ctx: context):
