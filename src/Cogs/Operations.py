@@ -204,6 +204,11 @@ class Operations(Cog):
         :param value: The new value of the attribute.
         """
         op = self.ops.get(str(ctx.guild.id), {}).get(str(op_number))
+        if not op:
+            message = await ctx.send("There is no Operation with that number.")
+            await message.delete(delay=10)
+            return
+
         if not await self.is_owner_or_admin(ctx, op):
             await ctx.send("You are not authorised to use this command. Only an Admin or the person who created "
                            "this operation may update it.")
@@ -211,11 +216,6 @@ class Operations(Cog):
 
         if attribute.capitalize() not in ["Operation", "Date", "Time", "Size", "Difficulty"]:
             await ctx.send("That is not a valid attribute to update.")
-
-        if not op:
-            message = await ctx.send("There is no Operation with that number.")
-            await message.delete(delay=10)
-            return
 
         if attribute.capitalize() == "Operation":
             if not await self.validate_operation_input(value):
@@ -257,14 +257,14 @@ class Operations(Cog):
         :param op_number: The operation id.
         """
         op = self.ops.get(str(ctx.guild.id), {}).get(str(op_number))
-        if not await self.is_owner_or_admin(ctx, op):
-            await ctx.send("You are not authorised to use this command. Only an Admin or the person who created "
-                           "this operation may update it.")
-            return
-
         if not op:
             message = await ctx.send("There is no Operation with that number.")
             await message.delete(delay=10)
+            return
+
+        if not await self.is_owner_or_admin(ctx, op):
+            await ctx.send("You are not authorised to use this command. Only an Admin or the person who created "
+                           "this operation may update it.")
             return
 
         message = await ctx.fetch_message(op["Post_id"])
