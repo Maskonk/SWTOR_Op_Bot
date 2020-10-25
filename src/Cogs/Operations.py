@@ -287,6 +287,8 @@ class Operations(Cog):
         with open('./Ops.json', 'w') as f:
             dump(self.ops, f)
 
+        await ctx.message.add_reaction('\U0001f44d')
+
     @command(aliases=["remove"])
     async def remove_sign_up(self, ctx: context, op_number: str, name: str) -> None:
         op = self.ops.get(str(ctx.guild.id), {}).get(str(op_number))
