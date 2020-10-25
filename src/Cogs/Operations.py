@@ -261,6 +261,7 @@ class Operations(Cog):
         self.ops[str(ctx.guild.id)][str(op_number)] = op
         with open('./Ops.json', 'w') as f:
             dump(self.ops, f)
+        await ctx.message.add_reaction('\U0001f44d')
 
     @command(aliases=["delete"])
     async def delete_operation(self, ctx: context, op_number: str) -> None:
