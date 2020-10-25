@@ -322,10 +322,10 @@ class Operations(Cog):
 
     @command(aliases=["howto"])
     async def user_guide(self, ctx: context):
-        msg = "**Basic user guide:**\n__Creating a new operation:__```-new <operation> <mode> <size> <date> <time>```" \
-              "Will create a new operation, Example:```-new TFB MM 8 22/10/20 19:00```" \
-              "Will create a new 8m Terror From Beyond Master Mode on the 22nd of October 2020 at 19:00 CEST. " \
-              "The operation is the short code not the full name.\n\n__Signing up__\nOnce an operation has been " \
+        msg = "**Basic user guide:**\n__Creating a new operation:__```-new <operation> <mode> <side> <size> <date> " \
+              "<time>``` Will create a new operation, Example:```-new TFB MM Imp 8 22/10/20 19:00```" \
+              "Will create a new 8m Terror From Beyond Master Mode Imperial side on the 22nd of October 2020 at 19:00 "\
+              "CET. The operation is the short code not the full name.\n\n__Signing up__\nOnce an operation has been " \
               "created anyone can sign up using the following```-sign <operation number> <main role> " \
               "<alternative role>```Will add you to the sign ups for the operation. Alternative role is optional. " \
               "Example:```-sign 1 Tank DPS``` Will add you as a Tank and backup DPS to operation number one.\n\n" \
