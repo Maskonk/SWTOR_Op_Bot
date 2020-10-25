@@ -291,6 +291,11 @@ class Operations(Cog):
 
     @command(aliases=["remove"])
     async def remove_sign_up(self, ctx: context, op_number: str, name: str) -> None:
+        """
+        Removes the given name from the sign ups.
+        :param op_number: The id of the operation.
+        :param name: The name of the person to be removed.
+        """
         op = self.ops.get(str(ctx.guild.id), {}).get(str(op_number))
         if not op:
             message = await ctx.send("There is no Operation with that number.")
@@ -321,7 +326,10 @@ class Operations(Cog):
         await ctx.message.add_reaction('\U0001f44d')
 
     @command(aliases=["howto"])
-    async def user_guide(self, ctx: context):
+    async def user_guide(self, ctx: context) -> None:
+        """
+        A basic user guide on how to use the bot.
+        """
         msg = "**Basic user guide:**\n__Creating a new operation:__```-new <operation> <mode> <side> <size> <date> " \
               "<time>``` Will create a new operation, Example:```-new TFB MM Imp 8 22/10/20 19:00```" \
               "Will create a new 8m Terror From Beyond Master Mode Imperial side on the 22nd of October 2020 at 19:00 "\
@@ -516,6 +524,11 @@ class Operations(Cog):
 
     @staticmethod
     async def validate_side_input(side: str) -> str:
+        """
+        Checks the side given is valid and converts names to a standard.
+        :param side: The side the operation is to take place
+        :return: The standard name of the side or None if invalid.
+        """
         if side.lower() in ["imp", "imps", "imperial", "i"]:
             return "Imp"
         elif side.lower() in ["rep", "reps", "republic", "pub", "r"]:
