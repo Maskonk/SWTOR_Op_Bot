@@ -4,7 +4,7 @@ from discord.ext import commands
 from Cogs.Operations import Operations
 from Cogs.Swtor import Swtor
 
-bot_prefix = ">"
+bot_prefix = "-"
 with open('./token.txt', 'r') as f:
     token = f.read()
 

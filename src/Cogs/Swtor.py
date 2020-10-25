@@ -49,7 +49,3 @@ class Swtor(Cog):
     async def command_guide(self, ctx: context):
         await ctx.send("A full guide to all bot commands is here: "
                        "https://github.com/Maskonk/SWTOR_Op_Bot/wiki/Operation-Commands.")
-
-    @command()
-    async def apples(self, ctx: context):
-        await ctx.send(":regional_indicator_b:")
