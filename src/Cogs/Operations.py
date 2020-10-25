@@ -226,7 +226,7 @@ class Operations(Cog):
                            "this operation may update it.")
             return
 
-        if attribute.capitalize() not in ["Operation", "Date", "Time", "Size", "Difficulty"]:
+        if attribute.capitalize() not in ["Operation", "Date", "Time", "Size", "Difficulty", "Side"]:
             await ctx.send("That is not a valid attribute to update.")
 
         if attribute.capitalize() == "Operation":
@@ -251,6 +251,11 @@ class Operations(Cog):
         elif attribute.capitalize() == "Size":
             if not await self.validate_size_input(int(value)):
                 message = await ctx.send("That is not a valid size.")
+                await message.delete(delay=10)
+                return
+        elif attribute.capitalize() == "Side":
+            if not await self.validate_side_input(value):
+                message = await ctx.send("That is not a valid side.")
                 await message.delete(delay=10)
                 return
 
