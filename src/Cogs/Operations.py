@@ -460,7 +460,7 @@ class Operations(Cog):
         :param op: The Operation details dictionary.
         :return: Booleon True is the user owns the operation or is an Admin.
         """
-        return ctx.author.id in [op["Owner_id"], 1]
+        return ctx.author.id in [op["Owner_id"], 168009927015661568]
 
     @staticmethod
     async def validate_role(role: str) -> str:
