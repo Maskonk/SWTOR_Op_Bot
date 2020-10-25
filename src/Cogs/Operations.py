@@ -57,11 +57,13 @@ class Operations(Cog):
         await message.delete(delay=10)
 
     @command(aliases=["new", "new_op", "create", "c"])
-    async def new_operation(self, ctx: context, operation: str, difficulty: str, size: int, date: str, time: str) -> None:
+    async def new_operation(self, ctx: context, operation: str, difficulty: str, side: str, size: int,
+                            date: str, time: str) -> None:
         """
         Create a new operation.
         :param operation: The operation to be created.
         :param difficulty: The difficulty of the operation.
+        :param side: The side the operation is to take place.
         :param size: The size of the operation.
         :param date: The date of the operation.
         :param time: The start time of the operation.
@@ -85,6 +87,11 @@ class Operations(Cog):
             await message.delete(delay=10)
             return
 
+        if not await self.validate_side_input(side):
+            message = await ctx.send("That is not a valid side.")
+            await message.delete(delay=10)
+            return
+
         op_keys = list(self.ops.get(str(ctx.guild.id), {0: None}).keys())
         if op_keys:
             op_id = int(op_keys[-1]) + 1
@@ -93,6 +100,7 @@ class Operations(Cog):
         op = {"Operation": operation,
               "Size": size,
               "Difficulty": difficulty,
+              "Side": side,
               "Date": date,
               "Time": time,
               "Owner_name": ctx.author.display_name,
@@ -398,7 +406,7 @@ class Operations(Cog):
         operation_name = self.operations[op['Operation'].lower()]
         difficulty = self.difficulties[op['Difficulty'].lower()]
         extension = await self.date_extention(dt.day)
-        msg = f"{op['Size']}m {operation_name} {difficulty}\n{day_name[dt.weekday()]} the " \
+        msg = f"{op_id}: {op['Size']}m {operation_name} {difficulty} {op['Side']}\n{day_name[dt.weekday()]} the " \
               f"{extension} of {month_name[dt.month]} " \
               f"starting at {dt.time().hour}:{dt.time().minute} CEST.\nCurrent signups:\nTanks: "
         for tank in op['Sign-ups']['Tank']:
@@ -496,3 +504,12 @@ class Operations(Cog):
             return '%drd' % number
         if (number % 10 >= 4) or (number % 10 == 0):
             return '%dth' % number
+
+    @staticmethod
+    async def validate_side_input(side: str) -> str:
+        if side.lower() in ["imp", "imps", "imperial", "i"]:
+            return "Imp"
+        elif side.lower() in ["rep", "reps", "republic", "pub", "r"]:
+            return "Rep"
+        else:
+            return None
