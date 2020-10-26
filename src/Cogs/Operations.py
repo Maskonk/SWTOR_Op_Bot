@@ -14,7 +14,8 @@ class Operations(Cog):
                            "tc": "Toborro's Courtyard", "cm": "Colossal Monolith", "gq": "Geonosian Queen",
                            "wb": "World Boss", "gf": "Group finder", "other": "Other activity", "eyeless": "Eyeless",
                            "xeno": "Xenoanalyst", "rav": "Ravagers", "tos": "Temple of Sacrifice"}
-        self.sizes = {4: [1, 1, 1], 8: [2, 4, 2], 16: [2, 10, 4]}
+        self.sizes = {4: {"Tank": 1, "Dps": 1, "Healer": 1}, 8: {"Tank": 2, "Dps": 4, "Healer": 2},
+                      16: {"Tank": 2, "Dps": 10, "Healer": 4}}
         self.difficulties = {"sm": "Story Mode", "hm": "Veteran Mode", "nim": "Master Mode", "vm": "Veteran mode",
                              "mm": "Master Mode"}
         with open('./Ops.json', 'r') as f:
