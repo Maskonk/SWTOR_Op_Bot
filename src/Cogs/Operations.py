@@ -268,11 +268,7 @@ class Operations(Cog):
 
         op[attribute.capitalize()] = value
 
-        await self.edit_pinned_message(ctx, op, op_number)
-
-        self.ops[str(ctx.guild.id)][str(op_number)] = op
-        with open('./Ops.json', 'w') as f:
-            dump(self.ops, f)
+        await self.write_operation(ctx, op, op_number)
         await ctx.message.add_reaction('\U0001f44d')
 
     @command(aliases=["delete"])
