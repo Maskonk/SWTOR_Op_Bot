@@ -165,13 +165,29 @@ class Operations(Cog):
             else:
                 op = await self.remove_signup(op, ctx.author.display_name)
 
-        if alt_role:
-            name = f"{ctx.author.display_name} ({alt_role.capitalize()})"
-            op["Sign-ups"][f"Alternate_{alt_role.capitalize()}"] += [ctx.author.display_name]
-        else:
-            name = ctx.author.display_name
+        if main_role == "Any":
+            name = f"{ctx.author.display_name} (Any)"
+            op["Sign-ups"]["Dps"] += [name]
+            op["Sign-ups"]["Alternate_Tank"] += [ctx.author.display_name]
+            op["Sign-ups"]["Alternate_Healer"] += [ctx.author.display_name]
 
-        op["Sign-ups"][main_role.capitalize()] += [name]
+        elif alt_role == "Any":
+            name = f"{ctx.author.display_name} (Any)"
+            op["Sign-ups"][main_role] += [name]
+
+            alt_roles = ["Tank", "Healer", "Dps"]
+            alt_roles.remove(main_role)
+
+            for r in alt_roles:
+                op["Sign-ups"][f"Alternate_{r}"] += [ctx.author.display_name]
+        else:
+            if alt_role:
+                name = f"{ctx.author.display_name} ({alt_role})"
+                op["Sign-ups"][f"Alternate_{alt_role}"] += [ctx.author.display_name]
+            else:
+                name = ctx.author.display_name
+
+            op["Sign-ups"][main_role] += [name]
         op["Signed"] += 1
 
         await self.edit_pinned_message(ctx, op, op_number)
@@ -381,14 +397,14 @@ class Operations(Cog):
         """
         alt_change = False
         main_change = False
-        for user in op["Sign-ups"][main_role.capitalize()]:
+        for user in op["Sign-ups"][main_role]:
             if user_nick in user:
                 break
         else:
             main_change = True
 
-        if alt_role:
-            if user_nick not in op["Sign-ups"][f"Alternate_{alt_role.capitalize()}"]:
+        if alt_role and alt_role != "Any":
+            if user_nick not in op["Sign-ups"][f"Alternate_{alt_role}"]:
                 alt_change = True
 
         return main_change or alt_change
@@ -491,13 +507,15 @@ class Operations(Cog):
         :param role: The role of the user.
         :return: The long version of the users role.
         """
-        if role.lower() in ["t", "tank", "d", "dps", "h", "heals", "healer", "heal"]:
+        if role.lower() in ["t", "tank", "d", "dps", "h", "heals", "healer", "heal", "a", "any"]:
             if role[0].lower() == "t":
                 return "Tank"
             elif role[0].lower() == "d":
                 return "Dps"
             elif role[0].lower() == "h":
                 return "Healer"
+            elif role[0].lower() == "a":
+                return "Any"
         else:
             return ""
 
