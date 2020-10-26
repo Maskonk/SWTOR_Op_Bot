@@ -165,14 +165,21 @@ class Operations(Cog):
             else:
                 op = await self.remove_signup(op, ctx.author.display_name)
 
-        if alt_role:
-            name = f"{ctx.author.display_name} ({alt_role.capitalize()})"
-            op["Sign-ups"][f"Alternate_{alt_role.capitalize()}"] += [ctx.author.display_name]
+        if main_role == "Any":
+            name = f"{ctx.author.display_name} (Any)"
+            op["Sign-ups"]["Dps"] += [name]
+            op["Sign-ups"]["Alternate_Tank"] += [ctx.author.display_name]
+            op["Sign-ups"]["Alternate_Healer"] += [ctx.author.display_name]
+            op["Signed"] += 1
         else:
-            name = ctx.author.display_name
+            if alt_role:
+                name = f"{ctx.author.display_name} ({alt_role.capitalize()})"
+                op["Sign-ups"][f"Alternate_{alt_role.capitalize()}"] += [ctx.author.display_name]
+            else:
+                name = ctx.author.display_name
 
-        op["Sign-ups"][main_role.capitalize()] += [name]
-        op["Signed"] += 1
+            op["Sign-ups"][main_role.capitalize()] += [name]
+            op["Signed"] += 1
 
         await self.edit_pinned_message(ctx, op, op_number)
 
