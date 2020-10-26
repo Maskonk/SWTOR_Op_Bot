@@ -164,6 +164,11 @@ class Operations(Cog):
                 return
             else:
                 op = await self.remove_signup(op, ctx.author.display_name)
+        elif op["Signed"] >= int(op["Size"]):
+            op["Sign-ups"]["Reserve"] += [f"{ctx.author.display_name} ({main_role})"]
+            await self.write_operation(ctx, op, op_number)
+            await ctx.send("This operation is full you have been placed as a reserve.")
+            return
 
         if main_role == "Any":
             name = f"{ctx.author.display_name} (Any)"
