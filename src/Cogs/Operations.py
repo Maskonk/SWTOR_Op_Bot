@@ -170,7 +170,6 @@ class Operations(Cog):
             op["Sign-ups"]["Dps"] += [name]
             op["Sign-ups"]["Alternate_Tank"] += [ctx.author.display_name]
             op["Sign-ups"]["Alternate_Healer"] += [ctx.author.display_name]
-
         elif alt_role == "Any":
             name = f"{ctx.author.display_name} (Any)"
             op["Sign-ups"][main_role] += [name]
@@ -559,3 +558,15 @@ class Operations(Cog):
             return "Rep"
         else:
             return None
+
+    async def write_operation(self, ctx: context, op: dict, op_number: id) -> None:
+        """
+        Edits the pinned message and writes the new ops dictionary to the Ops.json file
+        :param op: The operation details dictionary.
+        :param op_number: The operation id.
+        """
+        await self.edit_pinned_message(ctx, op, op_number)
+
+        self.ops[str(ctx.guild.id)][str(op_number)] = op
+        with open('./Ops.json', 'w') as f:
+            dump(self.ops, f)
