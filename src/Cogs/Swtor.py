@@ -13,7 +13,7 @@ class Swtor(Cog):
                            "xeno": "Xenoanalyst", "rav": "Ravagers", "tos": "Temple of Sacrifice"}
 
     @command()
-    async def spec(self, ctx: context, tag: str, side: str = None) -> None:
+    async def spec(self, ctx: context, tag: str, side: str = "imp") -> None:
         """
         Returns a random spec for a given role.
         :param tag: Tag to search for:
