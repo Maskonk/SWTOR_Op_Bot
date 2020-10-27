@@ -163,6 +163,9 @@ class Operations(Cog):
             if not await self.check_role_change(op, ctx.author.display_name, main_role, alt_role):
                 await ctx.send("You have already signed-up for that operation.")
                 return
+            elif await self.check_role_full(op, main_role):
+                await ctx.send("That role is full. Your role has not been changed.")
+                return
             else:
                 op = await self.remove_signup(op, ctx.author.display_name)
         elif op["Signed"] >= int(op["Size"]):
@@ -476,7 +479,7 @@ class Operations(Cog):
         if alt_role and alt_role != "Any":
             if user_nick not in op["Sign-ups"][f"Alternate_{alt_role}"]:
                 alt_change = True
-
+        print(main_change or alt_change)
         return main_change or alt_change
 
     @staticmethod
