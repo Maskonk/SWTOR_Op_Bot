@@ -335,6 +335,73 @@ class Operations(Cog):
 
         await ctx.message.add_reaction('\U0001f44d')
 
+    @command(aliases=["add"])
+    async def add_sign_up(self, ctx: context, op_number: str, sign_up_name: str, main_role: str, alt_role = None) -> None:
+        """
+        Adds the given name to the sign ups.
+        :param op_number: The id of the operation.
+        :param sign_up_name: The name of the person to be added.
+        :param main_role: The main role of the person to be added.
+        :param alt_role: The alt role of the person to be added.
+        """
+        op = self.ops.get(str(ctx.guild.id), {}).get(str(op_number))
+        if not op:
+            message = await ctx.send("There is no Operation with that number.")
+            await message.delete(delay=10)
+            return
+
+        if not await self.is_owner_or_admin(ctx, op):
+            await ctx.send("You are not authorised to use this command. Only an Admin or the person who created "
+                           "this operation may update it.")
+            return
+
+        if not sign_up_name:
+            await ctx.send("No name was given. Please enter a name")
+
+        main_role = await self.validate_role(main_role)
+        if not main_role:
+            await ctx.send("Main role is not valid. Please enter a valid role.")
+            return
+
+        if alt_role:
+            alt_role = await self.validate_role(alt_role)
+            if not alt_role:
+                await ctx.send("Alternative role is not valid. Please enter a valid role.")
+                return
+        
+        if main_role == "Any":
+            name = f"{sign_up_name} (Any)"
+            op["Sign-ups"]["Dps"] += [name]
+            op["Sign-ups"]["Alternate_Tank"] += [sign_up_name]
+            op["Sign-ups"]["Alternate_Healer"] += [sign_up_name]
+
+        elif alt_role == "Any":
+            name = f"{sign_up_name} (Any)"
+            op["Sign-ups"][main_role] += [name]
+
+            alt_roles = ["Tank", "Healer", "Dps"]
+            alt_roles.remove(main_role)
+
+            for r in alt_roles:
+                op["Sign-ups"][f"Alternate_{r}"] += [sign_up_name]
+        else:
+            if alt_role:
+                name = f"{sign_up_name} ({alt_role})"
+                op["Sign-ups"][f"Alternate_{alt_role}"] += [sign_up_name]
+            else:
+                name = sign_up_name
+
+            op["Sign-ups"][main_role] += [name]
+        op["Signed"] += 1
+
+        await self.edit_pinned_message(ctx, op, op_number)
+
+        self.ops[str(ctx.guild.id)][str(op_number)] = op
+        with open('./Ops.json', 'w') as f:
+            dump(self.ops, f)
+
+        await ctx.message.add_reaction('\U0001f44d')
+
     @command(aliases=["howto"])
     async def user_guide(self, ctx: context) -> None:
         """
