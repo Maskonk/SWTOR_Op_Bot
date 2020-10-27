@@ -3,3 +3,4 @@ venv
 .idea
 tester.py
 Ops.json
+__pycache__

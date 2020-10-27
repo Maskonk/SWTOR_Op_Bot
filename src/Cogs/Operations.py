@@ -338,15 +338,7 @@ class Operations(Cog):
                            "this operation may update it.")
             return
 
-        for tank in op["Sign-ups"]["Tank"]:
-            if name in tank:
-                op["Sign-ups"]["Tank"].remove(tank)
-        for dps in op["Sign-ups"]["Dps"]:
-            if name in dps:
-                op["Sign-ups"]["Dps"].remove(dps)
-        for heal in op["Sign-ups"]["Healer"]:
-            if name in heal:
-                op["Sign-ups"]["Healer"].remove(heal)
+        op = await self.remove_signup(op, name)
 
         await self.write_operation(ctx, op, op_number)
 

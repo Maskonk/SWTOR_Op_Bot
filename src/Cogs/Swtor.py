@@ -13,30 +13,56 @@ class Swtor(Cog):
                            "xeno": "Xenoanalyst", "rav": "Ravagers", "tos": "Temple of Sacrifice"}
 
     @command()
-    async def spec(self, ctx: context, role: str = "all") -> None:
+    async def spec(self, ctx: context, tag: str, side: str = "imp") -> None:
         """
         Returns a random spec for a given role.
-        :param role:
-        :return:
+        :param tag: Tag to search for:
+        :param side: If the side is Republic.
         """
-        damage = ["Hatred", "Deception", "Lightning", "Madness", "Virulence", "Engineering", "Marksman", "Concealment",
-                  "Lethality", "Fury", "Carnage", "Annihilation", "Vengeance", "Rage", "Arsenal",
-                  "Innovative Ordinance", "Advanced Prototype", "Pyrotech", ]
-        healer = ["Medicine", "Bodyguard", "Corruption"]
-        tank = ["Darkness", "Defense", "Shield Tech"]
+        specs = {"Hatred": ["assassin", "shadow", "dwt", "dps", "dot", "sin"],
+                 "Deception": ["assassin", "shadow", "dwt", "dps", "burst", "sin"],
+                 "Lightning": ["sorcerer", "sage", "dwh", "dps", "burst", "sorc"],
+                 "Madness": ["sorcerer", "sage", "dwh", "dps", "dot", "sorc"],
+                 "Virulence": ["sniper", "gunslinger", "dps", "dot"], "Engineering": ["sniper", "gunslinger", "dps"],
+                 "Marksman": ["sniper", "gunslinger", "dps", "burst"],
+                 "Concealment": ["operative", "scoundrel", "dps", "dwh" "burst", "op"],
+                 "Lethality": ["operative", "scoundrel", "dps", "dwh" "dot", "op"],
+                 "Fury": ["marauder", "sentinel", "dps", "mara", "sent"],
+                 "Carnage": ["marauder", "sentinel", "dps", "mara", "sent", "burst"],
+                 "Annihilation": ["marauder", "sentinel", "dps", "mara", "sent", "dot"],
+                 "Vengeance": ["juggernaut", "guardian", "dps", "dwt", "jugg", "dot"],
+                 "Rage": ["juggernaut", "guardian", "dps", "dwt", "jugg", "burst"],
+                 "Arsenal": ["mercenary", "commando", "dps", "dwh", "burst", "merc"],
+                 "Innovative Ordinance": ["mercenary", "commando", "dps", "dwh", "dot", "merc"],
+                 "Advanced Prototype": ["powertech", "vanguard", "dps", "dwt", "burst", "pt", "vg"],
+                 "Pyrotech": ["powertech", "vanguard", "dps", "dwt", "dot", "pt", "vg"],
+                 "Medicine": ["operative", "scoundrel", "heal", "op"],
+                 "Bodyguard": ["mercenary", "commando", "heal", "merc"],
+                 "Corruption": ["sorcerer", "sage", "heal" "sorc"],
+                 "Darkness": ["assassin", "shadow", "tank", "sin"],
+                 "Immortal": ["juggernaut", "guardian", "tank", "jugg"],
+                 "Shield Tech": ["powertech", "vanguard", "tank", "pt", "vg"]}
+        translations = {"Hatred": "Serenity", "Deception": "Infiltration", "Lightning": "Telekinetics",
+                        "Madness": "Balance", "Virulence": "Dirty Fighting", "Engineering": "Saboteur",
+                        "Marksman": "Sharpshooter", "Concealment": "Scrapper", "Lethality": "Ruffian",
+                        "Fury": "Concentration", "Carnage": "Combat", "Annihilation": "Watchman",
+                        "Vengeance": "Vigilance", "Rage": "Focus", "Arsenal": "Gunnery",
+                        "Innovative Ordinance": "Assault Specialist", "Advanced Prototype": "Tactics",
+                        "Pyrotech": "Plasmatech", "Medicine": "Sawbones", "Bodyguard": "Combat Medic",
+                        "Corruption": "Seer", "Darkness": "Kinetic Combat", "Immortal": "Defense",
+                        "Shield Tech": "Shield Specialist"}
+
         select = []
-        if role.lower() == "all":
-            select += damage + healer + tank
-        elif role.lower() == "dps":
-            select = damage
-        elif role.lower() == "heals":
-            select = healer
-        elif role.lower() == "tank":
-            select = tank
-        else:
-            await ctx.send("That is not a valid role. Please choose from All, DPS, Heals or Tank.")
+        for spec in specs.keys():
+            if tag.lower() in specs[spec]:
+                select.append(spec)
+        if not select:
+            await ctx.send("There are no results found with that tag.")
             return
-        await ctx.send(f"The spec chosen is: {choice(select)}")
+        chosen = choice(select)
+        if side.lower() in ["rep", "pub", "r", "republic"]:
+            chosen = translations[chosen]
+        await ctx.send(f"The spec chosen is: {chosen}")
 
     @command()
     async def op_codes(self, ctx: context):
