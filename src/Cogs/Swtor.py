@@ -40,8 +40,17 @@ class Swtor(Cog):
                  "Bodyguard": ["mercenary", "commando", "heal", "merc"],
                  "Corruption": ["sorcerer", "sage", "heal" "sorc"],
                  "Darkness": ["assassin", "shadow", "tank", "sin"],
-                 "Defense": ["juggernaut", "guardian", "tank", "jugg"],
+                 "Immortal": ["juggernaut", "guardian", "tank", "jugg"],
                  "Shield Tech": ["powertech", "vanguard", "tank", "pt", "vg"]}
+        translations = {"Hatred": "Serenity", "Deception": "Infiltration", "Lightning": "Telekinetics",
+                        "Madness": "Balance", "Virulence": "Dirty Fighting", "Engineering": "Saboteur",
+                        "Marksman": "Sharpshooter", "Concealment": "Scrapper", "Lethality": "Ruffian",
+                        "Fury": "Concentration", "Carnage": "Combat", "Annihilation": "Watchman",
+                        "Vengeance": "Vigilance", "Rage": "", "Arsenal": "Gunnery",
+                        "Innovative Ordinance": "Assault Specialist", "Advanced Prototype": "Tactics",
+                        "Pyrotech": "Plasmatech", "Medicine": "Sawbones", "Bodyguard": "Combat Medic",
+                        "Corruption": "Seer", "Darkness": "Kinetic Combat", "Immortal": "Defense",
+                        "Shield Tech": "Shield Specialist"}
 
         select = []
         for spec in specs.keys():
@@ -50,7 +59,10 @@ class Swtor(Cog):
         if not select:
             await ctx.send("There are no results found with that tag.")
             return
-        await ctx.send(f"The spec chosen is: {choice(select)}")
+        chosen = choice(select)
+        if side.lower() in ["rep", "pub", "r", "republic"]:
+            chosen = translations[chosen]
+        await ctx.send(f"The spec chosen is: {chosen}")
 
     @command()
     async def op_codes(self, ctx: context):
