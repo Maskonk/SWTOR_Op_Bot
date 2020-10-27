@@ -14,7 +14,7 @@ class Operations(Cog):
                            "tc": "Toborro's Courtyard", "cm": "Colossal Monolith", "gq": "Geonosian Queen",
                            "wb": "World Boss", "gf": "Group finder", "other": "Other activity", "eyeless": "Eyeless",
                            "xeno": "Xenoanalyst", "rav": "Ravagers", "tos": "Temple of Sacrifice"}
-        self.sizes = {4: {"Tank": 1, "Dps": 1, "Healer": 1}, 8: {"Tank": 2, "Dps": 4, "Healer": 2},
+        self.sizes = {1: {"Tank": 0, "Dps": 1, "Healer": 0}, 4: {"Tank": 1, "Dps": 1, "Healer": 1}, 8: {"Tank": 2, "Dps": 4, "Healer": 2},
                       16: {"Tank": 2, "Dps": 10, "Healer": 4}}
         self.difficulties = {"sm": "Story Mode", "hm": "Veteran Mode", "nim": "Master Mode", "vm": "Veteran mode",
                              "mm": "Master Mode"}
@@ -170,6 +170,20 @@ class Operations(Cog):
             await self.write_operation(ctx, op, op_number)
             await ctx.send("This operation is full you have been placed as a reserve.")
             return
+        else:
+            if await self.check_role_full(op, main_role):
+                if not alt_role:
+                    await ctx.send("That role is full.")
+                    return
+                elif await self.check_role_full(op, alt_role):
+                    await ctx.send("Those roles are full.")
+                    return
+                else:
+                    temp_role = main_role
+                    main_role = alt_role
+                    alt_role = temp_role
+                    await ctx.send(f"{temp_role} is full. You have been signed as {main_role}.")
+                    del temp_role
 
         if main_role == "Any":
             name = f"{ctx.author.display_name} (Any)"
@@ -627,3 +641,13 @@ class Operations(Cog):
         self.ops[str(ctx.guild.id)][str(op_number)] = op
         with open('./Ops.json', 'w') as f:
             dump(self.ops, f)
+
+    async def check_role_full(self, op: dict, role: str) -> bool:
+        """
+        Checks if the given role is full.
+        :param op: The operations details dictionary.
+        :param role: The role to check.
+        :return: Bool True if the operation is full.
+        """
+        if len(op["Sign-ups"][role]) >= self.sizes[int(op["Size"])][role]:
+            return True
