@@ -3,6 +3,7 @@ from datetime import datetime
 from json import load, dump
 from dateutil.parser import parse
 from calendar import month_name, day_name
+from random import choice
 
 
 class Operations(Cog):
@@ -104,6 +105,12 @@ class Operations(Cog):
             op_id = int(op_keys[-1]) + 1
         else:
             op_id = 1
+
+        if operation.lower() == "random":
+            operation = await self.get_random_operation()
+            while operation in ["wb", "gf", "other"]:
+                operation = await self.get_random_operation()
+
         op = {"Operation": operation,
               "Size": size,
               "Difficulty": difficulty,
@@ -445,13 +452,17 @@ class Operations(Cog):
               "Will remove your sign up from the operation."
         await ctx.send(msg)
 
+    @command(aliases=["random"])
+    async def random_operation(self, ctx: context):
+        await ctx.send(f"The random operation is: {await self.get_random_operation()}")
+
     async def validate_operation_input(self, op: str) -> bool:
         """
         Checks the users input to ensure the operation input is valid.
         :param op: The Operation input by the user.
         :return: Booleon True if the operation input is valid.
         """
-        return op.lower() in self.operations.keys() or op.lower() in self.operations.values()
+        return op.lower() in self.operations.keys() or op.lower() in self.operations.values() or op.lower() == "random"
 
     @staticmethod
     async def check_duplicate(op: dict, user_nick: str) -> bool:
@@ -671,3 +682,6 @@ class Operations(Cog):
         """
         if len(op["Sign-ups"][role]) >= self.sizes[int(op["Size"])][role]:
             return True
+
+    async def get_random_operation(self) -> str:
+        return choice(list(self.operations.keys()))
