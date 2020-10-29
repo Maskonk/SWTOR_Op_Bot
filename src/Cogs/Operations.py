@@ -245,7 +245,7 @@ class Operations(Cog):
         await ctx.message.add_reaction('\U0001f44d')
 
     @command(aliases=["update"])
-    async def update_operation(self, ctx: context, op_number: str, attribute: str, value: str) -> None:
+    async def update_operation(self, ctx: context, op_number: str, attribute: str, *value: str) -> None:
         """
         Updates the given attribute for the operation. Restricted to the creator or an admin.
         :param op_number: The operation id.
@@ -263,8 +263,18 @@ class Operations(Cog):
                            "this operation may update it.")
             return
 
-        if attribute.capitalize() not in ["Operation", "Date", "Time", "Size", "Difficulty", "Side"]:
+        if attribute.capitalize() not in ["Operation", "Date", "Time", "Size", "Difficulty", "Side", "Notes"]:
             await ctx.send("That is not a valid attribute to update.")
+
+        if not value and attribute.capitalize() != "Notes":
+            await ctx.send("You have not supplied a value to update to.")
+            return
+        elif attribute.capitalize() == "Notes" and not value:
+            value = ""
+        elif attribute.capitalize() == "Notes":
+            value = " ".join(value)
+        else:
+            value = value[0]
 
         if attribute.capitalize() == "Operation":
             if not await self.validate_operation_input(value):
