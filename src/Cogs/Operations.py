@@ -530,10 +530,14 @@ class Operations(Cog):
         """
         operation_name = self.operations[op['Operation'].lower()]
         difficulty = self.difficulties[op['Difficulty'].lower()]
+        notes = op["Notes"]
         extension = await self.date_extention(dt.day)
         msg = f"{op_id}: {op['Size']}m {operation_name} {difficulty} {op['Side']}\n{day_name[dt.weekday()]} the " \
               f"{extension} of {month_name[dt.month]} " \
-              f"starting at {dt.time().hour}:{dt.time().minute} CET.\nCurrent signups:\nTanks: "
+              f"starting at {dt.time().hour}:{dt.time().minute} CET."
+        if notes:
+            msg += f"\n({notes})\n"
+        msg += f"Current signups:\nTanks: "
         for tank in op['Sign-ups']['Tank']:
             msg += f"\n- {tank}"
         msg += "\nDPS: "
