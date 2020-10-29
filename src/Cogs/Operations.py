@@ -105,6 +105,10 @@ class Operations(Cog):
             op_id = int(op_keys[-1]) + 1
         else:
             op_id = 1
+
+        if operation.lower() == "random":
+            operation = await self.get_random_operation()
+
         op = {"Operation": operation,
               "Size": size,
               "Difficulty": difficulty,
@@ -456,7 +460,7 @@ class Operations(Cog):
         :param op: The Operation input by the user.
         :return: Booleon True if the operation input is valid.
         """
-        return op.lower() in self.operations.keys() or op.lower() in self.operations.values()
+        return op.lower() in self.operations.keys() or op.lower() in self.operations.values() or op.lower() == "random"
 
     @staticmethod
     async def check_duplicate(op: dict, user_nick: str) -> bool:
