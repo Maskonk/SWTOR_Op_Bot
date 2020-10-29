@@ -471,7 +471,11 @@ class Operations(Cog):
         if alt_role and alt_role != "Any":
             if user_nick not in op["Sign-ups"][f"Alternate_{alt_role}"]:
                 alt_change = True
-        print(main_change or alt_change)
+        elif not alt_role:
+            roles = ["Tank", "Dps", "Healer"]
+            for role in roles:
+                if user_nick in op["Sign-ups"][f"Alternate_{role}"]:
+                    alt_change = True
         return main_change or alt_change
 
     @staticmethod
