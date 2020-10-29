@@ -454,7 +454,8 @@ class Operations(Cog):
 
     @command(aliases=["random"])
     async def random_operation(self, ctx: context):
-        await ctx.send(f"The random operation is: {await self.get_random_operation()}")
+        operation = await self.get_random_operation()
+        await ctx.send(f"The random operation is: {operation}")
 
     async def validate_operation_input(self, op: str) -> bool:
         """
