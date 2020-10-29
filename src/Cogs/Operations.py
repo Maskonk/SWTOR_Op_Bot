@@ -59,7 +59,7 @@ class Operations(Cog):
 
     @command(aliases=["new", "new_op", "create", "c"])
     async def new_operation(self, ctx: context, operation: str, difficulty: str, side: str, size: int,
-                            date: str, time: str) -> None:
+                            date: str, time: str, *notes) -> None:
         """
         Create a new operation.
         :param operation: The operation to be created.
@@ -68,6 +68,7 @@ class Operations(Cog):
         :param size: The size of the operation.
         :param date: The date of the operation.
         :param time: The start time of the operation.
+        :param notes: Any notes for the operation.
         """
         if not await self.validate_operation_input(operation):
             await ctx.send("That is not a valid operation.")
@@ -93,6 +94,11 @@ class Operations(Cog):
             await message.delete(delay=10)
             return
 
+        if not notes:
+            notes = ""
+        else:
+            notes = " ".join(notes)
+
         op_keys = list(self.ops.get(str(ctx.guild.id), {0: None}).keys())
         if op_keys:
             op_id = int(op_keys[-1]) + 1
@@ -104,6 +110,7 @@ class Operations(Cog):
               "Side": side,
               "Date": date,
               "Time": time,
+              "Notes": notes,
               "Owner_name": ctx.author.display_name,
               "Owner_id": ctx.author.id,
               "Post_id": None,
