@@ -46,7 +46,7 @@ class Swtor(Cog):
                         "Madness": "Balance", "Virulence": "Dirty Fighting", "Engineering": "Saboteur",
                         "Marksman": "Sharpshooter", "Concealment": "Scrapper", "Lethality": "Ruffian",
                         "Fury": "Concentration", "Carnage": "Combat", "Annihilation": "Watchman",
-                        "Vengeance": "Vigilance", "Rage": "", "Arsenal": "Gunnery",
+                        "Vengeance": "Vigilance", "Rage": "Focus", "Arsenal": "Gunnery",
                         "Innovative Ordinance": "Assault Specialist", "Advanced Prototype": "Tactics",
                         "Pyrotech": "Plasmatech", "Medicine": "Sawbones", "Bodyguard": "Combat Medic",
                         "Corruption": "Seer", "Darkness": "Kinetic Combat", "Immortal": "Defense",

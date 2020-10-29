@@ -14,7 +14,8 @@ class Operations(Cog):
                            "tc": "Toborro's Courtyard", "cm": "Colossal Monolith", "gq": "Geonosian Queen",
                            "wb": "World Boss", "gf": "Group finder", "other": "Other activity", "eyeless": "Eyeless",
                            "xeno": "Xenoanalyst", "rav": "Ravagers", "tos": "Temple of Sacrifice"}
-        self.sizes = {4: [1, 1, 1], 8: [2, 4, 2], 16: [2, 10, 4]}
+        self.sizes = {1: {"Tank": 0, "Dps": 1, "Healer": 0}, 4: {"Tank": 1, "Dps": 1, "Healer": 1}, 8: {"Tank": 2, "Dps": 4, "Healer": 2},
+                      16: {"Tank": 2, "Dps": 10, "Healer": 4}}
         self.difficulties = {"sm": "Story Mode", "hm": "Veteran Mode", "nim": "Master Mode", "vm": "Veteran mode",
                              "mm": "Master Mode"}
         with open('./Ops.json', 'r') as f:
@@ -162,15 +163,36 @@ class Operations(Cog):
             if not await self.check_role_change(op, ctx.author.display_name, main_role, alt_role):
                 await ctx.send("You have already signed-up for that operation.")
                 return
+            elif await self.check_role_full(op, main_role):
+                await ctx.send("That role is full. Your role has not been changed.")
+                return
             else:
                 op = await self.remove_signup(op, ctx.author.display_name)
+        elif op["Signed"] >= int(op["Size"]):
+            op["Sign-ups"]["Reserve"] += [f"{ctx.author.display_name} ({main_role})"]
+            await self.write_operation(ctx, op, op_number)
+            await ctx.send("This operation is full you have been placed as a reserve.")
+            return
+        else:
+            if await self.check_role_full(op, main_role):
+                if not alt_role:
+                    await ctx.send("That role is full.")
+                    return
+                elif await self.check_role_full(op, alt_role):
+                    await ctx.send("Those roles are full.")
+                    return
+                else:
+                    temp_role = main_role
+                    main_role = alt_role
+                    alt_role = temp_role
+                    await ctx.send(f"{temp_role} is full. You have been signed as {main_role}.")
+                    del temp_role
 
         if main_role == "Any":
             name = f"{ctx.author.display_name} (Any)"
             op["Sign-ups"]["Dps"] += [name]
             op["Sign-ups"]["Alternate_Tank"] += [ctx.author.display_name]
             op["Sign-ups"]["Alternate_Healer"] += [ctx.author.display_name]
-
         elif alt_role == "Any":
             name = f"{ctx.author.display_name} (Any)"
             op["Sign-ups"][main_role] += [name]
@@ -190,11 +212,7 @@ class Operations(Cog):
             op["Sign-ups"][main_role] += [name]
         op["Signed"] += 1
 
-        await self.edit_pinned_message(ctx, op, op_number)
-
-        self.ops[str(ctx.guild.id)][str(op_number)] = op
-        with open('./Ops.json', 'w') as f:
-            dump(self.ops, f)
+        await self.write_operation(ctx, op, op_number)
 
         await ctx.message.add_reaction('\U0001f44d')
 
@@ -215,11 +233,7 @@ class Operations(Cog):
             return
 
         op = await self.remove_signup(op, ctx.author.display_name)
-        await self.edit_pinned_message(ctx, op, op_number)
-
-        self.ops[str(ctx.guild.id)][str(op_number)] = op
-        with open('./Ops.json', 'w') as f:
-            dump(self.ops, f)
+        await self.write_operation(ctx, op, op_number)
 
         await ctx.message.add_reaction('\U0001f44d')
 
@@ -277,11 +291,7 @@ class Operations(Cog):
 
         op[attribute.capitalize()] = value
 
-        await self.edit_pinned_message(ctx, op, op_number)
-
-        self.ops[str(ctx.guild.id)][str(op_number)] = op
-        with open('./Ops.json', 'w') as f:
-            dump(self.ops, f)
+        await self.write_operation(ctx, op, op_number)
         await ctx.message.add_reaction('\U0001f44d')
 
     @command(aliases=["delete"])
@@ -330,11 +340,7 @@ class Operations(Cog):
 
         op = await self.remove_signup(op, name)
 
-        await self.edit_pinned_message(ctx, op, op_number)
-
-        self.ops[str(ctx.guild.id)][str(op_number)] = op
-        with open('./Ops.json', 'w') as f:
-            dump(self.ops, f)
+        await self.write_operation(ctx, op, op_number)
 
         await ctx.message.add_reaction('\U0001f44d')
 
@@ -465,7 +471,11 @@ class Operations(Cog):
         if alt_role and alt_role != "Any":
             if user_nick not in op["Sign-ups"][f"Alternate_{alt_role}"]:
                 alt_change = True
-
+        elif not alt_role:
+            roles = ["Tank", "Dps", "Healer"]
+            for role in roles:
+                if user_nick in op["Sign-ups"][f"Alternate_{role}"]:
+                    alt_change = True
         return main_change or alt_change
 
     @staticmethod
@@ -476,6 +486,7 @@ class Operations(Cog):
                     op["Sign-ups"][role].pop(i)
             if user_nick in op["Sign-ups"][f"Alternate_{role}"]:
                 op["Sign-ups"][f"Alternate_{role}"].remove(user_nick)
+        op["Signed"] -= 1
         return op
 
     @staticmethod
@@ -507,16 +518,16 @@ class Operations(Cog):
               f"{extension} of {month_name[dt.month]} " \
               f"starting at {dt.time().hour}:{dt.time().minute} CET.\nCurrent signups:\nTanks: "
         for tank in op['Sign-ups']['Tank']:
-            msg += f"{tank}, "
+            msg += f"\n- {tank}"
         msg += "\nDPS: "
         for dps in op['Sign-ups']['Dps']:
-            msg += f"{dps}, "
+            msg += f"\n- {dps}"
         msg += "\nHealers: "
         for heal in op['Sign-ups']['Healer']:
-            msg += f"{heal}, "
+            msg += f"\n- {heal}"
         msg += "\nReserves: "
         for res in op['Sign-ups']['Reserve']:
-            msg += f"{res}, "
+            msg += f"{res}"
         msg += f"\nTo sign up use -sign {op_id} <role> <alt role>"
         return msg
 
@@ -617,3 +628,25 @@ class Operations(Cog):
             return "Rep"
         else:
             return None
+
+    async def write_operation(self, ctx: context, op: dict, op_number: id) -> None:
+        """
+        Edits the pinned message and writes the new ops dictionary to the Ops.json file
+        :param op: The operation details dictionary.
+        :param op_number: The operation id.
+        """
+        await self.edit_pinned_message(ctx, op, op_number)
+
+        self.ops[str(ctx.guild.id)][str(op_number)] = op
+        with open('./Ops.json', 'w') as f:
+            dump(self.ops, f)
+
+    async def check_role_full(self, op: dict, role: str) -> bool:
+        """
+        Checks if the given role is full.
+        :param op: The operations details dictionary.
+        :param role: The role to check.
+        :return: Bool True if the operation is full.
+        """
+        if len(op["Sign-ups"][role]) >= self.sizes[int(op["Size"])][role]:
+            return True
