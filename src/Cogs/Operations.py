@@ -3,6 +3,7 @@ from datetime import datetime
 from json import load, dump
 from dateutil.parser import parse
 from calendar import month_name, day_name
+from random import choice
 
 
 class Operations(Cog):
@@ -445,6 +446,10 @@ class Operations(Cog):
               "Will remove your sign up from the operation."
         await ctx.send(msg)
 
+    @command(aliases=["random"])
+    async def random_operation(self, ctx: context):
+        await ctx.send(f"The random operation is: {await self.get_random_operation()}")
+
     async def validate_operation_input(self, op: str) -> bool:
         """
         Checks the users input to ensure the operation input is valid.
@@ -671,3 +676,6 @@ class Operations(Cog):
         """
         if len(op["Sign-ups"][role]) >= self.sizes[int(op["Size"])][role]:
             return True
+
+    async def get_random_operation(self) -> str:
+        return choice(list(self.operations.keys()))
