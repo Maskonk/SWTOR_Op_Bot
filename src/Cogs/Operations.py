@@ -108,6 +108,8 @@ class Operations(Cog):
 
         if operation.lower() == "random":
             operation = await self.get_random_operation()
+            while operation in ["wb", "gf", "other"]:
+                operation = await self.get_random_operation()
 
         op = {"Operation": operation,
               "Size": size,
