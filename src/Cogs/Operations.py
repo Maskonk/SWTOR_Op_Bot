@@ -59,7 +59,7 @@ class Operations(Cog):
 
     @command(aliases=["new", "new_op", "create", "c"])
     async def new_operation(self, ctx: context, operation: str, difficulty: str, side: str, size: int,
-                            date: str, time: str) -> None:
+                            date: str, time: str, *notes) -> None:
         """
         Create a new operation.
         :param operation: The operation to be created.
@@ -68,6 +68,7 @@ class Operations(Cog):
         :param size: The size of the operation.
         :param date: The date of the operation.
         :param time: The start time of the operation.
+        :param notes: Any notes for the operation.
         """
         if not await self.validate_operation_input(operation):
             await ctx.send("That is not a valid operation.")
@@ -93,6 +94,11 @@ class Operations(Cog):
             await message.delete(delay=10)
             return
 
+        if not notes:
+            notes = ""
+        else:
+            notes = " ".join(notes)
+
         op_keys = list(self.ops.get(str(ctx.guild.id), {0: None}).keys())
         if op_keys:
             op_id = int(op_keys[-1]) + 1
@@ -104,6 +110,7 @@ class Operations(Cog):
               "Side": side,
               "Date": date,
               "Time": time,
+              "Notes": notes,
               "Owner_name": ctx.author.display_name,
               "Owner_id": ctx.author.id,
               "Post_id": None,
@@ -238,7 +245,7 @@ class Operations(Cog):
         await ctx.message.add_reaction('\U0001f44d')
 
     @command(aliases=["update"])
-    async def update_operation(self, ctx: context, op_number: str, attribute: str, value: str) -> None:
+    async def update_operation(self, ctx: context, op_number: str, attribute: str, *value: str) -> None:
         """
         Updates the given attribute for the operation. Restricted to the creator or an admin.
         :param op_number: The operation id.
@@ -256,8 +263,18 @@ class Operations(Cog):
                            "this operation may update it.")
             return
 
-        if attribute.capitalize() not in ["Operation", "Date", "Time", "Size", "Difficulty", "Side"]:
+        if attribute.capitalize() not in ["Operation", "Date", "Time", "Size", "Difficulty", "Side", "Notes"]:
             await ctx.send("That is not a valid attribute to update.")
+
+        if not value and attribute.capitalize() != "Notes":
+            await ctx.send("You have not supplied a value to update to.")
+            return
+        elif attribute.capitalize() == "Notes" and not value:
+            value = ""
+        elif attribute.capitalize() == "Notes":
+            value = " ".join(value)
+        else:
+            value = value[0]
 
         if attribute.capitalize() == "Operation":
             if not await self.validate_operation_input(value):
@@ -513,10 +530,14 @@ class Operations(Cog):
         """
         operation_name = self.operations[op['Operation'].lower()]
         difficulty = self.difficulties[op['Difficulty'].lower()]
+        notes = op["Notes"]
         extension = await self.date_extention(dt.day)
         msg = f"{op_id}: {op['Size']}m {operation_name} {difficulty} {op['Side']}\n{day_name[dt.weekday()]} the " \
               f"{extension} of {month_name[dt.month]} " \
-              f"starting at {dt.time().hour}:{dt.time().minute} CET.\nCurrent signups:\nTanks: "
+              f"starting at {dt.time().hour}:{dt.time().minute} CET."
+        if notes:
+            msg += f"\n({notes})\n"
+        msg += f"Current signups:\nTanks: "
         for tank in op['Sign-ups']['Tank']:
             msg += f"\n- {tank}"
         msg += "\nDPS: "
