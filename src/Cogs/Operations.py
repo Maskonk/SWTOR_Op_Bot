@@ -514,16 +514,16 @@ class Operations(Cog):
               f"{extension} of {month_name[dt.month]} " \
               f"starting at {dt.time().hour}:{dt.time().minute} CET.\nCurrent signups:\nTanks: "
         for tank in op['Sign-ups']['Tank']:
-            msg += f"{tank}, "
+            msg += f"\n- {tank}"
         msg += "\nDPS: "
         for dps in op['Sign-ups']['Dps']:
-            msg += f"{dps}, "
+            msg += f"\n- {dps}"
         msg += "\nHealers: "
         for heal in op['Sign-ups']['Healer']:
-            msg += f"{heal}, "
+            msg += f"\n- {heal}"
         msg += "\nReserves: "
         for res in op['Sign-ups']['Reserve']:
-            msg += f"{res}, "
+            msg += f"{res}"
         msg += f"\nTo sign up use -sign {op_id} <role> <alt role>"
         return msg
 
