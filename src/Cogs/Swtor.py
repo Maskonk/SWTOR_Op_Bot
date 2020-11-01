@@ -13,7 +13,7 @@ class Swtor(Cog):
                            "xeno": "Xenoanalyst", "rav": "Ravagers", "tos": "Temple of Sacrifice"}
 
     @command()
-    async def spec(self, ctx: context, tag: str, side: str = "imp") -> None:
+    async def spec(self, ctx: context, tag: str = "all", side: str = "imp") -> None:
         """
         Returns a random spec for a given role.
         :param tag: Tag to search for:
@@ -54,12 +54,15 @@ class Swtor(Cog):
                         "Shield Tech": "Shield Specialist"}
 
         select = []
-        for spec in specs.keys():
-            if tag.lower() in specs[spec]:
-                select.append(spec)
-        if not select:
-            await ctx.send("There are no results found with that tag.")
-            return
+        if tag in ["all", "a"]:
+            select = list(specs.keys())
+        else:
+            for spec in specs.keys():
+                if tag.lower() in specs[spec]:
+                    select.append(spec)
+            if not select:
+                await ctx.send("There are no results found with that tag.")
+                return
         chosen = choice(select)
         if side.lower() in ["rep", "pub", "r", "republic"]:
             chosen = translations[chosen]
