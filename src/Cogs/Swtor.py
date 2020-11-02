@@ -100,3 +100,19 @@ class Swtor(Cog):
                      "Only if Gatters says yes.", "How much are you willing to pay for an answer?",
                      "You have reached the wrong number please hang up and try again."]
         await ctx.send(f"Oh magic ball {' '.join(question)}\nThe magic ball says:\n{choice(responses)}")
+
+        @command()
+        async def excuse(self, ctx: context) -> None:
+            """
+            Provides an silly excuse for not attending a session.
+            """
+            excuses = [
+                "my sister's boyfriend's neighbour's best friend's duck died, they are giving it a Viking funeral.",
+                "my electricity provider decided to be greener so cut all power it gets from "
+                "fossil fuels. Unfortunately this means they can't power as many homes including mine.",
+                "a goose stole my PCs power cable.",
+                "I am pretty sure assassins are after me so I have to go into hiding.",
+                "my brother joined a cult that worships Gatters as their deity, I have to go shock him to his senses.",
+                "my religion believes that the world ends next week and it is my duty to make as much chaos and "
+                "mayhem as I can, so that even if it doesn't it looks like it has."]
+            await ctx.send(f"I can't make it {choice(excuses)}")
