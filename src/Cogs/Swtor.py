@@ -81,7 +81,7 @@ class Swtor(Cog):
                        "https://github.com/Maskonk/SWTOR_Op_Bot/wiki/Operation-Commands.")
 
     @command()
-    async def ask(self, ctx: context, *question: list) -> None:
+    async def ask(self, ctx: context, *question) -> None:
         """
         8-ball style command. Ask a question and it will gives a response.
         :param question:  The question asked.
