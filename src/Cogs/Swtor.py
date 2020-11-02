@@ -79,3 +79,24 @@ class Swtor(Cog):
     async def command_guide(self, ctx: context):
         await ctx.send("A full guide to all bot commands is here: "
                        "https://github.com/Maskonk/SWTOR_Op_Bot/wiki/Operation-Commands.")
+
+    @command()
+    async def ask(self, ctx: context, *question: list) -> None:
+        """
+        8-ball style command. Ask a question and it will gives a response.
+        :param question:  The question asked.
+        """
+        responses = ["Don't count on it.", "The Dark Council have decreed so.", "Only if you want it bad enough.",
+                     "My sources say no.", "Very doubtful.", "Outlook not so good.", "Ask again later.",
+                     "Try asking your DM.", "Better not tell you now.", "Reply hazy try again.", "Outlook good.",
+                     "You are not supposed to know that yet.", "Most likely",
+                     "Please contact your Republic Senator for more information this query.",
+                     "Of the 14,000,605 possible futures I saw only one it occurred.",
+                     "You are more likely to win the lottery", "The answers lies inside of yourself.",
+                     "The answer to that question is the same as the answer to Will people ever stop bugging me "
+                     "with question? All times of day and night I get these random ass question, Who the fuck wants to "
+                     "know if they should have toast for breakfast at four in the bloody morning!",
+                     "New phone who's this?", "The answer guys on the shitter at the moment can I take a message?",
+                     "Only if Gatters says yes.", "How much are you willing to pay for an answer?",
+                     "You have reached the wrong number please hang up and try again."]
+        await ctx.send(f"Oh magic ball {' '.join(question)}\nThe magic ball says:\n{choice(responses)}")
