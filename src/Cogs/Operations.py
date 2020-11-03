@@ -1,4 +1,5 @@
 from discord.ext.commands import Cog, context, command
+from discord.utils import get
 from datetime import datetime
 from json import load, dump
 from dateutil.parser import parse
@@ -546,6 +547,10 @@ class Operations(Cog):
         :param op_id: The id of the operation.
         :return: String of the message to send composed of the operations details.
         """
+        guild = self.bot.get_guild(750036082518917170)
+        dps_emoji = get(guild.emojis, name='DPS')
+        heal_emoji = get(guild.emojis, name='Healer')
+        tank_emoji = get(guild.emojis, name='Tank')
         operation_name = self.operations[op['Operation'].lower()]
         difficulty = self.difficulties[op['Difficulty'].lower()]
         notes = op["Notes"]
@@ -555,15 +560,19 @@ class Operations(Cog):
               f"starting at {dt.time().hour}:{dt.time().minute} CET."
         if notes:
             msg += f"\n({notes})\n"
-        msg += f"Current signups:\nTanks: "
+        msg += f"Current signups:\n"
         for tank in op['Sign-ups']['Tank']:
-            msg += f"\n- {tank}"
-        msg += "\nDPS: "
+            msg += f"\n{tank_emoji} - {tank}"
+        for i in range(self.sizes[op['Size']]["Tank"] - len(op['Sign-ups']['Tank'])):
+            msg += f"\n{tank_emoji} - "
         for dps in op['Sign-ups']['Dps']:
-            msg += f"\n- {dps}"
-        msg += "\nHealers: "
+            msg += f"\n{dps_emoji} - {dps}"
+        for i in range(self.sizes[op['Size']]["Dps"] - len(op['Sign-ups']['Dps'])):
+            msg += f"\n{dps_emoji} - "
         for heal in op['Sign-ups']['Healer']:
-            msg += f"\n- {heal}"
+            msg += f"\n{heal_emoji} - {heal}"
+        for i in range(self.sizes[op['Size']]["Healer"] - len(op['Sign-ups']['Healer'])):
+            msg += f"\n{heal_emoji} - "
         msg += "\nReserves: "
         for res in op['Sign-ups']['Reserve']:
             msg += f"{res}"
