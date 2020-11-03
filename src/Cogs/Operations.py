@@ -477,6 +477,9 @@ class Operations(Cog):
         for sign in sign_ups:
             if user_nick in sign:
                 return True
+        for i, user in enumerate(op["Sign-ups"]["Reserve"]):
+            if user_nick in user:
+                return True
         return False
 
     @staticmethod
