@@ -563,15 +563,15 @@ class Operations(Cog):
         msg += f"Current signups:\n"
         for tank in op['Sign-ups']['Tank']:
             msg += f"\n{tank_emoji} - {tank}"
-        for i in range(self.sizes[op['Size']]["Tank"] - len(op['Sign-ups']['Tank'])):
+        for i in range(self.sizes[int(op['Size'])]["Tank"] - len(op['Sign-ups']['Tank'])):
             msg += f"\n{tank_emoji} - "
         for dps in op['Sign-ups']['Dps']:
             msg += f"\n{dps_emoji} - {dps}"
-        for i in range(self.sizes[op['Size']]["Dps"] - len(op['Sign-ups']['Dps'])):
+        for i in range(self.sizes[int(op['Size'])]["Dps"] - len(op['Sign-ups']['Dps'])):
             msg += f"\n{dps_emoji} - "
         for heal in op['Sign-ups']['Healer']:
             msg += f"\n{heal_emoji} - {heal}"
-        for i in range(self.sizes[op['Size']]["Healer"] - len(op['Sign-ups']['Healer'])):
+        for i in range(self.sizes[int(op['Size'])]["Healer"] - len(op['Sign-ups']['Healer'])):
             msg += f"\n{heal_emoji} - "
         msg += "\nReserves: "
         for res in op['Sign-ups']['Reserve']:
