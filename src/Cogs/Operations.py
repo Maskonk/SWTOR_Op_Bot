@@ -477,6 +477,9 @@ class Operations(Cog):
         for sign in sign_ups:
             if user_nick in sign:
                 return True
+        for i, user in enumerate(op["Sign-ups"]["Reserve"]):
+            if user_nick in user:
+                return True
         return False
 
     @staticmethod
@@ -515,6 +518,9 @@ class Operations(Cog):
                     op["Sign-ups"][role].pop(i)
             if user_nick in op["Sign-ups"][f"Alternate_{role}"]:
                 op["Sign-ups"][f"Alternate_{role}"].remove(user_nick)
+        for i, user in enumerate(op["Sign-ups"]["Reserve"]):
+            if user_nick in user:
+                op["Sign-ups"]["Reserve"].pop(i)
         op["Signed"] -= 1
         return op
 
