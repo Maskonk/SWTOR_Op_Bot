@@ -557,7 +557,7 @@ class Operations(Cog):
         extension = await self.date_extention(dt.day)
         msg = f"{op_id}: {op['Size']}m {operation_name} {difficulty} {op['Side']}\n{day_name[dt.weekday()]} the " \
               f"{extension} of {month_name[dt.month]} " \
-              f"starting at {dt.time().hour}:{dt.time().minute} CET."
+              f"starting at {dt.time().strftime('%H:%M')} CET."
         if notes:
             msg += f"\n({notes})\n"
         msg += f"Current signups:\n"
