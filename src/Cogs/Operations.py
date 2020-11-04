@@ -157,77 +157,7 @@ class Operations(Cog):
         :param alt_role: Optional alternative role to sign up as.
         """
         op = self.ops.get(str(ctx.guild.id), {}).get(str(op_number))
-        if not op:
-            message = await ctx.send("There is no Operation with that number.")
-            await message.delete(delay=10)
-            return
-
-        main_role = await self.validate_role(main_role)
-        if not main_role:
-            await ctx.send("Main role is not valid. Please enter a valid role.")
-            return
-
-        if alt_role:
-            alt_role = await self.validate_role(alt_role)
-            if not alt_role:
-                await ctx.send("Alternative role is not valid. Please enter a valid role.")
-                return
-
-        if await self.check_duplicate(op, ctx.author.display_name):
-            if not await self.check_role_change(op, ctx.author.display_name, main_role, alt_role):
-                await ctx.send("You have already signed-up for that operation.")
-                return
-            elif await self.check_role_full(op, main_role):
-                await ctx.send("That role is full. Your role has not been changed.")
-                return
-            else:
-                op = await self.remove_signup(op, ctx.author.display_name)
-        elif op["Signed"] >= int(op["Size"]):
-            op["Sign-ups"]["Reserve"] += [f"{ctx.author.display_name} ({main_role})"]
-            await self.write_operation(ctx, op, op_number)
-            await ctx.send("This operation is full you have been placed as a reserve.")
-            return
-        else:
-            if await self.check_role_full(op, main_role):
-                if not alt_role:
-                    await ctx.send("That role is full.")
-                    return
-                elif await self.check_role_full(op, alt_role):
-                    await ctx.send("Those roles are full.")
-                    return
-                else:
-                    temp_role = main_role
-                    main_role = alt_role
-                    alt_role = temp_role
-                    await ctx.send(f"{temp_role} is full. You have been signed as {main_role}.")
-                    del temp_role
-
-        if main_role == "Any":
-            name = f"{ctx.author.display_name} (Any)"
-            op["Sign-ups"]["Dps"] += [name]
-            op["Sign-ups"]["Alternate_Tank"] += [ctx.author.display_name]
-            op["Sign-ups"]["Alternate_Healer"] += [ctx.author.display_name]
-        elif alt_role == "Any":
-            name = f"{ctx.author.display_name} (Any)"
-            op["Sign-ups"][main_role] += [name]
-
-            alt_roles = ["Tank", "Healer", "Dps"]
-            alt_roles.remove(main_role)
-
-            for r in alt_roles:
-                op["Sign-ups"][f"Alternate_{r}"] += [ctx.author.display_name]
-        else:
-            if alt_role:
-                name = f"{ctx.author.display_name} ({alt_role})"
-                op["Sign-ups"][f"Alternate_{alt_role}"] += [ctx.author.display_name]
-            else:
-                name = ctx.author.display_name
-
-            op["Sign-ups"][main_role] += [name]
-        op["Signed"] += 1
-
-        await self.write_operation(ctx, op, op_number)
-
+        await self.add_to_operation(ctx, op, op_number, ctx.author.display_name, main_role, alt_role)
         await ctx.message.add_reaction('\U0001f44d')
 
     @command(aliases=["unsign", "quit", "ihateyouall"])
@@ -378,60 +308,8 @@ class Operations(Cog):
         :param alt_role: The alt role of the person to be added.
         """
         op = self.ops.get(str(ctx.guild.id), {}).get(str(op_number))
-        if not op:
-            message = await ctx.send("There is no Operation with that number.")
-            await message.delete(delay=10)
-            return
 
-        if not await self.is_owner_or_admin(ctx, op):
-            await ctx.send("You are not authorised to use this command. Only an Admin or the person who created "
-                           "this operation may update it.")
-            return
-
-        if not sign_up_name:
-            await ctx.send("No name was given. Please enter a name")
-
-        main_role = await self.validate_role(main_role)
-        if not main_role:
-            await ctx.send("Main role is not valid. Please enter a valid role.")
-            return
-
-        if alt_role:
-            alt_role = await self.validate_role(alt_role)
-            if not alt_role:
-                await ctx.send("Alternative role is not valid. Please enter a valid role.")
-                return
-        
-        if main_role == "Any":
-            name = f"{sign_up_name} (Any)"
-            op["Sign-ups"]["Dps"] += [name]
-            op["Sign-ups"]["Alternate_Tank"] += [sign_up_name]
-            op["Sign-ups"]["Alternate_Healer"] += [sign_up_name]
-
-        elif alt_role == "Any":
-            name = f"{sign_up_name} (Any)"
-            op["Sign-ups"][main_role] += [name]
-
-            alt_roles = ["Tank", "Healer", "Dps"]
-            alt_roles.remove(main_role)
-
-            for r in alt_roles:
-                op["Sign-ups"][f"Alternate_{r}"] += [sign_up_name]
-        else:
-            if alt_role:
-                name = f"{sign_up_name} ({alt_role})"
-                op["Sign-ups"][f"Alternate_{alt_role}"] += [sign_up_name]
-            else:
-                name = sign_up_name
-
-            op["Sign-ups"][main_role] += [name]
-        op["Signed"] += 1
-
-        await self.edit_pinned_message(ctx, op, op_number)
-
-        self.ops[str(ctx.guild.id)][str(op_number)] = op
-        with open('./Ops.json', 'w') as f:
-            dump(self.ops, f)
+        await self.add_to_operation(ctx, op, op_number, sign_up_name, main_role, alt_role)
 
         await ctx.message.add_reaction('\U0001f44d')
 
@@ -509,6 +387,41 @@ class Operations(Cog):
                 if user_nick in op["Sign-ups"][f"Alternate_{role}"]:
                     alt_change = True
         return main_change or alt_change
+
+    @staticmethod
+    async def add_signup(op: dict, sign_up_name, main_role, alt_role: None) -> dict:
+        """
+        Adds a user with given name and roles to the given operation
+        :param op: The operation to be updated
+        :param sign_up_name: The user's nick name.
+        :param main_role: The main role of the user.
+        :param alt_role: Optional alternative role of the user.
+        :return: dict: The updated operation. 
+        """
+        if main_role == "Any":
+            name = f"{sign_up_name} (Any)"
+            op["Sign-ups"]["Dps"] += [name]
+            op["Sign-ups"]["Alternate_Tank"] += [sign_up_name]
+            op["Sign-ups"]["Alternate_Healer"] += [sign_up_name]
+        elif alt_role == "Any":
+            name = f"{sign_up_name} (Any)"
+            op["Sign-ups"][main_role] += [name]
+
+            alt_roles = ["Tank", "Healer", "Dps"]
+            alt_roles.remove(main_role)
+
+            for r in alt_roles:
+                op["Sign-ups"][f"Alternate_{r}"] += [sign_up_name]
+        else:
+            if alt_role:
+                name = f"{sign_up_name} ({alt_role})"
+                op["Sign-ups"][f"Alternate_{alt_role}"] += [sign_up_name]
+            else:
+                name = sign_up_name
+
+            op["Sign-ups"][main_role] += [name]
+        op["Signed"] += 1
+        return op
 
     @staticmethod
     async def remove_signup(op: dict, user_nick) -> dict:
@@ -692,3 +605,55 @@ class Operations(Cog):
 
     async def get_random_operation(self) -> str:
         return choice(list(self.operations.keys()))
+
+    async def add_to_operation(self, ctx: context, op: dict, op_number: str, sign_up_name: str, main_role: str, alt_role = None) -> None:
+        if not op:
+            message = await ctx.send("There is no Operation with that number.")
+            await message.delete(delay=10)
+            return
+
+        main_role = await self.validate_role(main_role)
+        if not main_role:
+            await ctx.send("Main role is not valid. Please enter a valid role.")
+            return
+
+        if alt_role:
+            alt_role = await self.validate_role(alt_role)
+            if not alt_role:
+                await ctx.send("Alternative role is not valid. Please enter a valid role.")
+                return
+
+        if await self.check_duplicate(op, sign_up_name):
+            if not await self.check_role_change(op, sign_up_name, main_role, alt_role):
+                await ctx.send("You have already signed-up for that operation.")
+                return
+            elif await self.check_role_full(op, main_role):
+                await ctx.send("That role is full. Your role has not been changed.")
+                return
+            else:
+                op = await self.remove_signup(op, sign_up_name)
+        elif op["Signed"] >= int(op["Size"]):
+            op["Sign-ups"]["Reserve"] += [f"{sign_up_name} ({main_role})"]
+            await self.write_operation(ctx, op, op_number)
+            await ctx.send("This operation is full you have been placed as a reserve.")
+            return
+        else:
+            if await self.check_role_full(op, main_role):
+                if not alt_role:
+                    await ctx.send("That role is full.")
+                    return
+                elif await self.check_role_full(op, alt_role):
+                    await ctx.send("Those roles are full.")
+                    return
+                else:
+                    temp_role = main_role
+                    main_role = alt_role
+                    alt_role = temp_role
+                    await ctx.send(f"{temp_role} is full. You have been signed as {main_role}.")
+                    del temp_role
+
+        op = await self.add_signup(op, sign_up_name, main_role, alt_role)
+
+        await self.write_operation(ctx, op, op_number)
+
+
