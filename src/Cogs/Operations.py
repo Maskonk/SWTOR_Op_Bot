@@ -613,6 +613,14 @@ class Operations(Cog):
         return choice(list(self.operations.keys()))
 
     async def add_to_operation(self, ctx: context, op: dict, op_number: str, sign_up_name: str, main_role: str, alt_role = None) -> None:
+        """
+        Adds the given user to the sign ups. (validates parameters)
+        :param op: The operation to add the person to.
+        :param op_number: The id of the operation.
+        :param sign_up_name: The name of the person to be added.
+        :param main_role: The main role of the person to be added.
+        :param alt_role: The alt role of the person to be added.
+        """
         if not op:
             message = await ctx.send("There is no Operation with that number.")
             await message.delete(delay=10)
