@@ -392,7 +392,7 @@ class Operations(Cog):
     async def add_signup(op: dict, sign_up_name, main_role, alt_role: None) -> dict:
         """
         Adds a user with given name and roles to the given operation
-        :param op: The operation to be updated
+        :param op: The operation to be updated.
         :param sign_up_name: The user's nick name.
         :param main_role: The main role of the user.
         :param alt_role: Optional alternative role of the user.
@@ -425,6 +425,12 @@ class Operations(Cog):
 
     @staticmethod
     async def remove_signup(op: dict, user_nick) -> dict:
+        """
+        Attempts to removes the user with given name from the operation.
+        :param op: The operation to be updated.
+        :param user_nick: The user's nick name.
+        :return: dict: The updated operation. 
+        """
         for role in ["Tank", "Healer", "Dps"]:
             for i, user in enumerate(op["Sign-ups"][role]):
                 if user_nick in user:
