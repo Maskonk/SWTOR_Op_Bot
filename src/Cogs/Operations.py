@@ -544,7 +544,7 @@ class Operations(Cog):
         :param role: The role of the user.
         :return: The long version of the users role.
         """
-        if role.lower() in ["t", "tank", "d", "dps", "h", "heals", "healer", "heal", "a", "any"]:
+        if role.lower() in ["t", "tank", "d", "dps", "h", "heals", "healer", "heal", "a", "any", "r", "reserve"]:
             if role[0].lower() == "t":
                 return "Tank"
             elif role[0].lower() == "d":
@@ -553,6 +553,8 @@ class Operations(Cog):
                 return "Healer"
             elif role[0].lower() == "a":
                 return "Any"
+            elif role[0].lower() == "r":
+                return "Reserve"
         else:
             return ""
 
