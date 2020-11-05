@@ -416,7 +416,8 @@ class Operations(Cog):
         else:
             if alt_role:
                 name = f"{sign_up_name} ({alt_role})"
-                op["Sign-ups"][f"Alternate_{alt_role}"] += [sign_up_name]
+                if main_role != "Reserve":
+                    op["Sign-ups"][f"Alternate_{alt_role}"] += [sign_up_name]
             else:
                 name = sign_up_name
 
@@ -617,7 +618,9 @@ class Operations(Cog):
         :param role: The role to check.
         :return: Bool True if the operation is full.
         """
-        if len(op["Sign-ups"][role]) >= self.sizes[int(op["Size"])][role]:
+        if role == "Reserve":
+            return False
+        elif len(op["Sign-ups"][role]) >= self.sizes[int(op["Size"])][role]:
             return True
 
     async def get_random_operation(self) -> str:
@@ -666,7 +669,7 @@ class Operations(Cog):
                 return
             else:
                 op = await self.remove_signup(op, sign_up_name)
-        elif op["Signed"] >= int(op["Size"]):
+        elif op["Signed"] >= int(op["Size"]) and main_role != "Reserve":
             op["Sign-ups"]["Reserve"] += [f"{sign_up_name} ({main_role})"]
             await self.write_operation(ctx, op, op_number)
             await ctx.send("This operation is full you have been placed as a reserve.")
@@ -674,10 +677,14 @@ class Operations(Cog):
         else:
             if await self.check_role_full(op, main_role):
                 if not alt_role:
-                    await ctx.send("That role is full.")
+                    op["Sign-ups"]["Reserve"] += [f"{sign_up_name} ({main_role})"]
+                    await self.write_operation(ctx, op, op_number)
+                    await ctx.send("That role is full you have been placed as a reserve.")
                     return
                 elif await self.check_role_full(op, alt_role):
-                    await ctx.send("Those roles are full.")
+                    op["Sign-ups"]["Reserve"] += [f"{sign_up_name} ({main_role})"]
+                    await self.write_operation(ctx, op, op_number)
+                    await ctx.send("Those roles are full you have been placed as a reserve.")
                     return
                 else:
                     temp_role = main_role
