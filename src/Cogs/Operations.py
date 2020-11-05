@@ -390,7 +390,7 @@ class Operations(Cog):
         return main_change or alt_change
 
     @staticmethod
-    async def add_signup(op: dict, sign_up_name, main_role, alt_role: None) -> dict:
+    async def add_signup(op: dict, sign_up_name, main_role, alt_role: str = None) -> dict:
         """
         Adds a user with given name and roles to the given operation
         :param op: The operation to be updated.
@@ -623,14 +623,15 @@ class Operations(Cog):
     async def get_random_operation(self) -> str:
         return choice(list(self.operations.keys()))
 
-    async def add_to_operation(self, ctx: context, op: dict, op_number: str, sign_up_name: str, main_role: str, alt_role = None) -> None:
+    async def add_to_operation(self, ctx: context, op: dict, op_number: str, sign_up_name: str, main_role: str,
+                               alt_role: str = None) -> None:
         """
         Adds the given user to the sign ups. (validates parameters)
         :param op: The operation to add the person to.
         :param op_number: The id of the operation.
         :param sign_up_name: The name of the person to be added.
         :param main_role: The main role of the person to be added.
-        :param alt_role: The alt role of the person to be added.
+        :param alt_role: The alternative role of the person to be added.
         """
         if not op:
             message = await ctx.send("There is no Operation with that number.")
@@ -647,6 +648,14 @@ class Operations(Cog):
             if not alt_role:
                 await ctx.send("Alternative role is not valid. Please enter a valid role.")
                 return
+            elif alt_role == "Reserve":
+                await ctx.send("Alt role can not be reserve. If you wish to sign as a reserve please select it as "
+                               "the main role.")
+                return
+        elif main_role == "Reserve":
+            await ctx.send("You must add a alternative role to sign as reserve.")
+            return
+
 
         if await self.check_duplicate(op, sign_up_name):
             if not await self.check_role_change(op, sign_up_name, main_role, alt_role):
