@@ -651,6 +651,8 @@ class Operations(Cog):
             if not alt_role:
                 await ctx.send("Alternative role is not valid. Please enter a valid role.")
                 return
+            elif main_role == alt_role:
+                alt_role =  None
             elif alt_role == "Reserve":
                 await ctx.send("Alt role can not be reserve. If you wish to sign as a reserve please select it as "
                                "the main role.")
