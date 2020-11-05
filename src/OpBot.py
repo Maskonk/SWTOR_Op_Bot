@@ -3,10 +3,14 @@ from discord import Game
 from discord.ext import commands
 from Cogs.Operations import Operations
 from Cogs.Swtor import Swtor
+from json import load
 
 bot_prefix = "-"
 with open('./token.txt', 'r') as f:
     token = f.read()
+
+with open('./Ops.json', 'r') as f:
+    ops = load(f)
 
 client = Bot(command_prefix=bot_prefix)
 
@@ -44,6 +48,6 @@ async def github(ctx):
 # async def on_reaction_add(reaction, user):
 #     print(reaction.message)
 
-client.add_cog(Operations(client))
+client.add_cog(Operations(client, ops))
 client.add_cog(Swtor(client))
 client.run(token)

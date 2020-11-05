@@ -8,7 +8,7 @@ from random import choice
 
 
 class Operations(Cog):
-    def __init__(self, bot):
+    def __init__(self, bot, ops):
         self.bot = bot
         self.operations = {"s&v": "Scum and Villainy", "tfb": "Terror From Beyond", "kp": "Karagga's Palace",
                            "ev": "Eternity Vault", "ec": "Explosive Conflict", "df": "Dread Fortress",
@@ -20,8 +20,7 @@ class Operations(Cog):
                       16: {"Tank": 2, "Dps": 10, "Healer": 4}}
         self.difficulties = {"sm": "Story Mode", "hm": "Veteran Mode", "nim": "Master Mode", "vm": "Veteran mode",
                              "mm": "Master Mode"}
-        with open('./Ops.json', 'r') as f:
-            self.ops = load(f)
+        self.ops = ops
 
     @command(aliases=["ops", "operations", "list"])
     async def list_all_operations(self, ctx: context) -> None:
