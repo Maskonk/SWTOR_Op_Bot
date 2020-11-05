@@ -390,7 +390,7 @@ class Operations(Cog):
         return main_change or alt_change
 
     @staticmethod
-    async def add_signup(op: dict, sign_up_name, main_role, alt_role: None) -> dict:
+    async def add_signup(op: dict, sign_up_name, main_role, alt_role: str = None) -> dict:
         """
         Adds a user with given name and roles to the given operation
         :param op: The operation to be updated.
@@ -416,7 +416,8 @@ class Operations(Cog):
         else:
             if alt_role:
                 name = f"{sign_up_name} ({alt_role})"
-                op["Sign-ups"][f"Alternate_{alt_role}"] += [sign_up_name]
+                if main_role != "Reserve":
+                    op["Sign-ups"][f"Alternate_{alt_role}"] += [sign_up_name]
             else:
                 name = sign_up_name
 
@@ -544,7 +545,7 @@ class Operations(Cog):
         :param role: The role of the user.
         :return: The long version of the users role.
         """
-        if role.lower() in ["t", "tank", "d", "dps", "h", "heals", "healer", "heal", "a", "any"]:
+        if role.lower() in ["t", "tank", "d", "dps", "h", "heals", "healer", "heal", "a", "any", "r", "reserve"]:
             if role[0].lower() == "t":
                 return "Tank"
             elif role[0].lower() == "d":
@@ -553,6 +554,8 @@ class Operations(Cog):
                 return "Healer"
             elif role[0].lower() == "a":
                 return "Any"
+            elif role[0].lower() == "r":
+                return "Reserve"
         else:
             return ""
 
@@ -615,20 +618,23 @@ class Operations(Cog):
         :param role: The role to check.
         :return: Bool True if the operation is full.
         """
-        if len(op["Sign-ups"][role]) >= self.sizes[int(op["Size"])][role]:
+        if role == "Reserve":
+            return False
+        elif len(op["Sign-ups"][role]) >= self.sizes[int(op["Size"])][role]:
             return True
 
     async def get_random_operation(self) -> str:
         return choice(list(self.operations.keys()))
 
-    async def add_to_operation(self, ctx: context, op: dict, op_number: str, sign_up_name: str, main_role: str, alt_role = None) -> None:
+    async def add_to_operation(self, ctx: context, op: dict, op_number: str, sign_up_name: str, main_role: str,
+                               alt_role: str = None) -> None:
         """
         Adds the given user to the sign ups. (validates parameters)
         :param op: The operation to add the person to.
         :param op_number: The id of the operation.
         :param sign_up_name: The name of the person to be added.
         :param main_role: The main role of the person to be added.
-        :param alt_role: The alt role of the person to be added.
+        :param alt_role: The alternative role of the person to be added.
         """
         if not op:
             message = await ctx.send("There is no Operation with that number.")
@@ -645,6 +651,16 @@ class Operations(Cog):
             if not alt_role:
                 await ctx.send("Alternative role is not valid. Please enter a valid role.")
                 return
+            elif main_role == alt_role:
+                alt_role =  None
+            elif alt_role == "Reserve":
+                await ctx.send("Alt role can not be reserve. If you wish to sign as a reserve please select it as "
+                               "the main role.")
+                return
+        elif main_role == "Reserve":
+            await ctx.send("You must add a alternative role to sign as reserve.")
+            return
+
 
         if await self.check_duplicate(op, sign_up_name):
             if not await self.check_role_change(op, sign_up_name, main_role, alt_role):
@@ -655,7 +671,7 @@ class Operations(Cog):
                 return
             else:
                 op = await self.remove_signup(op, sign_up_name)
-        elif op["Signed"] >= int(op["Size"]):
+        elif op["Signed"] >= int(op["Size"]) and main_role != "Reserve":
             op["Sign-ups"]["Reserve"] += [f"{sign_up_name} ({main_role})"]
             await self.write_operation(ctx, op, op_number)
             await ctx.send("This operation is full you have been placed as a reserve.")
@@ -663,10 +679,14 @@ class Operations(Cog):
         else:
             if await self.check_role_full(op, main_role):
                 if not alt_role:
-                    await ctx.send("That role is full.")
+                    op["Sign-ups"]["Reserve"] += [f"{sign_up_name} ({main_role})"]
+                    await self.write_operation(ctx, op, op_number)
+                    await ctx.send("That role is full you have been placed as a reserve.")
                     return
                 elif await self.check_role_full(op, alt_role):
-                    await ctx.send("Those roles are full.")
+                    op["Sign-ups"]["Reserve"] += [f"{sign_up_name} ({main_role})"]
+                    await self.write_operation(ctx, op, op_number)
+                    await ctx.send("Those roles are full you have been placed as a reserve.")
                     return
                 else:
                     temp_role = main_role
