@@ -158,8 +158,9 @@ class Operations(Cog):
         :param alt_role: Optional alternative role to sign up as.
         """
         op = self.ops.get(str(ctx.guild.id), {}).get(str(op_number))
-        await self.add_to_operation(ctx, op, op_number, ctx.author.display_name, main_role, alt_role)
-        await ctx.message.add_reaction('\U0001f44d')
+        r = await self.add_to_operation(ctx, op, op_number, ctx.author.display_name, main_role, alt_role)
+        if r:
+            await ctx.message.add_reaction('\U0001f44d')
 
     @command(aliases=["unsign", "quit", "ihateyouall"])
     async def unsign_up(self, ctx: context, op_number: str) -> None:
@@ -310,9 +311,9 @@ class Operations(Cog):
         """
         op = self.ops.get(str(ctx.guild.id), {}).get(str(op_number))
 
-        await self.add_to_operation(ctx, op, op_number, sign_up_name, main_role, alt_role)
-
-        await ctx.message.add_reaction('\U0001f44d')
+        r = await self.add_to_operation(ctx, op, op_number, sign_up_name, main_role, alt_role)
+        if r:
+            await ctx.message.add_reaction('\U0001f44d')
 
     @command(aliases=["howto"])
     async def user_guide(self, ctx: context) -> None:
@@ -698,5 +699,6 @@ class Operations(Cog):
         op = await self.add_signup(op, sign_up_name, main_role, alt_role)
 
         await self.write_operation(ctx, op, op_number)
+        return True
 
 
