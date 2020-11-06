@@ -374,11 +374,27 @@ class Operations(Cog):
         """
         alt_change = False
         main_change = False
-        for user in op["Sign-ups"][main_role]:
-            if user_nick in user:
-                break
-        else:
-            main_change = True
+
+        if main_role == "Any":
+            roles = ["Dps", "Tank", "Healer"]
+
+            for role in roles:
+                found = False
+                for user in op["Sign-ups"][role]:
+                    if user_nick + " (Any)" in user:
+                        found = True
+                        break
+                if found:
+                    return False
+            else:
+                return True
+
+        else: 
+            for user in op["Sign-ups"][main_role]:
+                if user_nick in user:
+                    break
+            else:
+                main_change = True
 
         if alt_role and alt_role != "Any":
             if user_nick not in op["Sign-ups"][f"Alternate_{alt_role}"]:
@@ -390,8 +406,8 @@ class Operations(Cog):
                     alt_change = True
         return main_change or alt_change
 
-    @staticmethod
-    async def add_signup(op: dict, sign_up_name, main_role, alt_role: str = None) -> dict:
+    # No longer static
+    async def add_signup(self, op: dict, sign_up_name, main_role, alt_role: str = None) -> dict:
         """
         Adds a user with given name and roles to the given operation
         :param op: The operation to be updated.
@@ -401,10 +417,7 @@ class Operations(Cog):
         :return: dict: The updated operation. 
         """
         if main_role == "Any":
-            name = f"{sign_up_name} (Any)"
-            op["Sign-ups"]["Dps"] += [name]
-            op["Sign-ups"]["Alternate_Tank"] += [sign_up_name]
-            op["Sign-ups"]["Alternate_Healer"] += [sign_up_name]
+            op = await self.add_any_signup(op, sign_up_name)
         elif alt_role == "Any":
             name = f"{sign_up_name} (Any)"
             op["Sign-ups"][main_role] += [name]
@@ -425,6 +438,29 @@ class Operations(Cog):
             op["Sign-ups"][main_role] += [name]
         op["Signed"] += 1
         return op
+
+    async def add_any_signup(self, op: dict, sign_up_name) -> dict:
+        """
+        Adds a user with given name to any role as they are available (Dps > Healer > Tank)
+        Note: No changes are made if all roles are full.
+        :param op: The operation to be updated.
+        :param sign_up_name: The user's nick name.
+        :return: dict: The updated operation. 
+        """
+        roles = ["Dps", "Healer", "Tank"]
+        name = f"{sign_up_name} (Any)"
+
+        for role in roles:
+            if (not await self.check_role_full(op, role)):
+                roles.remove(role)
+                op["Sign-ups"][role] += [name]
+
+                for r in roles:
+                    op["Sign-ups"][f"Alternate_{r}"] += [sign_up_name]
+                return op
+
+        # if it gets here -> all roles were full & nothing changed
+        return op    
 
     @staticmethod
     async def remove_signup(op: dict, user_nick) -> dict:
@@ -619,7 +655,7 @@ class Operations(Cog):
         :param role: The role to check.
         :return: Bool True if the operation is full.
         """
-        if role == "Reserve":
+        if role == "Reserve" or role == "Any":
             return False
         elif len(op["Sign-ups"][role]) >= self.sizes[int(op["Size"])][role]:
             return True
