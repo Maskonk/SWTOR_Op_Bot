@@ -1,10 +1,13 @@
-from discord.ext.commands import Cog, context, command
+from discord.ext.commands import Cog, context, command, errors
 from discord.utils import get
 from datetime import datetime
 from json import load, dump
 from dateutil.parser import parse
 from calendar import month_name, day_name
 from random import choice
+from Utils.Errors import *
+
+from src.Utils.Errors import SignUpError
 
 
 class Operations(Cog):
@@ -637,61 +640,50 @@ class Operations(Cog):
         :param alt_role: The alternative role of the person to be added.
         """
         if not op:
-            message = await ctx.send("There is no Operation with that number.")
-            await message.delete(delay=10)
-            return
+            raise SignUpError("There is no Operation with that number.")
 
         main_role = await self.validate_role(main_role)
         if not main_role:
-            await ctx.send("Main role is not valid. Please enter a valid role.")
-            return
+            raise SignUpError("Main role is not valid. Please enter a valid role.")
 
         if alt_role:
             alt_role = await self.validate_role(alt_role)
             if not alt_role:
-                await ctx.send("Alternative role is not valid. Please enter a valid role.")
-                return
+                raise SignUpError("Alternative role is not valid. Please enter a valid role.")
             elif main_role == alt_role:
-                alt_role =  None
+                alt_role = None
             elif alt_role == "Reserve":
-                await ctx.send("Alt role can not be reserve. If you wish to sign as a reserve please select it as "
-                               "the main role.")
-                return
+                raise SignUpError("Alt role can not be reserve. If you wish to sign as a reserve please select it as "
+                                  "the main role.")
         elif main_role == "Reserve":
-            await ctx.send("You must add a alternative role to sign as reserve.")
-            return
+            raise SignUpError("You must add a alternative role to sign as reserve.")
 
         if await self.check_duplicate(op, sign_up_name):
             if not await self.check_role_change(op, sign_up_name, main_role, alt_role):
-                await ctx.send("You have already signed-up for that operation.")
-                return
+                raise SignUpError("You have already signed-up for that operation.")
             elif await self.check_role_full(op, main_role):
-                await ctx.send("That role is full. Your role has not been changed.")
-                return
+                raise SignUpError("That role is full. Your role has not been changed.")
             else:
                 op = await self.remove_signup(op, sign_up_name)
         elif op["Signed"] >= int(op["Size"]) and main_role != "Reserve":
             op["Sign-ups"]["Reserve"] += [f"{sign_up_name} ({main_role})"]
             await self.write_operation(ctx, op, op_number)
-            await ctx.send("This operation is full you have been placed as a reserve.")
-            return
+            raise SignUpError("This operation is full you have been placed as a reserve.")
         else:
             if await self.check_role_full(op, main_role):
                 if not alt_role:
                     op["Sign-ups"]["Reserve"] += [f"{sign_up_name} ({main_role})"]
                     await self.write_operation(ctx, op, op_number)
-                    await ctx.send("That role is full you have been placed as a reserve.")
-                    return
+                    raise SignUpError("That role is full you have been placed as a reserve.")
                 elif await self.check_role_full(op, alt_role):
                     op["Sign-ups"]["Reserve"] += [f"{sign_up_name} ({main_role})"]
                     await self.write_operation(ctx, op, op_number)
-                    await ctx.send("Those roles are full you have been placed as a reserve.")
-                    return
+                    raise SignUpError("Those roles are full you have been placed as a reserve.")
                 else:
                     temp_role = main_role
                     main_role = alt_role
                     alt_role = temp_role
-                    await ctx.send(f"{temp_role} is full. You have been signed as {main_role}.")
+                    # await ctx.send(f"{temp_role} is full. You have been signed as {main_role}.")
                     del temp_role
 
         op = await self.add_signup(op, sign_up_name, main_role, alt_role)
@@ -699,4 +691,15 @@ class Operations(Cog):
         await self.write_operation(ctx, op, op_number)
         return True
 
+    @sign_up.error
+    @add_sign_up.error
+    async def sign_up_error_handler(self, ctx: context, error):
+        print("Apples", error.__cause__)
+        if isinstance(error, errors.CommandInvokeError):
+            message = await ctx.send(error.__cause__)
+            await message.delete(delay=10)
 
+    @staticmethod
+    async def add_reaction_sign_up(op: dict, user: str, role: str) -> None:
+        # TODO: Define own errors to replace send
+        pass
