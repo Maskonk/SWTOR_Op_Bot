@@ -661,7 +661,6 @@ class Operations(Cog):
             await ctx.send("You must add a alternative role to sign as reserve.")
             return
 
-
         if await self.check_duplicate(op, sign_up_name):
             if not await self.check_role_change(op, sign_up_name, main_role, alt_role):
                 await ctx.send("You have already signed-up for that operation.")
