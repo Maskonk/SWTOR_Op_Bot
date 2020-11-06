@@ -455,10 +455,7 @@ class Operations(Cog):
                 roles.remove(role)
                 op["Sign-ups"][role] += [name]
 
-                print (roles)
                 for r in roles:
-                    print (r)
-                    print (sign_up_name)
                     op["Sign-ups"][f"Alternate_{r}"] += [sign_up_name]
                 return op
 
