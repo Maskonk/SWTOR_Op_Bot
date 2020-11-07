@@ -7,6 +7,7 @@ from calendar import month_name, day_name
 from random import choice
 from Utils.Errors import SignUpError
 from Utils.ReactionUtils import check_valid_reaction
+from re import sub
 
 
 class Operations(Cog):
@@ -474,12 +475,14 @@ class Operations(Cog):
         """
         for role in ["Tank", "Healer", "Dps"]:
             for i, user in enumerate(op["Sign-ups"][role]):
-                if user_nick in user:
+                name = sub("\s\(\w+\)", "", user)
+                if user_nick == name:
                     op["Sign-ups"][role].pop(i)
             if user_nick in op["Sign-ups"][f"Alternate_{role}"]:
                 op["Sign-ups"][f"Alternate_{role}"].remove(user_nick)
         for i, user in enumerate(op["Sign-ups"]["Reserve"]):
-            if user_nick in user:
+            name = sub("\s\(\w+\)", "", user)
+            if user_nick == name:
                 op["Sign-ups"]["Reserve"].pop(i)
         op["Signed"] -= 1
         return op
