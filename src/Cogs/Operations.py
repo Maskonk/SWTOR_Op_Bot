@@ -19,8 +19,8 @@ class Operations(Cog):
                            "tc": "Toborro's Courtyard", "cm": "Colossal Monolith", "gq": "Geonosian Queen",
                            "wb": "World Boss", "gf": "Group finder", "other": "Other activity", "eyeless": "Eyeless",
                            "xeno": "Xenoanalyst", "rav": "Ravagers", "tos": "Temple of Sacrifice"}
-        self.sizes = {1: {"Tank": 0, "Dps": 1, "Healer": 0}, 4: {"Tank": 1, "Dps": 1, "Healer": 1}, 8: {"Tank": 2, "Dps": 4, "Healer": 2},
-                      16: {"Tank": 2, "Dps": 10, "Healer": 4}}
+        self.sizes = {1: {"Tank": 0, "Dps": 1, "Healer": 0}, 4: {"Tank": 1, "Dps": 2, "Healer": 1},
+                      8: {"Tank": 2, "Dps": 4, "Healer": 2}, 16: {"Tank": 2, "Dps": 10, "Healer": 4}}
         self.difficulties = {"sm": "Story Mode", "hm": "Veteran Mode", "nim": "Master Mode", "vm": "Veteran mode",
                              "mm": "Master Mode"}
         self.ops = ops
@@ -550,14 +550,13 @@ class Operations(Cog):
         """
         return difficulty.lower() in ["sm", "hm", "nim", "na", "vm", "mm"]
 
-    @staticmethod
-    async def validate_size_input(size: int) -> bool:
+    async def validate_size_input(self, size: int) -> bool:
         """
         Checks the users input to ensure the size input is valid.
         :param size: The size input by the user.
         :return: Booleon True if the size input is valid.
         """
-        return size in [4, 8, 16, 24]
+        return size in self.sizes.keys()
 
     async def edit_pinned_message(self, op: dict, op_number: str, guild_id: int) -> None:
         """
