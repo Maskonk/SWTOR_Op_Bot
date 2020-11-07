@@ -5,8 +5,8 @@ from json import load, dump
 from dateutil.parser import parse
 from calendar import month_name, day_name
 from random import choice
-from src.Utils.Errors import SignUpError
-from src.Utils.ReactionUtils import check_valid_reaction
+from Utils.Errors import SignUpError
+from Utils.ReactionUtils import check_valid_reaction
 
 
 class Operations(Cog):
