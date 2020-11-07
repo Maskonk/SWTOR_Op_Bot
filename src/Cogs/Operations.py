@@ -708,7 +708,6 @@ class Operations(Cog):
         """
         for id, op in self.ops.get(str(payload.guild_id), {}).items():
             if op["Post_id"] == payload.message_id:
-                operation = op
                 break
         else:
             return
@@ -719,3 +718,22 @@ class Operations(Cog):
             op = await self.add_to_operation(op, id, payload.guild_id, payload.member.nick, role, None)
         except SignUpError:
             pass
+
+    @Cog.listener()
+    async def on_raw_reaction_remove(self, payload):
+        """
+        Runs when a reaction is removed from a message. Used for reaction based sign ups.
+        """
+        for id, op in self.ops.get(str(payload.guild_id), {}).items():
+            if op["Post_id"] == payload.message_id:
+                break
+        else:
+            return
+        role = await check_valid_reaction(payload.emoji.name)
+        if not role:
+            return
+        guild = self.bot.get_guild(payload.guild_id)
+        user = guild.get_member(payload.user_id)
+        if not await self.check_role_change(op, user.display_name, role, None):
+            op = await self.remove_signup(op, user.display_name)
+            await self.write_operation(op, id, payload.guild_id)
