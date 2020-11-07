@@ -19,8 +19,10 @@ class Operations(Cog):
                            "tc": "Toborro's Courtyard", "cm": "Colossal Monolith", "gq": "Geonosian Queen",
                            "wb": "World Boss", "gf": "Group finder", "other": "Other activity", "eyeless": "Eyeless",
                            "xeno": "Xenoanalyst", "rav": "Ravagers", "tos": "Temple of Sacrifice"}
-        self.sizes = {"1": {"Tank": 0, "Dps": 1, "Healer": 0}, "4": {"Tank": 1, "Dps": 2, "Healer": 1},
-                      "8": {"Tank": 2, "Dps": 4, "Healer": 2}, "16": {"Tank": 2, "Dps": 10, "Healer": 4}}
+        self.sizes = sizes = {"1": {"Tank": 0, "Dps": 1, "Healer": 0}, "4": {"Tank": 1, "Dps": 1, "Healer": 1},
+                              "8": {"Tank": 2, "Dps": 4, "Healer": 2}, "16": {"Tank": 2, "Dps": 10, "Healer": 4},
+                              "1t5d": {"Tank": 1, "Dps": 5, "Healer": 2}, "1h5d": {"Tank": 2, "Dps": 5, "Healer": 1},
+                              "6d": {"Tank": 1, "Dps": 6, "Healer": 1}, "24": {"Tank": 3, "Dps": 15, "Healer": 6}}
         self.difficulties = {"sm": "Story Mode", "hm": "Veteran Mode", "nim": "Master Mode", "vm": "Veteran mode",
                              "mm": "Master Mode"}
         self.ops = ops
@@ -62,7 +64,7 @@ class Operations(Cog):
         await message.delete(delay=10)
 
     @command(aliases=["new", "new_op", "create", "c"])
-    async def new_operation(self, ctx: context, operation: str, difficulty: str, side: str, size: int,
+    async def new_operation(self, ctx: context, operation: str, difficulty: str, side: str, size: str,
                             date: str, time: str, *notes) -> None:
         """
         Create a new operation.
@@ -524,15 +526,15 @@ class Operations(Cog):
         msg += f"Current signups:\n"
         for tank in op['Sign-ups']['Tank']:
             msg += f"\n{tank_emoji} - {tank}"
-        for i in range(self.sizes[int(op['Size'])]["Tank"] - len(op['Sign-ups']['Tank'])):
+        for i in range(self.sizes[str(op['Size'])]["Tank"] - len(op['Sign-ups']['Tank'])):
             msg += f"\n{tank_emoji} - "
         for dps in op['Sign-ups']['Dps']:
             msg += f"\n{dps_emoji} - {dps}"
-        for i in range(self.sizes[int(op['Size'])]["Dps"] - len(op['Sign-ups']['Dps'])):
+        for i in range(self.sizes[str(op['Size'])]["Dps"] - len(op['Sign-ups']['Dps'])):
             msg += f"\n{dps_emoji} - "
         for heal in op['Sign-ups']['Healer']:
             msg += f"\n{heal_emoji} - {heal}"
-        for i in range(self.sizes[int(op['Size'])]["Healer"] - len(op['Sign-ups']['Healer'])):
+        for i in range(self.sizes[str(op['Size'])]["Healer"] - len(op['Sign-ups']['Healer'])):
             msg += f"\n{heal_emoji} - "
         msg += "\nReserves: "
         for res in op['Sign-ups']['Reserve']:
@@ -663,7 +665,7 @@ class Operations(Cog):
         """
         if role == "Reserve" or role == "Any":
             return False
-        elif len(op["Sign-ups"][role]) >= self.sizes[int(op["Size"])][role]:
+        elif len(op["Sign-ups"][role]) >= self.sizes[str(op["Size"])][role]:
             return True
 
     async def get_random_operation(self) -> str:
@@ -705,7 +707,7 @@ class Operations(Cog):
                 raise SignUpError("That role is full. Your role has not been changed.")
             else:
                 op = await self.remove_signup(op, sign_up_name)
-        elif op["Signed"] >= int(op["Size"]) and main_role != "Reserve":
+        elif op["Signed"] >= sum(self.sizes[str(op["Size"])].values()) and main_role != "Reserve":
             op["Sign-ups"]["Reserve"] += [f"{sign_up_name} ({main_role})"]
             await self.write_operation(op, op_number, guild_id)
             raise SignUpError("This operation is full you have been placed as a reserve.")
