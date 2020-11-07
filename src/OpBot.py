@@ -1,5 +1,5 @@
 from discord.ext.commands import Bot
-from discord import Game
+from discord import Game, Intents
 from discord.ext import commands
 from Cogs.Operations import Operations
 from Cogs.Swtor import Swtor
@@ -13,7 +13,9 @@ with open('./token.txt', 'r') as f:
 with open('./Ops.json', 'r') as f:
     ops = load(f)
 
-client = Bot(command_prefix=bot_prefix)
+intents = Intents.default()
+intents.members = True
+client = Bot(command_prefix=bot_prefix, intents=intents)
 
 
 @client.event
