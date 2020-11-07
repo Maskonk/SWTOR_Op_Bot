@@ -4,7 +4,7 @@ from discord.ext import commands
 from Cogs.Operations import Operations
 from Cogs.Swtor import Swtor
 from json import load
-from Utils.ReactionUtils import find_operation_by_id, check_valid_reaction
+from Utils.ReactionUtils import *
 
 bot_prefix = "-"
 with open('./token.txt', 'r') as f:
@@ -24,7 +24,9 @@ async def on_ready():
 
 @client.event
 async def on_command_error(ctx, error):
-    if isinstance(error, commands.CommandNotFound):
+    if hasattr(ctx.command, 'on_error'):
+        return
+    elif isinstance(error, commands.CommandNotFound):
         await ctx.send("That is not a valid command. Please use **.help** for a list of all commands.")
     elif isinstance(error, commands.CheckFailure):
         await ctx.send("You are not authorized to use this command.")
@@ -44,18 +46,6 @@ async def github(ctx):
     """Link to the github repo for this bot."""
     await ctx.send("The bot is written in Python using the discord.py framework. The code is available here: "
                    "https://github.com/Maskonk/SWTOR_Op_Bot")
-
-
-@client.event
-async def on_raw_reaction_add(payload):
-    """
-    Runs when a reaction is added to a message. Used for reaction based sign ups.
-    """
-    op = await find_operation_by_id(ops, payload.guild_id, payload.message_id)
-    if not op:
-        return
-    role = await check_valid_reaction(payload.emoji.name)
-    print(role)
 
 client.add_cog(Operations(client, ops))
 client.add_cog(Swtor(client))
