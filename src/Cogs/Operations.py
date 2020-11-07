@@ -1,14 +1,16 @@
-from discord.ext.commands import Cog, context, command
+from discord.ext.commands import Cog, context, command, errors
 from discord.utils import get
 from datetime import datetime
 from json import load, dump
 from dateutil.parser import parse
 from calendar import month_name, day_name
 from random import choice
+from src.Utils.Errors import SignUpError
+from src.Utils.ReactionUtils import check_valid_reaction
 
 
 class Operations(Cog):
-    def __init__(self, bot):
+    def __init__(self, bot, ops):
         self.bot = bot
         self.operations = {"s&v": "Scum and Villainy", "tfb": "Terror From Beyond", "kp": "Karagga's Palace",
                            "ev": "Eternity Vault", "ec": "Explosive Conflict", "df": "Dread Fortress",
@@ -20,8 +22,7 @@ class Operations(Cog):
                       16: {"Tank": 2, "Dps": 10, "Healer": 4}}
         self.difficulties = {"sm": "Story Mode", "hm": "Veteran Mode", "nim": "Master Mode", "vm": "Veteran mode",
                              "mm": "Master Mode"}
-        with open('./Ops.json', 'r') as f:
-            self.ops = load(f)
+        self.ops = ops
 
     @command(aliases=["ops", "operations", "list"])
     async def list_all_operations(self, ctx: context) -> None:
@@ -122,6 +123,7 @@ class Operations(Cog):
               "Owner_name": ctx.author.display_name,
               "Owner_id": ctx.author.id,
               "Post_id": None,
+              "Channel_id": ctx.channel.id,
               "Open": True,
               "Signed": 0,
               "Sign-ups": {
@@ -158,7 +160,7 @@ class Operations(Cog):
         :param alt_role: Optional alternative role to sign up as.
         """
         op = self.ops.get(str(ctx.guild.id), {}).get(str(op_number))
-        r = await self.add_to_operation(ctx, op, op_number, ctx.author.display_name, main_role, alt_role)
+        r = await self.add_to_operation(op, op_number, ctx.guild.id, ctx.author.display_name, main_role, alt_role)
         if r:
             await ctx.message.add_reaction('\U0001f44d')
 
@@ -179,7 +181,7 @@ class Operations(Cog):
             return
 
         op = await self.remove_signup(op, ctx.author.display_name)
-        await self.write_operation(ctx, op, op_number)
+        await self.write_operation(op, op_number, ctx.guild.id,)
 
         await ctx.message.add_reaction('\U0001f44d')
 
@@ -247,7 +249,7 @@ class Operations(Cog):
 
         op[attribute.capitalize()] = value
 
-        await self.write_operation(ctx, op, op_number)
+        await self.write_operation(op, op_number, ctx.guild.id)
         await ctx.message.add_reaction('\U0001f44d')
 
     @command(aliases=["delete"])
@@ -296,12 +298,12 @@ class Operations(Cog):
 
         op = await self.remove_signup(op, name)
 
-        await self.write_operation(ctx, op, op_number)
+        await self.write_operation(op, op_number, ctx.guild.id)
 
         await ctx.message.add_reaction('\U0001f44d')
 
     @command(aliases=["add"])
-    async def add_sign_up(self, ctx: context, op_number: str, sign_up_name: str, main_role: str, alt_role = None) -> None:
+    async def add_sign_up(self, ctx: context, op_number: str, sign_up_name: str, main_role: str, alt_role=None) -> None:
         """
         Adds the given name to the sign ups.
         :param op_number: The id of the operation.
@@ -311,7 +313,7 @@ class Operations(Cog):
         """
         op = self.ops.get(str(ctx.guild.id), {}).get(str(op_number))
 
-        r = await self.add_to_operation(ctx, op, op_number, sign_up_name, main_role, alt_role)
+        r = await self.add_to_operation(op, op_number, ctx.guild.id, sign_up_name, main_role, alt_role)
         if r:
             await ctx.message.add_reaction('\U0001f44d')
 
@@ -554,7 +556,7 @@ class Operations(Cog):
         """
         return size in [4, 8, 16, 24]
 
-    async def edit_pinned_message(self, ctx: context, op: dict, op_number: str) -> None:
+    async def edit_pinned_message(self, op: dict, op_number: str, guild_id: int) -> None:
         """
         Edits the pinned message for the operation.
         :param op: The operation details dictionary.
@@ -562,8 +564,11 @@ class Operations(Cog):
         """
         dt = await self.parse_date(op["Date"], op["Time"])
         msg = await self.make_operation_message(dt, op, op_number)
+        guild = self.bot.get_guild(guild_id)
+        channel = guild.get_channel(op["Channel_id"])
+        message = get(await channel.history(limit=100).flatten(), id=op["Post_id"])
 
-        message = await ctx.fetch_message(op["Post_id"])
+        # message = await ctx.fetch_message(op["Post_id"])
         await message.edit(content=msg)
 
     @staticmethod
@@ -636,15 +641,15 @@ class Operations(Cog):
         else:
             return None
 
-    async def write_operation(self, ctx: context, op: dict, op_number: id) -> None:
+    async def write_operation(self, op: dict, op_number: id, guild_id: int) -> None:
         """
         Edits the pinned message and writes the new ops dictionary to the Ops.json file
         :param op: The operation details dictionary.
         :param op_number: The operation id.
         """
-        await self.edit_pinned_message(ctx, op, op_number)
+        await self.edit_pinned_message(op, op_number, guild_id)
 
-        self.ops[str(ctx.guild.id)][str(op_number)] = op
+        self.ops[str(guild_id)][str(op_number)] = op
         with open('./Ops.json', 'w') as f:
             dump(self.ops, f)
 
@@ -663,8 +668,8 @@ class Operations(Cog):
     async def get_random_operation(self) -> str:
         return choice(list(self.operations.keys()))
 
-    async def add_to_operation(self, ctx: context, op: dict, op_number: str, sign_up_name: str, main_role: str,
-                               alt_role: str = None) -> None:
+    async def add_to_operation(self, op: dict, op_number: str, guild_id:int, sign_up_name: str,
+                               main_role: str, alt_role: str = None) -> None:
         """
         Adds the given user to the sign ups. (validates parameters)
         :param op: The operation to add the person to.
@@ -674,67 +679,99 @@ class Operations(Cog):
         :param alt_role: The alternative role of the person to be added.
         """
         if not op:
-            message = await ctx.send("There is no Operation with that number.")
-            await message.delete(delay=10)
-            return
+            raise SignUpError("There is no Operation with that number.")
 
         main_role = await self.validate_role(main_role)
         if not main_role:
-            await ctx.send("Main role is not valid. Please enter a valid role.")
-            return
+            raise SignUpError("Main role is not valid. Please enter a valid role.")
 
         if alt_role:
             alt_role = await self.validate_role(alt_role)
             if not alt_role:
-                await ctx.send("Alternative role is not valid. Please enter a valid role.")
-                return
+                raise SignUpError("Alternative role is not valid. Please enter a valid role.")
             elif main_role == alt_role:
-                alt_role =  None
+                alt_role = None
             elif alt_role == "Reserve":
-                await ctx.send("Alt role can not be reserve. If you wish to sign as a reserve please select it as "
-                               "the main role.")
-                return
+                raise SignUpError("Alt role can not be reserve. If you wish to sign as a reserve please select it as "
+                                  "the main role.")
         elif main_role == "Reserve":
-            await ctx.send("You must add a alternative role to sign as reserve.")
-            return
-
+            raise SignUpError("You must add a alternative role to sign as reserve.")
 
         if await self.check_duplicate(op, sign_up_name):
             if not await self.check_role_change(op, sign_up_name, main_role, alt_role):
-                await ctx.send("You have already signed-up for that operation.")
-                return
+                raise SignUpError("You have already signed-up for that operation.")
             elif await self.check_role_full(op, main_role):
-                await ctx.send("That role is full. Your role has not been changed.")
-                return
+                raise SignUpError("That role is full. Your role has not been changed.")
             else:
                 op = await self.remove_signup(op, sign_up_name)
         elif op["Signed"] >= int(op["Size"]) and main_role != "Reserve":
             op["Sign-ups"]["Reserve"] += [f"{sign_up_name} ({main_role})"]
-            await self.write_operation(ctx, op, op_number)
-            await ctx.send("This operation is full you have been placed as a reserve.")
-            return
+            await self.write_operation(op, op_number, guild_id)
+            raise SignUpError("This operation is full you have been placed as a reserve.")
         else:
             if await self.check_role_full(op, main_role):
                 if not alt_role:
                     op["Sign-ups"]["Reserve"] += [f"{sign_up_name} ({main_role})"]
-                    await self.write_operation(ctx, op, op_number)
-                    await ctx.send("That role is full you have been placed as a reserve.")
-                    return
+                    await self.write_operation(op, op_number, guild_id)
+                    raise SignUpError("That role is full you have been placed as a reserve.")
                 elif await self.check_role_full(op, alt_role):
                     op["Sign-ups"]["Reserve"] += [f"{sign_up_name} ({main_role})"]
-                    await self.write_operation(ctx, op, op_number)
-                    await ctx.send("Those roles are full you have been placed as a reserve.")
-                    return
+                    await self.write_operation(op, op_number, guild_id)
+                    raise SignUpError("Those roles are full you have been placed as a reserve.")
                 else:
                     temp_role = main_role
                     main_role = alt_role
                     alt_role = temp_role
-                    await ctx.send(f"{temp_role} is full. You have been signed as {main_role}.")
+                    # await ctx.send(f"{temp_role} is full. You have been signed as {main_role}.")
                     del temp_role
 
         op = await self.add_signup(op, sign_up_name, main_role, alt_role)
 
-        await self.write_operation(ctx, op, op_number)
+        await self.write_operation(op, op_number, guild_id)
         return True
 
+    @sign_up.error
+    @add_sign_up.error
+    async def sign_up_error_handler(self, ctx: context, error):
+        if isinstance(error, errors.CommandInvokeError):
+            message = await ctx.send(error.__cause__)
+            await message.delete(delay=10)
 
+    @Cog.listener()
+    async def on_raw_reaction_add(self, payload):
+        """
+        Runs when a reaction is added to a message. Used for reaction based sign ups.
+        """
+        for id, op in self.ops.get(str(payload.guild_id), {}).items():
+            if op["Post_id"] == payload.message_id:
+                break
+        else:
+            return
+        role = await check_valid_reaction(payload.emoji.name)
+        if not role:
+            return
+        try:
+            guild = self.bot.get_guild(payload.guild_id)
+            user = guild.get_member(payload.user_id)
+            await self.add_to_operation(op, id, payload.guild_id, user.display_name, role, None)
+        except SignUpError:
+            pass
+
+    @Cog.listener()
+    async def on_raw_reaction_remove(self, payload):
+        """
+        Runs when a reaction is removed from a message. Used for reaction based sign ups.
+        """
+        for id, op in self.ops.get(str(payload.guild_id), {}).items():
+            if op["Post_id"] == payload.message_id:
+                break
+        else:
+            return
+        role = await check_valid_reaction(payload.emoji.name)
+        if not role:
+            return
+        guild = self.bot.get_guild(payload.guild_id)
+        user = guild.get_member(payload.user_id)
+        if not await self.check_role_change(op, user.display_name, role, None):
+            op = await self.remove_signup(op, user.display_name)
+            await self.write_operation(op, id, payload.guild_id)

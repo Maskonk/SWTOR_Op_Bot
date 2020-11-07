@@ -1,14 +1,21 @@
 from discord.ext.commands import Bot
-from discord import Game
+from discord import Game, Intents
 from discord.ext import commands
 from Cogs.Operations import Operations
 from Cogs.Swtor import Swtor
+from json import load
+from Utils.ReactionUtils import *
 
 bot_prefix = "-"
 with open('./token.txt', 'r') as f:
     token = f.read()
 
-client = Bot(command_prefix=bot_prefix)
+with open('./Ops.json', 'r') as f:
+    ops = load(f)
+
+intents = Intents.default()
+intents.members = True
+client = Bot(command_prefix=bot_prefix, intents=intents)
 
 
 @client.event
@@ -19,7 +26,9 @@ async def on_ready():
 
 @client.event
 async def on_command_error(ctx, error):
-    if isinstance(error, commands.CommandNotFound):
+    if hasattr(ctx.command, 'on_error'):
+        return
+    elif isinstance(error, commands.CommandNotFound):
         await ctx.send("That is not a valid command. Please use **.help** for a list of all commands.")
     elif isinstance(error, commands.CheckFailure):
         await ctx.send("You are not authorized to use this command.")
@@ -40,10 +49,6 @@ async def github(ctx):
     await ctx.send("The bot is written in Python using the discord.py framework. The code is available here: "
                    "https://github.com/Maskonk/SWTOR_Op_Bot")
 
-# @client.event
-# async def on_reaction_add(reaction, user):
-#     print(reaction.message)
-
-client.add_cog(Operations(client))
+client.add_cog(Operations(client, ops))
 client.add_cog(Swtor(client))
 client.run(token)
