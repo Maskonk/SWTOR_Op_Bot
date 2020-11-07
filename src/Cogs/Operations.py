@@ -555,7 +555,7 @@ class Operations(Cog):
         :param size: The size input by the user.
         :return: Booleon True if the size input is valid.
         """
-        return size in self.sizes.keys()
+        return str(size) in self.sizes.keys()
 
     async def edit_pinned_message(self, op: dict, op_number: str, guild_id: int) -> None:
         """
