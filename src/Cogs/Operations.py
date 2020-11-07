@@ -715,7 +715,9 @@ class Operations(Cog):
         if not role:
             return
         try:
-            op = await self.add_to_operation(op, id, payload.guild_id, payload.member.nick, role, None)
+            guild = self.bot.get_guild(payload.guild_id)
+            user = guild.get_member(payload.user_id)
+            await self.add_to_operation(op, id, payload.guild_id, user.display_name, role, None)
         except SignUpError:
             pass
 
