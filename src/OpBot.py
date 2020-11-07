@@ -24,23 +24,23 @@ async def on_ready():
     print("Online")
 
 
-# @client.event
-# async def on_command_error(ctx, error):
-#     if hasattr(ctx.command, 'on_error'):
-#         return
-#     elif isinstance(error, commands.CommandNotFound):
-#         await ctx.send("That is not a valid command. Please use **.help** for a list of all commands.")
-#     elif isinstance(error, commands.CheckFailure):
-#         await ctx.send("You are not authorized to use this command.")
-#     elif isinstance(error, commands.MissingRequiredArgument):
-#         await ctx.send(f"You have missed {error.param} from the command. Use .help <command_name> for exactly "
-#                        f"what is required.")
-#     elif isinstance(error, commands.BotMissingPermissions):
-#         await ctx.send("The bot does not currently have permissions to perform this action.")
-#     else:
-#         print(error)
-#         await ctx.send("An error has occurred with this command, please try again, if this persists please report it "
-#                        "to Gatters.")
+@client.event
+async def on_command_error(ctx, error):
+    if hasattr(ctx.command, 'on_error'):
+        return
+    elif isinstance(error, commands.CommandNotFound):
+        await ctx.send("That is not a valid command. Please use **.help** for a list of all commands.")
+    elif isinstance(error, commands.CheckFailure):
+        await ctx.send("You are not authorized to use this command.")
+    elif isinstance(error, commands.MissingRequiredArgument):
+        await ctx.send(f"You have missed {error.param} from the command. Use .help <command_name> for exactly "
+                       f"what is required.")
+    elif isinstance(error, commands.BotMissingPermissions):
+        await ctx.send("The bot does not currently have permissions to perform this action.")
+    else:
+        print(error)
+        await ctx.send("An error has occurred with this command, please try again, if this persists please report it "
+                       "to Gatters.")
 
 
 @client.command(aliases=["code", "Code"])

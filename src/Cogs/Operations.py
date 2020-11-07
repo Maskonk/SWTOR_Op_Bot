@@ -240,7 +240,7 @@ class Operations(Cog):
                 await message.delete(delay=10)
                 return
         elif attribute.capitalize() == "Size":
-            if not await self.validate_size_input(int(value)):
+            if not await self.validate_size_input(value):
                 message = await ctx.send("That is not a valid size.")
                 await message.delete(delay=10)
                 return
@@ -517,8 +517,9 @@ class Operations(Cog):
         operation_name = self.operations[op['Operation'].lower()]
         difficulty = self.difficulties[op['Difficulty'].lower()]
         notes = op["Notes"]
+        size = sum(self.sizes[op['Size']].values())
         extension = await self.date_extention(dt.day)
-        msg = f"{op_id}: {op['Size']}m {operation_name} {difficulty} {op['Side']}\n{day_name[dt.weekday()]} the " \
+        msg = f"{op_id}: {size}m {operation_name} {difficulty} {op['Side']}\n{day_name[dt.weekday()]} the " \
               f"{extension} of {month_name[dt.month]} " \
               f"starting at {dt.time().strftime('%H:%M')} CET."
         if notes:
