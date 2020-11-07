@@ -19,8 +19,8 @@ class Operations(Cog):
                            "tc": "Toborro's Courtyard", "cm": "Colossal Monolith", "gq": "Geonosian Queen",
                            "wb": "World Boss", "gf": "Group finder", "other": "Other activity", "eyeless": "Eyeless",
                            "xeno": "Xenoanalyst", "rav": "Ravagers", "tos": "Temple of Sacrifice"}
-        self.sizes = {1: {"Tank": 0, "Dps": 1, "Healer": 0}, 4: {"Tank": 1, "Dps": 2, "Healer": 1},
-                      8: {"Tank": 2, "Dps": 4, "Healer": 2}, 16: {"Tank": 2, "Dps": 10, "Healer": 4}}
+        self.sizes = {"1": {"Tank": 0, "Dps": 1, "Healer": 0}, "4": {"Tank": 1, "Dps": 2, "Healer": 1},
+                      "8": {"Tank": 2, "Dps": 4, "Healer": 2}, "16": {"Tank": 2, "Dps": 10, "Healer": 4}}
         self.difficulties = {"sm": "Story Mode", "hm": "Veteran Mode", "nim": "Master Mode", "vm": "Veteran mode",
                              "mm": "Master Mode"}
         self.ops = ops
@@ -409,7 +409,6 @@ class Operations(Cog):
                     alt_change = True
         return main_change or alt_change
 
-    # No longer static
     async def add_signup(self, op: dict, sign_up_name, main_role, alt_role: str = None) -> dict:
         """
         Adds a user with given name and roles to the given operation
