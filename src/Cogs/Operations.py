@@ -517,7 +517,7 @@ class Operations(Cog):
         operation_name = self.operations[op['Operation'].lower()]
         difficulty = self.difficulties[op['Difficulty'].lower()]
         notes = op["Notes"]
-        size = sum(self.sizes[op['Size']].values())
+        size = sum(self.sizes[str(op['Size'])].values())
         extension = await self.date_extention(dt.day)
         msg = f"{op_id}: {size}m {operation_name} {difficulty} {op['Side']}\n{day_name[dt.weekday()]} the " \
               f"{extension} of {month_name[dt.month]} " \
