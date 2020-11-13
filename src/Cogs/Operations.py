@@ -11,7 +11,7 @@ from re import sub
 
 
 class Operations(Cog):
-    def __init__(self, bot, ops):
+    def __init__(self, bot, ops, config):
         self.bot = bot
         self.operations = {"s&v": "Scum and Villainy", "tfb": "Terror From Beyond", "kp": "Karagga's Palace",
                            "ev": "Eternity Vault", "ec": "Explosive Conflict", "df": "Dread Fortress",
@@ -26,6 +26,7 @@ class Operations(Cog):
         self.difficulties = {"sm": "Story Mode", "hm": "Veteran Mode", "nim": "Master Mode", "vm": "Veteran mode",
                              "mm": "Master Mode"}
         self.ops = ops
+        self.config = config
 
     @command(aliases=["ops", "operations", "list"])
     async def list_all_operations(self, ctx: context) -> None:
@@ -575,14 +576,14 @@ class Operations(Cog):
         # message = await ctx.fetch_message(op["Post_id"])
         await message.edit(content=msg)
 
-    @staticmethod
-    async def is_owner_or_admin(ctx: context, op: dict) -> bool:
+    async def is_owner_or_admin(self, ctx: context, op: dict) -> bool:
         """
         Checks if the user is the owner of the given operation or an Admin.
         :param op: The Operation details dictionary.
         :return: Booleon True is the user owns the operation or is an Admin.
         """
-        return ctx.author.id in [op["Owner_id"], 168009927015661568]
+        server_admins = self.config.get(str(ctx.guild.id), {}).get("Admins", [])
+        return ctx.author.id in ([op["Owner_id"], 168009927015661568] + server_admins)
 
     @staticmethod
     async def validate_role(role: str) -> str:

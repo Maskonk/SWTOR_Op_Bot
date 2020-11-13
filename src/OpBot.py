@@ -13,6 +13,9 @@ with open('./token.txt', 'r') as f:
 with open('./Ops.json', 'r') as f:
     ops = load(f)
 
+with open('./config.json', 'r') as f:
+    config = load(f)
+
 intents = Intents.default()
 intents.members = True
 client = Bot(command_prefix=bot_prefix, intents=intents)
@@ -49,6 +52,6 @@ async def github(ctx):
     await ctx.send("The bot is written in Python using the discord.py framework. The code is available here: "
                    "https://github.com/Maskonk/SWTOR_Op_Bot")
 
-client.add_cog(Operations(client, ops))
+client.add_cog(Operations(client, ops, config))
 client.add_cog(Swtor(client))
 client.run(token)
