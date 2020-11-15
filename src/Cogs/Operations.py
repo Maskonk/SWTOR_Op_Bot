@@ -114,9 +114,9 @@ class Operations(Cog):
             op_id = 1
 
         if operation.lower() == "random":
-            operation = await self.get_random_operation()
+            operation = await self.get_random_operation(self.operations)
             while operation in ["wb", "gf", "other"]:
-                operation = await self.get_random_operation()
+                operation = await self.get_random_operation(self.operations)
 
         op = {"Operation": operation,
               "Size": size,
@@ -341,7 +341,7 @@ class Operations(Cog):
 
     @command(aliases=["random"])
     async def random_operation(self, ctx: context):
-        operation = await self.get_random_operation()
+        operation = await self.get_random_operation(self.operations)
         await ctx.send(f"The random operation is: {operation}")
 
     @staticmethod
@@ -597,8 +597,14 @@ class Operations(Cog):
         elif len(op["Sign-ups"][role]) >= self.sizes[str(op["Size"])][role]:
             return True
 
-    async def get_random_operation(self) -> str:
-        return choice(list(self.operations.keys()))
+    @staticmethod
+    async def get_random_operation(operations: dict) -> str:
+        """
+        Returns a random operation from the keys of the given dictionary.
+        :param operations: Dictionary of the operations to choose from.
+        :return: str name of the random operation.
+        """
+        return choice(list(operations.keys()))
 
     async def add_to_operation(self, op: dict, op_number: str, guild_id:int, sign_up_name: str,
                                main_role: str, alt_role: str = None) -> None:
