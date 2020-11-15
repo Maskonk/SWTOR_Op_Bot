@@ -113,6 +113,7 @@ class Swtor(Cog):
                      "New phone who's this?", "The answer guys on the shitter at the moment can I take a message?",
                      "Only if Gatters says yes.", "How much are you willing to pay for an answer?",
                      "You have reached the wrong number please hang up and try again."]
+        responses += config.get("Ask", [])
         await ctx.send(f"Oh magic ball {' '.join(question)}\nThe magic ball says:\n{choice(responses)}")
 
     @command()
@@ -132,4 +133,5 @@ class Swtor(Cog):
             "my brother joined a cult that worships Gatters as their deity, I have to go shock him to his senses.",
             "my religion believes that the world ends next week and it is my duty to make as much chaos and "
             "mayhem as I can, so that even if it doesn't it looks like it has."]
+        excuses += config.get("Excuses", [])
         await ctx.send(f"I can't make it {choice(excuses)}")
