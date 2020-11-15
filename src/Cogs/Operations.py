@@ -78,6 +78,10 @@ class Operations(Cog):
         :param time: The start time of the operation.
         :param notes: Any notes for the operation.
         """
+        config = self.config.get(str(ctx.guild.id), {})
+        if not await validate_operation_channel(ctx.channel.id, config):
+            return
+
         if not await validate_operation_input(operation, self.operations):
             await ctx.send("That is not a valid operation.")
             return
@@ -164,6 +168,9 @@ class Operations(Cog):
         :param main_role: The main role to sign up as.
         :param alt_role: Optional alternative role to sign up as.
         """
+        config = self.config.get(str(ctx.guild.id), {})
+        if not await validate_sign_up_channel(ctx.channel.id, config):
+            return
         op = self.ops.get(str(ctx.guild.id), {}).get(str(op_number))
         r = await self.add_to_operation(op, op_number, ctx.guild.id, ctx.author.display_name, main_role, alt_role)
         if r:

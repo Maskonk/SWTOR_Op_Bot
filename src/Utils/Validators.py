@@ -78,3 +78,42 @@ async def validate_operation_input(op: str, operations: dict) -> bool:
     :return: Booleon True if the operation input is valid.
     """
     return op.lower() in operations.keys() or op.lower() == "random"
+
+
+async def validate_operation_channel(input_channel_id: int, server_config: dict) -> bool:
+    """
+    Validator for operation commands channel input. Checks if the input channel is a valid channel for operation
+    commands.
+    :param input_channel_id: The inputs channel id.
+    :param server_config: Dictionary of the configuration for the server.
+    :return: Boolean True if channel is valid.
+    """
+    config_id_list = server_config.get("Operation_channels", [])
+    if not config_id_list:
+        return True
+    return input_channel_id in config_id_list
+
+
+async def validate_sign_up_channel(input_channel_id: int, server_config: dict) -> bool:
+    """
+    Validator for operation sign up commands channel input. Checks if the input channel is a valid channel for operation
+    sign up commands.
+    :param input_channel_id: The inputs channel id.
+    :param server_config: Dictionary of the configuration for the server.
+    :return: Boolean True if channel is valid.
+    """
+    config_id_list = server_config.get("Signup_channels", [])
+    if not config_id_list:
+        return True
+    return input_channel_id in config_id_list
+
+
+async def validate_swtor_channel(input_channel_id: int, server_config: dict) -> bool:
+    """
+    Validator for swtor commands channel input. Checks if the input channel is a valid channel for general swtor
+    commands.
+    :param input_channel_id: The inputs channel id.
+    :param server_config: Dictionary of the configuration for the server.
+    :return: Boolean True if channel is valid.
+    """
+    pass
