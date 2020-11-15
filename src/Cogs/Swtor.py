@@ -1,9 +1,10 @@
 from discord.ext.commands import Cog, context, command
 from random import choice
+from Utils.Validators import validate_swtor_channel
 
 
 class Swtor(Cog):
-    def __init__(self, bot):
+    def __init__(self, bot, config):
         self.bot = bot
         self.operations = {"s&v": "Scum and Villainy", "tfb": "Terror From Beyond", "kp": "Karagga's Palace",
                            "ev": "Eternity Vault", "ec": "Explosive Conflict", "df": "Dread Fortress",
@@ -11,6 +12,7 @@ class Swtor(Cog):
                            "tc": "Toborro's Courtyard", "cm": "Colossal Monolith", "gq": "Geonosian Queen",
                            "wb": "World Boss", "gf": "Group finder", "other": "Other activity", "eye": "Eyeless",
                            "xeno": "Xenoanalyst", "rav": "Ravagers", "tos": "Temple of Sacrifice"}
+        self.config = config
 
     @command()
     async def spec(self, ctx: context, tag: str = "all", side: str = "imp") -> None:
@@ -19,6 +21,9 @@ class Swtor(Cog):
         :param tag: Tag to search for:
         :param side: If the side is Republic.
         """
+        config = self.config.get(str(ctx.guild.id), {})
+        if not await validate_swtor_channel(ctx.channel.id, config):
+            return
         specs = {"Hatred": ["assassin", "shadow", "dwt", "dps", "dot", "sin", "melee", "mdps"],
                  "Deception": ["assassin", "shadow", "dwt", "dps", "burst", "sin", "melee", "mdps"],
                  "Lightning": ["sorcerer", "sage", "dwh", "dps", "burst", "sorc", "ranged", "rdps"],
@@ -70,6 +75,9 @@ class Swtor(Cog):
 
     @command()
     async def op_codes(self, ctx: context):
+        config = self.config.get(str(ctx.guild.id), {})
+        if not await validate_swtor_channel(ctx.channel.id, config):
+            return
         msg = ""
         for op in self.operations.keys():
             msg += f"{op.capitalize()}: {self.operations[op]}\n"
@@ -77,6 +85,9 @@ class Swtor(Cog):
 
     @command(aliases=["guide"])
     async def command_guide(self, ctx: context):
+        config = self.config.get(str(ctx.guild.id), {})
+        if not await validate_swtor_channel(ctx.channel.id, config):
+            return
         await ctx.send("A full guide to all bot commands is here: "
                        "https://github.com/Maskonk/SWTOR_Op_Bot/wiki/Operation-Commands.")
 
@@ -86,6 +97,9 @@ class Swtor(Cog):
         8-ball style command. Ask a question and it will gives a response.
         :param question:  The question asked.
         """
+        config = self.config.get(str(ctx.guild.id), {})
+        if not await validate_swtor_channel(ctx.channel.id, config):
+            return
         responses = ["Don't count on it.", "The Dark Council have decreed so.", "Only if you want it bad enough.",
                      "My sources say no.", "Very doubtful.", "Outlook not so good.", "Ask again later.",
                      "Try asking your DM.", "Better not tell you now.", "Reply hazy try again.", "Outlook good.",
@@ -99,6 +113,7 @@ class Swtor(Cog):
                      "New phone who's this?", "The answer guys on the shitter at the moment can I take a message?",
                      "Only if Gatters says yes.", "How much are you willing to pay for an answer?",
                      "You have reached the wrong number please hang up and try again."]
+        responses += config.get("Ask", [])
         await ctx.send(f"Oh magic ball {' '.join(question)}\nThe magic ball says:\n{choice(responses)}")
 
     @command()
@@ -106,6 +121,9 @@ class Swtor(Cog):
         """
         Provides an silly excuse for not attending a session.
         """
+        config = self.config.get(str(ctx.guild.id), {})
+        if not await validate_swtor_channel(ctx.channel.id, config):
+            return
         excuses = [
             "my sister's boyfriend's neighbour's best friend's duck died, they are giving it a Viking funeral.",
             "my electricity provider decided to be greener so cut all power it gets from "
@@ -115,4 +133,5 @@ class Swtor(Cog):
             "my brother joined a cult that worships Gatters as their deity, I have to go shock him to his senses.",
             "my religion believes that the world ends next week and it is my duty to make as much chaos and "
             "mayhem as I can, so that even if it doesn't it looks like it has."]
+        excuses += config.get("Excuses", [])
         await ctx.send(f"I can't make it {choice(excuses)}")

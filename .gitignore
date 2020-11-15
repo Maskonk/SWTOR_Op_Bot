@@ -2,5 +2,6 @@ src/token.txt
 venv
 .idea
 tester.py
-Ops.json
+src/Ops.json
 __pycache__
+src/config.json

@@ -7,11 +7,12 @@ from calendar import month_name, day_name
 from random import choice
 from Utils.Errors import SignUpError
 from Utils.ReactionUtils import check_valid_reaction
+from Utils.Validators import *
 from re import sub
 
 
 class Operations(Cog):
-    def __init__(self, bot, ops):
+    def __init__(self, bot, ops, config):
         self.bot = bot
         self.operations = {"s&v": "Scum and Villainy", "tfb": "Terror From Beyond", "kp": "Karagga's Palace",
                            "ev": "Eternity Vault", "ec": "Explosive Conflict", "df": "Dread Fortress",
@@ -26,6 +27,7 @@ class Operations(Cog):
         self.difficulties = {"sm": "Story Mode", "hm": "Veteran Mode", "nim": "Master Mode", "vm": "Veteran mode",
                              "mm": "Master Mode"}
         self.ops = ops
+        self.config = config
 
     @command(aliases=["ops", "operations", "list"])
     async def list_all_operations(self, ctx: context) -> None:
@@ -76,26 +78,30 @@ class Operations(Cog):
         :param time: The start time of the operation.
         :param notes: Any notes for the operation.
         """
-        if not await self.validate_operation_input(operation):
+        config = self.config.get(str(ctx.guild.id), {})
+        if not await validate_operation_channel(ctx.channel.id, config):
+            return
+
+        if not await validate_operation_input(operation, self.operations):
             await ctx.send("That is not a valid operation.")
             return
 
-        if not await self.validate_time_input(date, time):
+        if not await validate_time_input(date, time):
             message = await ctx.send("That date has already passed.")
             await message.delete(delay=10)
             return
 
-        if not await self.validate_difficulty_input(difficulty):
+        if not await validate_difficulty_input(difficulty):
             message = await ctx.send("That is not a valid difficulty.")
             await message.delete(delay=10)
             return
 
-        if not await self.validate_size_input(size):
+        if not await validate_size_input(size, self.sizes):
             message = await ctx.send("That is not a valid size.")
             await message.delete(delay=10)
             return
 
-        if not await self.validate_side_input(side):
+        if not await validate_side_input(side):
             message = await ctx.send("That is not a valid side.")
             await message.delete(delay=10)
             return
@@ -112,9 +118,9 @@ class Operations(Cog):
             op_id = 1
 
         if operation.lower() == "random":
-            operation = await self.get_random_operation()
+            operation = await self.get_random_operation(self.operations)
             while operation in ["wb", "gf", "other"]:
-                operation = await self.get_random_operation()
+                operation = await self.get_random_operation(self.operations)
 
         op = {"Operation": operation,
               "Size": size,
@@ -162,6 +168,9 @@ class Operations(Cog):
         :param main_role: The main role to sign up as.
         :param alt_role: Optional alternative role to sign up as.
         """
+        config = self.config.get(str(ctx.guild.id), {})
+        if not await validate_sign_up_channel(ctx.channel.id, config):
+            return
         op = self.ops.get(str(ctx.guild.id), {}).get(str(op_number))
         r = await self.add_to_operation(op, op_number, ctx.guild.id, ctx.author.display_name, main_role, alt_role)
         if r:
@@ -173,6 +182,9 @@ class Operations(Cog):
         Remove sign up from the given operation.
         :param op_number: The operation id to remove sign up from.
         """
+        config = self.config.get(str(ctx.guild.id), {})
+        if not await validate_sign_up_channel(ctx.channel.id, config):
+            return
         op = self.ops.get(str(ctx.guild.id), {}).get(str(op_number))
         if not op:
             message = await ctx.send("There is no Operation with that number.")
@@ -196,6 +208,9 @@ class Operations(Cog):
         :param attribute: Attribute to change.
         :param value: The new value of the attribute.
         """
+        config = self.config.get(str(ctx.guild.id), {})
+        if not await validate_sign_up_channel(ctx.channel.id, config):
+            return
         op = self.ops.get(str(ctx.guild.id), {}).get(str(op_number))
         if not op:
             message = await ctx.send("There is no Operation with that number.")
@@ -221,31 +236,31 @@ class Operations(Cog):
             value = value[0]
 
         if attribute.capitalize() == "Operation":
-            if not await self.validate_operation_input(value):
+            if not await validate_operation_input(value, self.operations):
                 await ctx.send("That is not a valid operation.")
                 return
         elif attribute.capitalize() == "Date":
-            if not await self.validate_time_input(value, op["Time"]):
+            if not await validate_time_input(value, op["Time"]):
                 message = await ctx.send("That date has already passed.")
                 await message.delete(delay=10)
                 return
         elif attribute.capitalize() == "Time":
-            if not await self.validate_time_input(op["Date"], value):
+            if not await validate_time_input(op["Date"], value):
                 message = await ctx.send("That date has already passed.")
                 await message.delete(delay=10)
                 return
         elif attribute.capitalize() == "Difficulty":
-            if not await self.validate_difficulty_input(value):
+            if not await validate_difficulty_input(value):
                 message = await ctx.send("That is not a valid difficulty.")
                 await message.delete(delay=10)
                 return
         elif attribute.capitalize() == "Size":
-            if not await self.validate_size_input(value):
+            if not await validate_size_input(value, self.sizes):
                 message = await ctx.send("That is not a valid size.")
                 await message.delete(delay=10)
                 return
         elif attribute.capitalize() == "Side":
-            if not await self.validate_side_input(value):
+            if not await validate_side_input(value):
                 message = await ctx.send("That is not a valid side.")
                 await message.delete(delay=10)
                 return
@@ -261,6 +276,9 @@ class Operations(Cog):
         Deletes a given operation. Restricted to the creator or an admin.
         :param op_number: The operation id.
         """
+        config = self.config.get(str(ctx.guild.id), {})
+        if not await validate_sign_up_channel(ctx.channel.id, config):
+            return
         op = self.ops.get(str(ctx.guild.id), {}).get(str(op_number))
         if not op:
             message = await ctx.send("There is no Operation with that number.")
@@ -288,6 +306,9 @@ class Operations(Cog):
         :param op_number: The id of the operation.
         :param name: The name of the person to be removed.
         """
+        config = self.config.get(str(ctx.guild.id), {})
+        if not await validate_sign_up_channel(ctx.channel.id, config):
+            return
         op = self.ops.get(str(ctx.guild.id), {}).get(str(op_number))
         if not op:
             message = await ctx.send("There is no Operation with that number.")
@@ -314,6 +335,9 @@ class Operations(Cog):
         :param main_role: The main role of the person to be added.
         :param alt_role: The alt role of the person to be added.
         """
+        config = self.config.get(str(ctx.guild.id), {})
+        if not await validate_sign_up_channel(ctx.channel.id, config):
+            return
         op = self.ops.get(str(ctx.guild.id), {}).get(str(op_number))
 
         r = await self.add_to_operation(op, op_number, ctx.guild.id, sign_up_name, main_role, alt_role)
@@ -325,6 +349,9 @@ class Operations(Cog):
         """
         A basic user guide on how to use the bot.
         """
+        config = self.config.get(str(ctx.guild.id), {})
+        if not await validate_swtor_channel(ctx.channel.id, config):
+            return
         msg = "**Basic user guide:**\n__Creating a new operation:__```-new <operation> <mode> <side> <size> <date> " \
               "<time>``` Will create a new operation, Example:```-new TFB MM Imp 8 22/10/20 19:00```" \
               "Will create a new 8m Terror From Beyond Master Mode Imperial side on the 22nd of October 2020 at 19:00 "\
@@ -339,16 +366,11 @@ class Operations(Cog):
 
     @command(aliases=["random"])
     async def random_operation(self, ctx: context):
-        operation = await self.get_random_operation()
+        config = self.config.get(str(ctx.guild.id), {})
+        if not await validate_swtor_channel(ctx.channel.id, config):
+            return
+        operation = await self.get_random_operation(self.operations)
         await ctx.send(f"The random operation is: {operation}")
-
-    async def validate_operation_input(self, op: str) -> bool:
-        """
-        Checks the users input to ensure the operation input is valid.
-        :param op: The Operation input by the user.
-        :return: Booleon True if the operation input is valid.
-        """
-        return op.lower() in self.operations.keys() or op.lower() in self.operations.values() or op.lower() == "random"
 
     @staticmethod
     async def check_duplicate(op: dict, user_nick: str) -> bool:
@@ -455,7 +477,7 @@ class Operations(Cog):
         name = f"{sign_up_name} (Any)"
 
         for role in roles:
-            if (not await self.check_role_full(op, role)):
+            if not await self.check_role_full(op, role):
                 roles.remove(role)
                 op["Sign-ups"][role] += [name]
 
@@ -488,20 +510,6 @@ class Operations(Cog):
         op["Signed"] -= 1
         return op
 
-    @staticmethod
-    async def validate_time_input(date: str, time: str) -> bool:
-        """
-        Checks the users input to ensure the date and time inputs are valid and not yet passed.
-        :param date: The Date input by the user.
-        :param time: The Time input by the user.
-        :return: Booleon True if the date and time inputs are valid.
-        """
-        dt = parse(f"{date} {time}")
-        if dt < datetime.today():
-            return False
-        else:
-            return True
-
     async def make_operation_message(self, dt: datetime, op: dict, op_id: str) -> str:
         """
         Composes operation message.
@@ -518,7 +526,7 @@ class Operations(Cog):
         difficulty = self.difficulties[op['Difficulty'].lower()]
         notes = op["Notes"]
         size = sum(self.sizes[str(op['Size'])].values())
-        extension = await self.date_extention(dt.day)
+        extension = await self.date_extension(dt.day)
         msg = f"{op_id}: {size}m {operation_name} {difficulty} {op['Side']}\n{day_name[dt.weekday()]} the " \
               f"{extension} of {month_name[dt.month]} " \
               f"starting at {dt.time().strftime('%H:%M')} CET."
@@ -543,23 +551,6 @@ class Operations(Cog):
         msg += f"\nTo sign up use -sign {op_id} <role> <alt role>"
         return msg
 
-    @staticmethod
-    async def validate_difficulty_input(difficulty: str) -> bool:
-        """
-        Checks the users input to ensure the difficulty input is valid.
-        :param difficulty: The difficulty input by the user.
-        :return: Booleon True if the difficulty input is valid.
-        """
-        return difficulty.lower() in ["sm", "hm", "nim", "na", "vm", "mm"]
-
-    async def validate_size_input(self, size: int) -> bool:
-        """
-        Checks the users input to ensure the size input is valid.
-        :param size: The size input by the user.
-        :return: Booleon True if the size input is valid.
-        """
-        return str(size) in self.sizes.keys()
-
     async def edit_pinned_message(self, op: dict, op_number: str, guild_id: int) -> None:
         """
         Edits the pinned message for the operation.
@@ -575,35 +566,14 @@ class Operations(Cog):
         # message = await ctx.fetch_message(op["Post_id"])
         await message.edit(content=msg)
 
-    @staticmethod
-    async def is_owner_or_admin(ctx: context, op: dict) -> bool:
+    async def is_owner_or_admin(self, ctx: context, op: dict) -> bool:
         """
         Checks if the user is the owner of the given operation or an Admin.
         :param op: The Operation details dictionary.
         :return: Booleon True is the user owns the operation or is an Admin.
         """
-        return ctx.author.id in [op["Owner_id"], 168009927015661568]
-
-    @staticmethod
-    async def validate_role(role: str) -> str:
-        """
-        Checks the role given is valid and converts any short hand role to the proper name.
-        :param role: The role of the user.
-        :return: The long version of the users role.
-        """
-        if role.lower() in ["t", "tank", "d", "dps", "h", "heals", "healer", "heal", "a", "any", "r", "reserve"]:
-            if role[0].lower() == "t":
-                return "Tank"
-            elif role[0].lower() == "d":
-                return "Dps"
-            elif role[0].lower() == "h":
-                return "Healer"
-            elif role[0].lower() == "a":
-                return "Any"
-            elif role[0].lower() == "r":
-                return "Reserve"
-        else:
-            return ""
+        server_admins = self.config.get(str(ctx.guild.id), {}).get("Admins", [])
+        return ctx.author.id in ([op["Owner_id"], 168009927015661568] + server_admins)
 
     @staticmethod
     async def parse_date(date: str, time: str) -> datetime:
@@ -616,7 +586,7 @@ class Operations(Cog):
         return parse(f"{date} {time}", dayfirst=True)
 
     @staticmethod
-    async def date_extention(number: int) -> str:
+    async def date_extension(number: int) -> str:
         """
         Gives number extension for date.
         :param number: The date number the extension is for.
@@ -630,20 +600,6 @@ class Operations(Cog):
             return '%drd' % number
         if (number % 10 >= 4) or (number % 10 == 0):
             return '%dth' % number
-
-    @staticmethod
-    async def validate_side_input(side: str) -> str:
-        """
-        Checks the side given is valid and converts names to a standard.
-        :param side: The side the operation is to take place
-        :return: The standard name of the side or None if invalid.
-        """
-        if side.lower() in ["imp", "imps", "imperial", "i"]:
-            return "Imp"
-        elif side.lower() in ["rep", "reps", "republic", "pub", "r"]:
-            return "Rep"
-        else:
-            return None
 
     async def write_operation(self, op: dict, op_number: id, guild_id: int) -> None:
         """
@@ -669,8 +625,14 @@ class Operations(Cog):
         elif len(op["Sign-ups"][role]) >= self.sizes[str(op["Size"])][role]:
             return True
 
-    async def get_random_operation(self) -> str:
-        return choice(list(self.operations.keys()))
+    @staticmethod
+    async def get_random_operation(operations: dict) -> str:
+        """
+        Returns a random operation from the keys of the given dictionary.
+        :param operations: Dictionary of the operations to choose from.
+        :return: str name of the random operation.
+        """
+        return choice(list(operations.keys()))
 
     async def add_to_operation(self, op: dict, op_number: str, guild_id:int, sign_up_name: str,
                                main_role: str, alt_role: str = None) -> None:
@@ -685,12 +647,12 @@ class Operations(Cog):
         if not op:
             raise SignUpError("There is no Operation with that number.")
 
-        main_role = await self.validate_role(main_role)
+        main_role = await validate_role(main_role)
         if not main_role:
             raise SignUpError("Main role is not valid. Please enter a valid role.")
 
         if alt_role:
-            alt_role = await self.validate_role(alt_role)
+            alt_role = await validate_role(alt_role)
             if not alt_role:
                 raise SignUpError("Alternative role is not valid. Please enter a valid role.")
             elif main_role == alt_role:
