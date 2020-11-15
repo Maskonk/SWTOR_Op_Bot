@@ -32,7 +32,10 @@ async def on_command_error(ctx, error):
     if hasattr(ctx.command, 'on_error'):
         return
     elif isinstance(error, commands.CommandNotFound):
-        await ctx.send("That is not a valid command. Please use **.help** for a list of all commands.")
+        if config.get(str(ctx.guild.id), {}).get("Ignore_noncommand"):
+            return
+        else:
+            await ctx.send("That is not a valid command. Please use **.help** for a list of all commands.")
     elif isinstance(error, commands.CheckFailure):
         await ctx.send("You are not authorized to use this command.")
     elif isinstance(error, commands.MissingRequiredArgument):
