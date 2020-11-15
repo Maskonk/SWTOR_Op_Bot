@@ -116,4 +116,7 @@ async def validate_swtor_channel(input_channel_id: int, server_config: dict) -> 
     :param server_config: Dictionary of the configuration for the server.
     :return: Boolean True if channel is valid.
     """
-    pass
+    config_id_list = server_config.get("Fun_channels", [])
+    if not config_id_list:
+        return True
+    return input_channel_id in config_id_list

@@ -349,6 +349,9 @@ class Operations(Cog):
         """
         A basic user guide on how to use the bot.
         """
+        config = self.config.get(str(ctx.guild.id), {})
+        if not await validate_swtor_channel(ctx.channel.id, config):
+            return
         msg = "**Basic user guide:**\n__Creating a new operation:__```-new <operation> <mode> <side> <size> <date> " \
               "<time>``` Will create a new operation, Example:```-new TFB MM Imp 8 22/10/20 19:00```" \
               "Will create a new 8m Terror From Beyond Master Mode Imperial side on the 22nd of October 2020 at 19:00 "\
@@ -363,6 +366,9 @@ class Operations(Cog):
 
     @command(aliases=["random"])
     async def random_operation(self, ctx: context):
+        config = self.config.get(str(ctx.guild.id), {})
+        if not await validate_swtor_channel(ctx.channel.id, config):
+            return
         operation = await self.get_random_operation(self.operations)
         await ctx.send(f"The random operation is: {operation}")
 
