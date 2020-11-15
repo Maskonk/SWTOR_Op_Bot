@@ -506,7 +506,7 @@ class Operations(Cog):
         difficulty = self.difficulties[op['Difficulty'].lower()]
         notes = op["Notes"]
         size = sum(self.sizes[str(op['Size'])].values())
-        extension = await self.date_extention(dt.day)
+        extension = await self.date_extension(dt.day)
         msg = f"{op_id}: {size}m {operation_name} {difficulty} {op['Side']}\n{day_name[dt.weekday()]} the " \
               f"{extension} of {month_name[dt.month]} " \
               f"starting at {dt.time().strftime('%H:%M')} CET."
@@ -574,7 +574,7 @@ class Operations(Cog):
         return parse(f"{date} {time}", dayfirst=True)
 
     @staticmethod
-    async def date_extention(number: int) -> str:
+    async def date_extension(number: int) -> str:
         """
         Gives number extension for date.
         :param number: The date number the extension is for.
