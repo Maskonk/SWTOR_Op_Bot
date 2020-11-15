@@ -44,3 +44,17 @@ async def validate_role(role: str) -> str:
             return "Reserve"
     else:
         return ""
+
+
+async def validate_side_input(side: str) -> str:
+    """
+    Checks the side given is valid and converts names to a standard.
+    :param side: The side the operation is to take place
+    :return: The standard name of the side or None if invalid.
+    """
+    if side.lower() in ["imp", "imps", "imperial", "i"]:
+        return "Imp"
+    elif side.lower() in ["rep", "reps", "republic", "pub", "r"]:
+        return "Rep"
+    else:
+        return None

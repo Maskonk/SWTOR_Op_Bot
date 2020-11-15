@@ -97,7 +97,7 @@ class Operations(Cog):
             await message.delete(delay=10)
             return
 
-        if not await self.validate_side_input(side):
+        if not await validate_side_input(side):
             message = await ctx.send("That is not a valid side.")
             await message.delete(delay=10)
             return
@@ -247,7 +247,7 @@ class Operations(Cog):
                 await message.delete(delay=10)
                 return
         elif attribute.capitalize() == "Side":
-            if not await self.validate_side_input(value):
+            if not await validate_side_input(value):
                 message = await ctx.send("That is not a valid side.")
                 await message.delete(delay=10)
                 return
@@ -588,20 +588,6 @@ class Operations(Cog):
             return '%drd' % number
         if (number % 10 >= 4) or (number % 10 == 0):
             return '%dth' % number
-
-    @staticmethod
-    async def validate_side_input(side: str) -> str:
-        """
-        Checks the side given is valid and converts names to a standard.
-        :param side: The side the operation is to take place
-        :return: The standard name of the side or None if invalid.
-        """
-        if side.lower() in ["imp", "imps", "imperial", "i"]:
-            return "Imp"
-        elif side.lower() in ["rep", "reps", "republic", "pub", "r"]:
-            return "Rep"
-        else:
-            return None
 
     async def write_operation(self, op: dict, op_number: id, guild_id: int) -> None:
         """
