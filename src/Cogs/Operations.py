@@ -7,6 +7,7 @@ from calendar import month_name, day_name
 from random import choice
 from Utils.Errors import SignUpError
 from Utils.ReactionUtils import check_valid_reaction
+from Utils.Validators import *
 from re import sub
 
 
@@ -81,12 +82,12 @@ class Operations(Cog):
             await ctx.send("That is not a valid operation.")
             return
 
-        if not await self.validate_time_input(date, time):
+        if not await validate_time_input(date, time):
             message = await ctx.send("That date has already passed.")
             await message.delete(delay=10)
             return
 
-        if not await self.validate_difficulty_input(difficulty):
+        if not await validate_difficulty_input(difficulty):
             message = await ctx.send("That is not a valid difficulty.")
             await message.delete(delay=10)
             return
@@ -226,17 +227,17 @@ class Operations(Cog):
                 await ctx.send("That is not a valid operation.")
                 return
         elif attribute.capitalize() == "Date":
-            if not await self.validate_time_input(value, op["Time"]):
+            if not await validate_time_input(value, op["Time"]):
                 message = await ctx.send("That date has already passed.")
                 await message.delete(delay=10)
                 return
         elif attribute.capitalize() == "Time":
-            if not await self.validate_time_input(op["Date"], value):
+            if not await validate_time_input(op["Date"], value):
                 message = await ctx.send("That date has already passed.")
                 await message.delete(delay=10)
                 return
         elif attribute.capitalize() == "Difficulty":
-            if not await self.validate_difficulty_input(value):
+            if not await validate_difficulty_input(value):
                 message = await ctx.send("That is not a valid difficulty.")
                 await message.delete(delay=10)
                 return
@@ -489,20 +490,6 @@ class Operations(Cog):
         op["Signed"] -= 1
         return op
 
-    @staticmethod
-    async def validate_time_input(date: str, time: str) -> bool:
-        """
-        Checks the users input to ensure the date and time inputs are valid and not yet passed.
-        :param date: The Date input by the user.
-        :param time: The Time input by the user.
-        :return: Booleon True if the date and time inputs are valid.
-        """
-        dt = parse(f"{date} {time}")
-        if dt < datetime.today():
-            return False
-        else:
-            return True
-
     async def make_operation_message(self, dt: datetime, op: dict, op_id: str) -> str:
         """
         Composes operation message.
@@ -544,15 +531,6 @@ class Operations(Cog):
         msg += f"\nTo sign up use -sign {op_id} <role> <alt role>"
         return msg
 
-    @staticmethod
-    async def validate_difficulty_input(difficulty: str) -> bool:
-        """
-        Checks the users input to ensure the difficulty input is valid.
-        :param difficulty: The difficulty input by the user.
-        :return: Booleon True if the difficulty input is valid.
-        """
-        return difficulty.lower() in ["sm", "hm", "nim", "na", "vm", "mm"]
-
     async def validate_size_input(self, size: int) -> bool:
         """
         Checks the users input to ensure the size input is valid.
@@ -584,27 +562,6 @@ class Operations(Cog):
         """
         server_admins = self.config.get(str(ctx.guild.id), {}).get("Admins", [])
         return ctx.author.id in ([op["Owner_id"], 168009927015661568] + server_admins)
-
-    @staticmethod
-    async def validate_role(role: str) -> str:
-        """
-        Checks the role given is valid and converts any short hand role to the proper name.
-        :param role: The role of the user.
-        :return: The long version of the users role.
-        """
-        if role.lower() in ["t", "tank", "d", "dps", "h", "heals", "healer", "heal", "a", "any", "r", "reserve"]:
-            if role[0].lower() == "t":
-                return "Tank"
-            elif role[0].lower() == "d":
-                return "Dps"
-            elif role[0].lower() == "h":
-                return "Healer"
-            elif role[0].lower() == "a":
-                return "Any"
-            elif role[0].lower() == "r":
-                return "Reserve"
-        else:
-            return ""
 
     @staticmethod
     async def parse_date(date: str, time: str) -> datetime:
@@ -686,12 +643,12 @@ class Operations(Cog):
         if not op:
             raise SignUpError("There is no Operation with that number.")
 
-        main_role = await self.validate_role(main_role)
+        main_role = await validate_role(main_role)
         if not main_role:
             raise SignUpError("Main role is not valid. Please enter a valid role.")
 
         if alt_role:
-            alt_role = await self.validate_role(alt_role)
+            alt_role = await validate_role(alt_role)
             if not alt_role:
                 raise SignUpError("Alternative role is not valid. Please enter a valid role.")
             elif main_role == alt_role:
