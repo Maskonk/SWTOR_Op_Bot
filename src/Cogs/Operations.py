@@ -78,7 +78,7 @@ class Operations(Cog):
         :param time: The start time of the operation.
         :param notes: Any notes for the operation.
         """
-        if not await self.validate_operation_input(operation):
+        if not await validate_operation_input(operation, self.operations):
             await ctx.send("That is not a valid operation.")
             return
 
@@ -223,7 +223,7 @@ class Operations(Cog):
             value = value[0]
 
         if attribute.capitalize() == "Operation":
-            if not await self.validate_operation_input(value):
+            if not await validate_operation_input(value, self.operations):
                 await ctx.send("That is not a valid operation.")
                 return
         elif attribute.capitalize() == "Date":
@@ -343,14 +343,6 @@ class Operations(Cog):
     async def random_operation(self, ctx: context):
         operation = await self.get_random_operation()
         await ctx.send(f"The random operation is: {operation}")
-
-    async def validate_operation_input(self, op: str) -> bool:
-        """
-        Checks the users input to ensure the operation input is valid.
-        :param op: The Operation input by the user.
-        :return: Booleon True if the operation input is valid.
-        """
-        return op.lower() in self.operations.keys() or op.lower() in self.operations.values() or op.lower() == "random"
 
     @staticmethod
     async def check_duplicate(op: dict, user_nick: str) -> bool:

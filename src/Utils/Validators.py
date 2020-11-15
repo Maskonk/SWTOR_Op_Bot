@@ -68,3 +68,13 @@ async def validate_size_input(size: str, sizes: dict) -> bool:
     :return: Booleon True if the size input is valid.
     """
     return str(size) in sizes.keys()
+
+
+async def validate_operation_input(op: str, operations: dict) -> bool:
+    """
+    Checks the users input to ensure the operation input is valid.
+    :param op: The Operation input by the user.
+    :param operations: Dictionary of valid operations to check against.
+    :return: Booleon True if the operation input is valid.
+    """
+    return op.lower() in operations.keys() or op.lower() == "random"
