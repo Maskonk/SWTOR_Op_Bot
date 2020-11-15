@@ -449,7 +449,7 @@ class Operations(Cog):
         name = f"{sign_up_name} (Any)"
 
         for role in roles:
-            if (not await self.check_role_full(op, role)):
+            if not await self.check_role_full(op, role):
                 roles.remove(role)
                 op["Sign-ups"][role] += [name]
 
