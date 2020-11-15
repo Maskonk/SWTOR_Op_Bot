@@ -7,6 +7,7 @@ from calendar import month_name, day_name
 from random import choice
 from Utils.Errors import SignUpError
 from Utils.ReactionUtils import check_valid_reaction
+from Utils.SignupUtils import *
 from Utils.Validators import *
 from re import sub
 
@@ -149,9 +150,7 @@ class Operations(Cog):
         msg = await self.make_operation_message(dt, op, str(op_id))
         message = await ctx.send(msg)
 
-
         await message.pin()
-
         op["Post_id"] = message.id
         self.ops[str(ctx.guild.id)] = self.ops.get(str(ctx.guild.id), {})
         self.ops[str(ctx.guild.id)][str(op_id)] = op
@@ -189,7 +188,7 @@ class Operations(Cog):
             await message.delete(delay=10)
             return
 
-        if not await self.check_duplicate(op, ctx.author.display_name):
+        if not await check_duplicate(op, ctx.author.display_name):
             await ctx.send("You are not currently signed up to that operation.")
             return
 
@@ -369,67 +368,6 @@ class Operations(Cog):
             return
         operation = await self.get_random_operation(self.operations)
         await ctx.send(f"The random operation is: {operation}")
-
-    @staticmethod
-    async def check_duplicate(op: dict, user_nick: str) -> bool:
-        """
-        Checks if the user is already signed up to the given operation.
-        :param op: The operation details dictionary.
-        :param user_nick: The users nickname
-        :return: Booleon True if the user is already signed up to the operation.
-        """
-        sign_ups = op["Sign-ups"]["Tank"] + op["Sign-ups"]["Dps"] + op["Sign-ups"]["Healer"]
-        for sign in sign_ups:
-            if user_nick in sign:
-                return True
-        for i, user in enumerate(op["Sign-ups"]["Reserve"]):
-            if user_nick in user:
-                return True
-        return False
-
-    @staticmethod
-    async def check_role_change(op: dict, user_nick: str, main_role: str, alt_role: str) -> bool:
-        """
-        Checks if the user has changed their role.
-        :param op: The operation details dictionary.
-        :param user_nick: The users nickname
-        :param main_role: The new main role of the user.
-        :param alt_role: The optional alternative role of the user.
-        :return: Booleon True if the user has changed one of both of the roles they are signing up as.
-        """
-        alt_change = False
-        main_change = False
-
-        if main_role == "Any":
-            roles = ["Dps", "Tank", "Healer"]
-
-            for role in roles:
-                found = False
-                for user in op["Sign-ups"][role]:
-                    if user_nick + " (Any)" in user:
-                        found = True
-                        break
-                if found:
-                    return False
-            else:
-                return True
-
-        else: 
-            for user in op["Sign-ups"][main_role]:
-                if user_nick in user:
-                    break
-            else:
-                main_change = True
-
-        if alt_role and alt_role != "Any":
-            if user_nick not in op["Sign-ups"][f"Alternate_{alt_role}"]:
-                alt_change = True
-        elif not alt_role:
-            roles = ["Tank", "Dps", "Healer"]
-            for role in roles:
-                if user_nick in op["Sign-ups"][f"Alternate_{role}"]:
-                    alt_change = True
-        return main_change or alt_change
 
     async def add_signup(self, op: dict, sign_up_name, main_role, alt_role: str = None) -> dict:
         """
@@ -661,8 +599,8 @@ class Operations(Cog):
         elif main_role == "Reserve":
             raise SignUpError("You must add a alternative role to sign as reserve.")
 
-        if await self.check_duplicate(op, sign_up_name):
-            if not await self.check_role_change(op, sign_up_name, main_role, alt_role):
+        if await check_duplicate(op, sign_up_name):
+            if not await check_role_change(op, sign_up_name, main_role, alt_role):
                 raise SignUpError("You have already signed-up for that operation.")
             elif await self.check_role_full(op, main_role):
                 raise SignUpError("That role is full. Your role has not been changed.")
@@ -736,6 +674,6 @@ class Operations(Cog):
             return
         guild = self.bot.get_guild(payload.guild_id)
         user = guild.get_member(payload.user_id)
-        if not await self.check_role_change(op, user.display_name, role, None):
+        if not await check_role_change(op, user.display_name, role, None):
             op = await self.remove_signup(op, user.display_name)
             await self.write_operation(op, id, payload.guild_id)
