@@ -149,10 +149,8 @@ class Operations(Cog):
         msg = await self.make_operation_message(dt, op, str(op_id))
         message = await ctx.send(msg)
 
-        try:
-            await message.pin()
-        except Exception as e:
-            print(e)
+
+        await message.pin()
 
         op["Post_id"] = message.id
         self.ops[str(ctx.guild.id)] = self.ops.get(str(ctx.guild.id), {})

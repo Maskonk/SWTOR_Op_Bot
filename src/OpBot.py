@@ -5,6 +5,7 @@ from Cogs.Operations import Operations
 from Cogs.Swtor import Swtor
 from json import load
 from Utils.ReactionUtils import *
+from datetime import datetime
 
 bot_prefix = "-"
 with open('./token.txt', 'r') as f:
@@ -25,6 +26,8 @@ client = Bot(command_prefix=bot_prefix, intents=intents)
 async def on_ready():
     await client.change_presence(activity=Game(name='SWTOR'))
     print("Online")
+    with open("./OpBotLog.log", "a") as f:
+        f.write(f"\n{datetime.today()}: Bot online!")
 
 
 @client.event
@@ -43,8 +46,13 @@ async def on_command_error(ctx, error):
                        f"what is required.")
     elif isinstance(error, commands.BotMissingPermissions):
         await ctx.send("The bot does not currently have permissions to perform this action.")
+        with open("./OpBotLog.log", "a") as f:
+            f.write(f"\n{datetime.today()} MISSINGPERMISSIONS: {ctx.command} in {ctx.guild.name} missing: "
+                    f"{error.missing_perms}")
     else:
         print(error)
+        with open("./OpBotLog.log", "a") as f:
+            f.write(f"\n{datetime.today()} ERROR: {ctx.command} in {ctx.guild.name}. {error}")
         await ctx.send("An error has occurred with this command, please try again, if this persists please report it "
                        "to Gatters.")
 
