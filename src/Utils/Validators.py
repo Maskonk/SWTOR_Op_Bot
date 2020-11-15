@@ -58,3 +58,13 @@ async def validate_side_input(side: str) -> str:
         return "Rep"
     else:
         return None
+
+
+async def validate_size_input(size: str, sizes: dict) -> bool:
+    """
+    Checks the users input to ensure the size input is valid.
+    :param size: The size input by the user.
+    :param sizes: Dictionary of valid sizes to check against.
+    :return: Booleon True if the size input is valid.
+    """
+    return str(size) in sizes.keys()

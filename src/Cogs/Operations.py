@@ -92,7 +92,7 @@ class Operations(Cog):
             await message.delete(delay=10)
             return
 
-        if not await self.validate_size_input(size):
+        if not await validate_size_input(size, self.sizes):
             message = await ctx.send("That is not a valid size.")
             await message.delete(delay=10)
             return
@@ -242,7 +242,7 @@ class Operations(Cog):
                 await message.delete(delay=10)
                 return
         elif attribute.capitalize() == "Size":
-            if not await self.validate_size_input(value):
+            if not await validate_size_input(value, self.sizes):
                 message = await ctx.send("That is not a valid size.")
                 await message.delete(delay=10)
                 return
@@ -530,14 +530,6 @@ class Operations(Cog):
             msg += f"{res}"
         msg += f"\nTo sign up use -sign {op_id} <role> <alt role>"
         return msg
-
-    async def validate_size_input(self, size: int) -> bool:
-        """
-        Checks the users input to ensure the size input is valid.
-        :param size: The size input by the user.
-        :return: Booleon True if the size input is valid.
-        """
-        return str(size) in self.sizes.keys()
 
     async def edit_pinned_message(self, op: dict, op_number: str, guild_id: int) -> None:
         """
