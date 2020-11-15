@@ -571,7 +571,7 @@ class Operations(Cog):
         :param time: The given time
         :return: datetime object of the given date and time.
         """
-        return parse(f"{date} {time}")
+        return parse(f"{date} {time}", dayfirst=True)
 
     @staticmethod
     async def date_extention(number: int) -> str:
