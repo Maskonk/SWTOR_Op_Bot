@@ -182,6 +182,9 @@ class Operations(Cog):
         Remove sign up from the given operation.
         :param op_number: The operation id to remove sign up from.
         """
+        config = self.config.get(str(ctx.guild.id), {})
+        if not await validate_sign_up_channel(ctx.channel.id, config):
+            return
         op = self.ops.get(str(ctx.guild.id), {}).get(str(op_number))
         if not op:
             message = await ctx.send("There is no Operation with that number.")
@@ -205,6 +208,9 @@ class Operations(Cog):
         :param attribute: Attribute to change.
         :param value: The new value of the attribute.
         """
+        config = self.config.get(str(ctx.guild.id), {})
+        if not await validate_sign_up_channel(ctx.channel.id, config):
+            return
         op = self.ops.get(str(ctx.guild.id), {}).get(str(op_number))
         if not op:
             message = await ctx.send("There is no Operation with that number.")
@@ -270,6 +276,9 @@ class Operations(Cog):
         Deletes a given operation. Restricted to the creator or an admin.
         :param op_number: The operation id.
         """
+        config = self.config.get(str(ctx.guild.id), {})
+        if not await validate_sign_up_channel(ctx.channel.id, config):
+            return
         op = self.ops.get(str(ctx.guild.id), {}).get(str(op_number))
         if not op:
             message = await ctx.send("There is no Operation with that number.")
@@ -297,6 +306,9 @@ class Operations(Cog):
         :param op_number: The id of the operation.
         :param name: The name of the person to be removed.
         """
+        config = self.config.get(str(ctx.guild.id), {})
+        if not await validate_sign_up_channel(ctx.channel.id, config):
+            return
         op = self.ops.get(str(ctx.guild.id), {}).get(str(op_number))
         if not op:
             message = await ctx.send("There is no Operation with that number.")
@@ -323,6 +335,9 @@ class Operations(Cog):
         :param main_role: The main role of the person to be added.
         :param alt_role: The alt role of the person to be added.
         """
+        config = self.config.get(str(ctx.guild.id), {})
+        if not await validate_sign_up_channel(ctx.channel.id, config):
+            return
         op = self.ops.get(str(ctx.guild.id), {}).get(str(op_number))
 
         r = await self.add_to_operation(op, op_number, ctx.guild.id, sign_up_name, main_role, alt_role)
