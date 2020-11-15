@@ -32,14 +32,14 @@ async def on_command_error(ctx, error):
     if hasattr(ctx.command, 'on_error'):
         return
     elif isinstance(error, commands.CommandNotFound):
-        if config.get(str(ctx.guild.id), {}).get("Ignore_noncommand"):
-            return
+        if config.get(str(ctx.guild.id), {}).get("Parse_noncommand"):
+            await ctx.send("That is not a valid command. Please use **-help** for a list of all commands.")
         else:
-            await ctx.send("That is not a valid command. Please use **.help** for a list of all commands.")
+            return
     elif isinstance(error, commands.CheckFailure):
         await ctx.send("You are not authorized to use this command.")
     elif isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send(f"You have missed {error.param} from the command. Use .help <command_name> for exactly "
+        await ctx.send(f"You have missed {error.param} from the command. Use -help <command_name> for exactly "
                        f"what is required.")
     elif isinstance(error, commands.BotMissingPermissions):
         await ctx.send("The bot does not currently have permissions to perform this action.")
