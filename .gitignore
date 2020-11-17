@@ -1,8 +1,16 @@
+# Required files
 src/token.txt
+src/Ops.json
+src/config.json
+
+# Created by bot
+OpBotLog.log
+
+# Python
 venv
+__pycache__
+
+# Misc
+.vscode
 .idea
 tester.py
-src/Ops.json
-__pycache__
-src/config.json
-OpBotLog.log
