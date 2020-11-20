@@ -483,7 +483,7 @@ class Operations(Cog):
             msg += f"\n{heal_emoji} - "
         msg += "\nReserves: "
         for res in op['Sign-ups']['Reserve']:
-            msg += f"{res}"
+            msg += f"{res}, "
         msg += f"\nTo sign up use -sign {op_id} <role> <alt role>"
         return msg
 
