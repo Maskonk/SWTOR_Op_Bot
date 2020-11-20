@@ -486,6 +486,18 @@ class Operations(Cog):
         # if it gets here -> all roles were full & nothing changed
         return op    
 
+    async def add_reserve(self, op: dict, sign_up_name, reserve_role) -> dict:
+        """
+        Adds a user with given name as a reserve with their preferred role
+        :param op: The operation to be updated.
+        :param sign_up_name: The user's nick name.
+        :param reserve_role: The user's reserve role
+        :return: dict: The updated operation. 
+        """
+        name = f"{sign_up_name} ({reserve_role})"
+        op["Sign-ups"]["Reserve"] += [name]
+        return op
+
     @staticmethod
     async def remove_signup(op: dict, user_nick) -> dict:
         """
@@ -505,6 +517,7 @@ class Operations(Cog):
             name = sub("\s\(\w+\)", "", user)
             if user_nick == name:
                 op["Sign-ups"]["Reserve"].pop(i)
+                # bug -> signups -- when reserve gets removed
         op["Signed"] -= 1
         return op
 
@@ -689,7 +702,11 @@ class Operations(Cog):
                     # await ctx.send(f"{temp_role} is full. You have been signed as {main_role}.")
                     del temp_role
 
-        op = await self.add_signup(op, sign_up_name, main_role, alt_role)
+        if (main_role == "Reserve"):
+            print("Testing...")
+            op = await self.add_reserve(op, sign_up_name, alt_role)        
+        else:
+            op = await self.add_signup(op, sign_up_name, main_role, alt_role)
 
         await self.write_operation(op, op_number, guild_id)
         return True
