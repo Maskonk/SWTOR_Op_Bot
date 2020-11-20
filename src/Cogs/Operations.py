@@ -703,7 +703,6 @@ class Operations(Cog):
                     del temp_role
 
         if (main_role == "Reserve"):
-            print("Testing...")
             op = await self.add_reserve(op, sign_up_name, alt_role)        
         else:
             op = await self.add_signup(op, sign_up_name, main_role, alt_role)
