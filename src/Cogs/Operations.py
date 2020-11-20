@@ -682,17 +682,17 @@ class Operations(Cog):
             else:
                 op = await self.remove_signup(op, sign_up_name)
         elif op["Signed"] >= sum(self.sizes[str(op["Size"])].values()) and main_role != "Reserve":
-            op["Sign-ups"]["Reserve"] += [f"{sign_up_name} ({main_role})"]
+            await self.add_reserve(op, sign_up_name, main_role)
             await self.write_operation(op, op_number, guild_id)
             raise SignUpError("This operation is full you have been placed as a reserve.")
         else:
             if await self.check_role_full(op, main_role):
                 if not alt_role:
-                    op["Sign-ups"]["Reserve"] += [f"{sign_up_name} ({main_role})"]
+                    await self.add_reserve(op, sign_up_name, main_role)
                     await self.write_operation(op, op_number, guild_id)
                     raise SignUpError("That role is full you have been placed as a reserve.")
                 elif await self.check_role_full(op, alt_role):
-                    op["Sign-ups"]["Reserve"] += [f"{sign_up_name} ({main_role})"]
+                    await self.add_reserve(op, sign_up_name, main_role)
                     await self.write_operation(op, op_number, guild_id)
                     raise SignUpError("Those roles are full you have been placed as a reserve.")
                 else:
