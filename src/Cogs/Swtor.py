@@ -102,7 +102,7 @@ class Swtor(Cog):
             return
         responses = ["Don't count on it.", "The Dark Council have decreed so.", "Only if you want it bad enough.",
                      "My sources say no.", "Very doubtful.", "Outlook not so good.", "Ask again later.",
-                     "Try asking your DM.", "Better not tell you now.", "Reply hazy try again.", "Outlook good.",
+                     "Try asking your GM.", "Better not tell you now.", "Reply hazy try again.", "Outlook good.",
                      "You are not supposed to know that yet.", "Most likely",
                      "Please contact your Republic Senator for more information this query.",
                      "Of the 14,000,605 possible futures I saw only one it occurred.",
@@ -132,6 +132,12 @@ class Swtor(Cog):
             "I am pretty sure assassins are after me so I have to go into hiding.",
             "my brother joined a cult that worships Gatters as their deity, I have to go shock him to his senses.",
             "my religion believes that the world ends next week and it is my duty to make as much chaos and "
-            "mayhem as I can, so that even if it doesn't it looks like it has."]
+            "mayhem as I can, so that even if it doesn't it looks like it has.", "I am too busy farming credits.",
+            "I am partying in my stronghold with some Twi'lek dancers.",
+            "my slave rebelled and now I can't find my gear.", "I have become a toxic PvPer now.",
+            "this GF PuG I am in can't kill this boss.", "there is no one to carry me.",
+            "the latest bug prevents me joining.", "I bought all the Operation achievements I missed and am now "
+            "looking for a NiM Dxun group since my achievements say I am a pro NiM player.", "I'm quiting SWTOR.",
+            "I am too busy dummy parsing."]
         excuses += config.get("Excuses", [])
         await ctx.send(f"I can't make it {choice(excuses)}")
