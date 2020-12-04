@@ -8,7 +8,7 @@ from random import choice
 from Utils.Errors import SignUpError
 from Utils.ReactionUtils import check_valid_reaction
 from Utils.SignupUtils import *
-from Utils.Validators import *
+from src.Utils.Validators import Validators
 from re import sub
 
 
@@ -80,29 +80,29 @@ class Operations(Cog):
         :param notes: Any notes for the operation.
         """
         config = self.config.get(str(ctx.guild.id), {})
-        if not await validate_operation_channel(ctx.channel.id, config):
+        if not await Validators.validate_operation_channel(ctx.channel.id, config):
             return
 
-        if not await validate_operation_input(operation, self.operations):
+        if not await Validators.validate_operation_input(operation, self.operations):
             await ctx.send("That is not a valid operation.")
             return
 
-        if not await validate_time_input(date, time):
+        if not await Validators.validate_time_input(date, time):
             message = await ctx.send("That date has already passed.")
             await message.delete(delay=10)
             return
 
-        if not await validate_difficulty_input(difficulty):
+        if not await Validators.validate_difficulty_input(difficulty):
             message = await ctx.send("That is not a valid difficulty.")
             await message.delete(delay=10)
             return
 
-        if not await validate_size_input(size, self.sizes):
+        if not await Validators.validate_size_input(size, self.sizes):
             message = await ctx.send("That is not a valid size.")
             await message.delete(delay=10)
             return
 
-        if not await validate_side_input(side):
+        if not await Validators.validate_side_input(side):
             message = await ctx.send("That is not a valid side.")
             await message.delete(delay=10)
             return
@@ -166,7 +166,7 @@ class Operations(Cog):
         :param alt_role: Optional alternative role to sign up as.
         """
         config = self.config.get(str(ctx.guild.id), {})
-        if not await validate_sign_up_channel(ctx.channel.id, config):
+        if not await Validators.validate_sign_up_channel(ctx.channel.id, config):
             return
         op = self.ops.get(str(ctx.guild.id), {}).get(str(op_number))
         r = await self.add_to_operation(op, op_number, ctx.guild.id, ctx.author.display_name, main_role, alt_role)
@@ -180,7 +180,7 @@ class Operations(Cog):
         :param op_number: The operation id to remove sign up from.
         """
         config = self.config.get(str(ctx.guild.id), {})
-        if not await validate_sign_up_channel(ctx.channel.id, config):
+        if not await Validators.validate_sign_up_channel(ctx.channel.id, config):
             return
         op = self.ops.get(str(ctx.guild.id), {}).get(str(op_number))
         if not op:
@@ -206,7 +206,7 @@ class Operations(Cog):
         :param value: The new value of the attribute.
         """
         config = self.config.get(str(ctx.guild.id), {})
-        if not await validate_sign_up_channel(ctx.channel.id, config):
+        if not await Validators.validate_sign_up_channel(ctx.channel.id, config):
             return
         op = self.ops.get(str(ctx.guild.id), {}).get(str(op_number))
         if not op:
@@ -233,31 +233,31 @@ class Operations(Cog):
             value = value[0]
 
         if attribute.capitalize() == "Operation":
-            if not await validate_operation_input(value, self.operations):
+            if not await Validators.validate_operation_input(value, self.operations):
                 await ctx.send("That is not a valid operation.")
                 return
         elif attribute.capitalize() == "Date":
-            if not await validate_time_input(value, op["Time"]):
+            if not await Validators.validate_time_input(value, op["Time"]):
                 message = await ctx.send("That date has already passed.")
                 await message.delete(delay=10)
                 return
         elif attribute.capitalize() == "Time":
-            if not await validate_time_input(op["Date"], value):
+            if not await Validators.validate_time_input(op["Date"], value):
                 message = await ctx.send("That date has already passed.")
                 await message.delete(delay=10)
                 return
         elif attribute.capitalize() == "Difficulty":
-            if not await validate_difficulty_input(value):
+            if not await Validators.validate_difficulty_input(value):
                 message = await ctx.send("That is not a valid difficulty.")
                 await message.delete(delay=10)
                 return
         elif attribute.capitalize() == "Size":
-            if not await validate_size_input(value, self.sizes):
+            if not await Validators.validate_size_input(value, self.sizes):
                 message = await ctx.send("That is not a valid size.")
                 await message.delete(delay=10)
                 return
         elif attribute.capitalize() == "Side":
-            if not await validate_side_input(value):
+            if not await Validators.validate_side_input(value):
                 message = await ctx.send("That is not a valid side.")
                 await message.delete(delay=10)
                 return
@@ -274,7 +274,7 @@ class Operations(Cog):
         :param op_number: The operation id.
         """
         config = self.config.get(str(ctx.guild.id), {})
-        if not await validate_sign_up_channel(ctx.channel.id, config):
+        if not await Validators.validate_sign_up_channel(ctx.channel.id, config):
             return
         op = self.ops.get(str(ctx.guild.id), {}).get(str(op_number))
         if not op:
@@ -304,7 +304,7 @@ class Operations(Cog):
         :param name: The name of the person to be removed.
         """
         config = self.config.get(str(ctx.guild.id), {})
-        if not await validate_sign_up_channel(ctx.channel.id, config):
+        if not await Validators.validate_sign_up_channel(ctx.channel.id, config):
             return
         op = self.ops.get(str(ctx.guild.id), {}).get(str(op_number))
         if not op:
@@ -333,7 +333,7 @@ class Operations(Cog):
         :param alt_role: The alt role of the person to be added.
         """
         config = self.config.get(str(ctx.guild.id), {})
-        if not await validate_sign_up_channel(ctx.channel.id, config):
+        if not await Validators.validate_sign_up_channel(ctx.channel.id, config):
             return
         op = self.ops.get(str(ctx.guild.id), {}).get(str(op_number))
 
@@ -347,7 +347,7 @@ class Operations(Cog):
         A basic user guide on how to use the bot.
         """
         config = self.config.get(str(ctx.guild.id), {})
-        if not await validate_swtor_channel(ctx.channel.id, config):
+        if not await Validators.validate_swtor_channel(ctx.channel.id, config):
             return
         msg = "**Basic user guide:**\n__Creating a new operation:__```-new <operation> <mode> <side> <size> <date> " \
               "<time>``` Will create a new operation, Example:```-new TFB MM Imp 8 22/10/20 19:00```" \
@@ -364,7 +364,7 @@ class Operations(Cog):
     @command(aliases=["random"])
     async def random_operation(self, ctx: context):
         config = self.config.get(str(ctx.guild.id), {})
-        if not await validate_swtor_channel(ctx.channel.id, config):
+        if not await Validators.validate_swtor_channel(ctx.channel.id, config):
             return
         operation = await self.get_random_operation(self.operations)
         await ctx.send(f"The random operation is: {operation}")
@@ -597,12 +597,12 @@ class Operations(Cog):
         if not op:
             raise SignUpError("There is no Operation with that number.")
 
-        main_role = await validate_role(main_role)
+        main_role = await Validators.validate_role(main_role)
         if not main_role:
             raise SignUpError("Main role is not valid. Please enter a valid role.")
 
         if alt_role:
-            alt_role = await validate_role(alt_role)
+            alt_role = await Validators.validate_role(alt_role)
             if not alt_role:
                 raise SignUpError("Alternative role is not valid. Please enter a valid role.")
             elif main_role == alt_role:

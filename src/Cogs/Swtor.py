@@ -1,6 +1,6 @@
 from discord.ext.commands import Cog, context, command
 from random import choice
-from Utils.Validators import validate_swtor_channel
+from Utils.Validators import Validators
 
 
 class Swtor(Cog):
@@ -22,7 +22,7 @@ class Swtor(Cog):
         :param side: If the side is Republic.
         """
         config = self.config.get(str(ctx.guild.id), {})
-        if not await validate_swtor_channel(ctx.channel.id, config):
+        if not await Validators.validate_swtor_channel(ctx.channel.id, config):
             return
         specs = {"Hatred": ["assassin", "shadow", "dwt", "dps", "dot", "sin", "melee", "mdps"],
                  "Deception": ["assassin", "shadow", "dwt", "dps", "burst", "sin", "melee", "mdps"],
@@ -76,7 +76,7 @@ class Swtor(Cog):
     @command()
     async def op_codes(self, ctx: context):
         config = self.config.get(str(ctx.guild.id), {})
-        if not await validate_swtor_channel(ctx.channel.id, config):
+        if not await Validators.validate_swtor_channel(ctx.channel.id, config):
             return
         msg = ""
         for op in self.operations.keys():
@@ -86,7 +86,7 @@ class Swtor(Cog):
     @command(aliases=["guide"])
     async def command_guide(self, ctx: context):
         config = self.config.get(str(ctx.guild.id), {})
-        if not await validate_swtor_channel(ctx.channel.id, config):
+        if not await Validators.validate_swtor_channel(ctx.channel.id, config):
             return
         await ctx.send("A full guide to all bot commands is here: "
                        "https://github.com/Maskonk/SWTOR_Op_Bot/wiki/Operation-Commands.")
@@ -98,7 +98,7 @@ class Swtor(Cog):
         :param question:  The question asked.
         """
         config = self.config.get(str(ctx.guild.id), {})
-        if not await validate_swtor_channel(ctx.channel.id, config):
+        if not await Validators.validate_swtor_channel(ctx.channel.id, config):
             return
         responses = ["Don't count on it.", "The Dark Council have decreed so.", "Only if you want it bad enough.",
                      "My sources say no.", "Very doubtful.", "Outlook not so good.", "Ask again later.",
@@ -122,7 +122,7 @@ class Swtor(Cog):
         Provides an silly excuse for not attending a session.
         """
         config = self.config.get(str(ctx.guild.id), {})
-        if not await validate_swtor_channel(ctx.channel.id, config):
+        if not await Validators.validate_swtor_channel(ctx.channel.id, config):
             return
         excuses = [
             "my sister's boyfriend's neighbour's best friend's duck died, they are giving it a Viking funeral.",
