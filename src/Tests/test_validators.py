@@ -125,6 +125,24 @@ class TestValidators(TestCase):
         loop.close()
         self.assertTrue(result)
 
+    def test_validate_sign_up_channel_valid(self):
+        loop = asyncio.new_event_loop()
+        result = loop.run_until_complete(Validators.validate_sign_up_channel(12345, {"Signup_channels": [12345]}))
+        loop.close()
+        self.assertTrue(result)
+
+    def test_validate_sign_up_channel_invalid(self):
+        loop = asyncio.new_event_loop()
+        result = loop.run_until_complete(Validators.validate_sign_up_channel(12345, {"Signup_channels": [67890]}))
+        loop.close()
+        self.assertFalse(result)
+
+    def test_validate_sign_up_channel_none(self):
+        loop = asyncio.new_event_loop()
+        result = loop.run_until_complete(Validators.validate_sign_up_channel(12345, {}))
+        loop.close()
+        self.assertTrue(result)
+
     # def test_validate_sign_up_channel(self):
     #     self.fail()
     #
