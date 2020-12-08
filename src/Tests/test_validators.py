@@ -1,5 +1,7 @@
 from unittest import TestCase
 from ..Utils.Validators import Validators
+import asyncio
+from dateutil.parser._parser import ParserError
 from datetime import datetime
 
 
@@ -8,13 +10,22 @@ class TestValidators(TestCase):
         pass
 
     def test_validate_time_input_valid(self):
-        self.assertTrue(Validators.validate_time_input("11/12/2021", "11:20"))
+        loop = asyncio.get_event_loop()
+        result = loop.run_until_complete(Validators.validate_time_input("11/12/2021", "11:20"))
+        loop.close()
+        self.assertTrue(result)
 
     def test_validate_time_input_invalid(self):
-        self.assertFalse(Validators.validate_time_input("11/12/19", "11:20"))
+        loop = asyncio.get_event_loop()
+        result = loop.run_until_complete(Validators.validate_time_input("11/12/19", "11:20"))
+        loop.close()
+        self.assertFalse(result)
 
     def test_validate_time_input_bad_format(self):
-        self.assertFalse(Validators.validate_time_input("Blueberry", "11:20"))
+        loop = asyncio.get_event_loop()
+        result = loop.run_until_complete(Validators.validate_time_input("Blueberry", "11:20"))
+        loop.close()
+        self.assertRaises(ParserError, result)
 
     # def test_validate_difficulty_input(self):
     #     self.fail()
