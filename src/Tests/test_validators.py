@@ -63,9 +63,26 @@ class TestValidators(TestCase):
         loop.close()
         self.assertEqual(None, result)
 
-    # def test_validate_size_input(self):
-    #     self.fail()
-    #
+    def test_validate_size_input_valid(self):
+        sizes = {"1": {"Tank": 0, "Dps": 1, "Healer": 0}, "4": {"Tank": 1, "Dps": 1, "Healer": 1},
+                 "8": {"Tank": 2, "Dps": 4, "Healer": 2}, "16": {"Tank": 2, "Dps": 10, "Healer": 4},
+                 "1t5d": {"Tank": 1, "Dps": 5, "Healer": 2}, "1h5d": {"Tank": 2, "Dps": 5, "Healer": 1},
+                 "6d": {"Tank": 1, "Dps": 6, "Healer": 1}, "24": {"Tank": 3, "Dps": 15, "Healer": 6}}
+        loop = asyncio.new_event_loop()
+        result = loop.run_until_complete(Validators.validate_size_input("1t5d", sizes))
+        loop.close()
+        self.assertTrue(result)
+
+    def test_validate_size_input_invalid(self):
+        sizes = {"1": {"Tank": 0, "Dps": 1, "Healer": 0}, "4": {"Tank": 1, "Dps": 1, "Healer": 1},
+                 "8": {"Tank": 2, "Dps": 4, "Healer": 2}, "16": {"Tank": 2, "Dps": 10, "Healer": 4},
+                 "1t5d": {"Tank": 1, "Dps": 5, "Healer": 2}, "1h5d": {"Tank": 2, "Dps": 5, "Healer": 1},
+                 "6d": {"Tank": 1, "Dps": 6, "Healer": 1}, "24": {"Tank": 3, "Dps": 15, "Healer": 6}}
+        loop = asyncio.new_event_loop()
+        result = loop.run_until_complete(Validators.validate_size_input("22", sizes))
+        loop.close()
+        self.assertFalse(result)
+
     # def test_validate_operation_input(self):
     #     self.fail()
     #
