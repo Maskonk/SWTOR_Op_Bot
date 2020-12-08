@@ -6,9 +6,6 @@ from datetime import datetime
 
 
 class TestValidators(TestCase):
-    def setUp(self) -> None:
-        pass
-
     def test_validate_time_input_valid(self):
         loop = asyncio.new_event_loop()
         result = loop.run_until_complete(Validators.validate_time_input("11/12/2021", "11:20"))
