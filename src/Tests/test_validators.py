@@ -83,8 +83,29 @@ class TestValidators(TestCase):
         loop.close()
         self.assertFalse(result)
 
-    # def test_validate_operation_input(self):
-    #     self.fail()
+    def test_validate_operation_input_valid(self):
+        operations = {"s&v": "Scum and Villainy", "tfb": "Terror From Beyond", "kp": "Karagga's Palace",
+                      "ev": "Eternity Vault", "ec": "Explosive Conflict", "df": "Dread Fortress",
+                      "dp": "Dread Palace", "dxun": "Dxun", "gftm": "Gods from the Machine",
+                      "tc": "Toborro's Courtyard", "cm": "Colossal Monolith", "gq": "Geonosian Queen",
+                      "wb": "World Boss", "gf": "Group finder", "other": "Other activity", "eyeless": "Eyeless",
+                      "xeno": "Xenoanalyst", "rav": "Ravagers", "tos": "Temple of Sacrifice"}
+        loop = asyncio.new_event_loop()
+        result = loop.run_until_complete(Validators.validate_operation_input("dp", operations))
+        loop.close()
+        self.assertTrue(result)
+
+    def test_validate_operation_input_invalid(self):
+        operations = {"s&v": "Scum and Villainy", "tfb": "Terror From Beyond", "kp": "Karagga's Palace",
+                      "ev": "Eternity Vault", "ec": "Explosive Conflict", "df": "Dread Fortress",
+                      "dp": "Dread Palace", "dxun": "Dxun", "gftm": "Gods from the Machine",
+                      "tc": "Toborro's Courtyard", "cm": "Colossal Monolith", "gq": "Geonosian Queen",
+                      "wb": "World Boss", "gf": "Group finder", "other": "Other activity", "eyeless": "Eyeless",
+                      "xeno": "Xenoanalyst", "rav": "Ravagers", "tos": "Temple of Sacrifice"}
+        loop = asyncio.new_event_loop()
+        result = loop.run_until_complete(Validators.validate_operation_input("vp", operations))
+        loop.close()
+        self.assertFalse(result)
     #
     # def test_validate_operation_channel(self):
     #     self.fail()
