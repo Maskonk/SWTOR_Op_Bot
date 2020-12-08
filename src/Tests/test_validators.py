@@ -27,9 +27,18 @@ class TestValidators(TestCase):
         loop.close()
         self.assertFalse(result)
 
-    # def test_validate_difficulty_input(self):
-    #     self.fail()
-    #
+    def test_validate_difficulty_input_valid(self):
+        loop = asyncio.new_event_loop()
+        result = loop.run_until_complete(Validators.validate_difficulty_input("SM"))
+        loop.close()
+        self.assertTrue(result)
+
+    def test_validate_difficulty_input_invalid(self):
+        loop = asyncio.new_event_loop()
+        result = loop.run_until_complete(Validators.validate_difficulty_input("RM"))
+        loop.close()
+        self.assertFalse(result)
+
     # def test_validate_role(self):
     #     self.fail()
     #
