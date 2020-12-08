@@ -1,5 +1,6 @@
 from dateutil.parser import parse
 from datetime import datetime
+from dateutil.parser._parser import ParserError
 
 
 class Validators():
@@ -11,7 +12,11 @@ class Validators():
         :param time: The Time input by the user.
         :return: Booleon True if the date and time inputs are valid.
         """
-        dt = parse(f"{date} {time}", dayfirst=True)
+        try:
+            dt = parse(f"{date} {time}", dayfirst=True)
+        except ParserError:
+            return False
+
         if dt < datetime.today():
             return False
         else:

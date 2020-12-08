@@ -25,7 +25,7 @@ class TestValidators(TestCase):
         loop = asyncio.get_event_loop()
         result = loop.run_until_complete(Validators.validate_time_input("Blueberry", "11:20"))
         loop.close()
-        self.assertRaises(ParserError, result)
+        self.assertFalse(result)
 
     # def test_validate_difficulty_input(self):
     #     self.fail()
