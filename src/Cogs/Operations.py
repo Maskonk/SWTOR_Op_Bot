@@ -7,7 +7,7 @@ from calendar import month_name, day_name
 from random import choice
 from Utils.Errors import SignUpError
 from Utils.ReactionUtils import check_valid_reaction
-from Utils.SignupUtils import *
+from src.Utils.SignupUtils import SignupUtils
 from src.Utils.Validators import Validators
 from re import sub
 
@@ -188,7 +188,7 @@ class Operations(Cog):
             await message.delete(delay=10)
             return
 
-        if not await check_duplicate(op, ctx.author.display_name):
+        if not await SignupUtils.check_duplicate(op, ctx.author.display_name):
             await ctx.send("You are not currently signed up to that operation.")
             return
 
@@ -613,8 +613,8 @@ class Operations(Cog):
         elif main_role == "Reserve":
             raise SignUpError("You must add a alternative role to sign as reserve.")
 
-        if await check_duplicate(op, sign_up_name):
-            if not await check_role_change(op, sign_up_name, main_role, alt_role):
+        if await SignupUtils.check_duplicate(op, sign_up_name):
+            if not await SignupUtils.check_role_change(op, sign_up_name, main_role, alt_role):
                 raise SignUpError("You have already signed-up for that operation.")
             elif await self.check_role_full(op, main_role):
                 raise SignUpError("That role is full. Your role has not been changed.")
@@ -691,6 +691,6 @@ class Operations(Cog):
             return
         guild = self.bot.get_guild(payload.guild_id)
         user = guild.get_member(payload.user_id)
-        if not await check_role_change(op, user.display_name, role, None):
+        if not await SignupUtils.check_role_change(op, user.display_name, role, None):
             op = await self.remove_signup(op, user.display_name)
             await self.write_operation(op, id, payload.guild_id)
