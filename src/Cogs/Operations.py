@@ -7,8 +7,8 @@ from calendar import month_name, day_name
 from random import choice
 from Utils.Errors import SignUpError
 from Utils.ReactionUtils import check_valid_reaction
-from src.Utils.SignupUtils import SignupUtils
-from src.Utils.Validators import Validators
+from Utils.SignupUtils import SignupUtils
+from Utils.Validators import Validators
 from re import sub
 
 
