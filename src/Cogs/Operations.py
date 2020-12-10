@@ -370,7 +370,8 @@ class Operations(Cog):
         operation = await self.get_random_operation(self.operations)
         await ctx.send(f"The random operation is: {operation}")
 
-    async def add_signup(self, op: dict, sign_up_name, main_role, alt_role: str = None) -> dict:
+    @staticmethod
+    async def add_signup(op: dict, sign_up_name, main_role, alt_role: str = None) -> dict:
         """
         Adds a user with given name and roles to the given operation
         :param op: The operation to be updated.
@@ -380,7 +381,7 @@ class Operations(Cog):
         :return: dict: The updated operation. 
         """
         if main_role == "Any":
-            op = await self.add_any_signup(op, sign_up_name)
+            op = await Operations.add_any_signup(op, sign_up_name)
         elif alt_role == "Any":
             name = f"{sign_up_name} (Any)"
             op["Sign-ups"][main_role] += [name]
