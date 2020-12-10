@@ -427,7 +427,8 @@ class Operations(Cog):
         # if it gets here -> all roles were full & nothing changed
         return op    
 
-    async def add_reserve(self, op: dict, sign_up_name, reserve_role) -> dict:
+    @staticmethod
+    async def add_reserve(op: dict, sign_up_name, reserve_role) -> dict:
         """
         Adds a user with given name as a reserve with their preferred role
         :param op: The operation to be updated.
