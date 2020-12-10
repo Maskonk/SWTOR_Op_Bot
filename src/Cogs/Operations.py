@@ -1,5 +1,4 @@
 from discord.ext.commands import Cog, context, command, errors
-from discord import Client
 from discord.utils import get
 from datetime import datetime
 from json import load, dump
