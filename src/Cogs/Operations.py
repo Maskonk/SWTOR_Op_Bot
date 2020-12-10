@@ -564,7 +564,8 @@ class Operations(Cog):
         with open('./Ops.json', 'w') as f:
             dump(self.ops, f)
 
-    async def check_role_full(self, op: dict, role: str) -> bool:
+    @staticmethod
+    async def check_role_full(op: dict, role: str) -> bool:
         """
         Checks if the given role is full.
         :param op: The operations details dictionary.
@@ -573,7 +574,7 @@ class Operations(Cog):
         """
         if role == "Reserve" or role == "Any":
             return False
-        elif len(op["Sign-ups"][role]) >= self.sizes[str(op["Size"])][role]:
+        elif len(op["Sign-ups"][role]) >= Operations.sizes[str(op["Size"])][role]:
             return True
 
     @staticmethod
