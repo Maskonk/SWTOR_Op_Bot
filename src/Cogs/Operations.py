@@ -402,7 +402,8 @@ class Operations(Cog):
         op["Signed"] += 1
         return op
 
-    async def add_any_signup(self, op: dict, sign_up_name) -> dict:
+    @staticmethod
+    async def add_any_signup(op: dict, sign_up_name) -> dict:
         """
         Adds a user with given name to any role as they are available (Dps > Healer > Tank)
         Note: No changes are made if all roles are full.
@@ -414,7 +415,7 @@ class Operations(Cog):
         name = f"{sign_up_name} (Any)"
 
         for role in roles:
-            if not await self.check_role_full(op, role):
+            if not await Operations.check_role_full(op, role):
                 roles.remove(role)
                 op["Sign-ups"][role] += [name]
 
