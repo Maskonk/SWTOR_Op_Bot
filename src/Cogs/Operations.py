@@ -23,10 +23,11 @@ class Operations(Cog):
                   "tc": "Toborro's Courtyard", "cm": "Colossal Monolith", "gq": "Geonosian Queen",
                   "wb": "World Boss", "gf": "Group finder", "other": "Other activity", "eyeless": "Eyeless",
                   "xeno": "Xenoanalyst", "rav": "Ravagers", "tos": "Temple of Sacrifice"}
+    difficulties = {"sm": "Story Mode", "hm": "Veteran Mode", "nim": "Master Mode", "vm": "Veteran mode",
+                         "mm": "Master Mode", "na": ""}
+
     def __init__(self, bot, ops, config):
         self.bot = bot
-        self.difficulties = {"sm": "Story Mode", "hm": "Veteran Mode", "nim": "Master Mode", "vm": "Veteran mode",
-                             "mm": "Master Mode", "na": ""}
         self.ops = ops
         self.config = config
 
