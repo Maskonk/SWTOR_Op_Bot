@@ -1,4 +1,5 @@
 from discord.ext.commands import Cog, context, command, errors
+from discord import Client
 from discord.utils import get
 from datetime import datetime
 from json import load, dump
@@ -590,7 +591,7 @@ class Operations(Cog):
         return choice(list(operations.keys()))
 
     async def add_to_operation(self, op: dict, op_number: str, guild_id:int, sign_up_name: str,
-                               main_role: str, alt_role: str = None) -> None:
+                               main_role: str, alt_role: str = None) -> bool:
         """
         Adds the given user to the sign ups. (validates parameters)
         :param op: The operation to add the person to.
@@ -625,12 +626,12 @@ class Operations(Cog):
                 raise SignUpError("That role is full. Your role has not been changed.")
             else:
                 op = await self.remove_signup(op, sign_up_name)
-        elif op["Signed"] >= sum(self.sizes[str(op["Size"])].values()) and main_role != "Reserve":
+        elif op["Signed"] >= sum(Operations.sizes[str(op["Size"])].values()) and main_role != "Reserve":
             op = await self.add_reserve(op, sign_up_name, main_role)
             await self.write_operation(op, op_number, guild_id)
             raise SignUpError("This operation is full you have been placed as a reserve.")
         else:
-            if await self.check_role_full(op, main_role):
+            if await Operations.check_role_full(op, main_role):
                 if not alt_role:
                     op = await self.add_reserve(op, sign_up_name, main_role)
                     await self.write_operation(op, op_number, guild_id)
@@ -647,9 +648,9 @@ class Operations(Cog):
                     del temp_role
 
         if (main_role == "Reserve"):
-            op = await self.add_reserve(op, sign_up_name, alt_role)        
+            op = await Operations.add_reserve(op, sign_up_name, alt_role)
         else:
-            op = await self.add_signup(op, sign_up_name, main_role, alt_role)
+            op = await Operations.add_signup(op, sign_up_name, main_role, alt_role)
 
         await self.write_operation(op, op_number, guild_id)
         return True
