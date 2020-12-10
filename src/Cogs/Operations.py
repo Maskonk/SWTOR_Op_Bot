@@ -17,14 +17,14 @@ class Operations(Cog):
              "8": {"Tank": 2, "Dps": 4, "Healer": 2}, "16": {"Tank": 2, "Dps": 10, "Healer": 4},
              "1t5d": {"Tank": 1, "Dps": 5, "Healer": 2}, "1h5d": {"Tank": 2, "Dps": 5, "Healer": 1},
              "6d": {"Tank": 1, "Dps": 6, "Healer": 1}, "24": {"Tank": 3, "Dps": 15, "Healer": 6}}
+    operations = {"s&v": "Scum and Villainy", "tfb": "Terror From Beyond", "kp": "Karagga's Palace",
+                  "ev": "Eternity Vault", "ec": "Explosive Conflict", "df": "Dread Fortress",
+                  "dp": "Dread Palace", "dxun": "Dxun", "gftm": "Gods from the Machine",
+                  "tc": "Toborro's Courtyard", "cm": "Colossal Monolith", "gq": "Geonosian Queen",
+                  "wb": "World Boss", "gf": "Group finder", "other": "Other activity", "eyeless": "Eyeless",
+                  "xeno": "Xenoanalyst", "rav": "Ravagers", "tos": "Temple of Sacrifice"}
     def __init__(self, bot, ops, config):
         self.bot = bot
-        self.operations = {"s&v": "Scum and Villainy", "tfb": "Terror From Beyond", "kp": "Karagga's Palace",
-                           "ev": "Eternity Vault", "ec": "Explosive Conflict", "df": "Dread Fortress",
-                           "dp": "Dread Palace", "dxun": "Dxun", "gftm": "Gods from the Machine",
-                           "tc": "Toborro's Courtyard", "cm": "Colossal Monolith", "gq": "Geonosian Queen",
-                           "wb": "World Boss", "gf": "Group finder", "other": "Other activity", "eyeless": "Eyeless",
-                           "xeno": "Xenoanalyst", "rav": "Ravagers", "tos": "Temple of Sacrifice"}
         self.difficulties = {"sm": "Story Mode", "hm": "Veteran Mode", "nim": "Master Mode", "vm": "Veteran mode",
                              "mm": "Master Mode", "na": ""}
         self.ops = ops
