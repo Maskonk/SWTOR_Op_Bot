@@ -1,4 +1,6 @@
 from unittest import TestCase
+import asyncio
+from ..Cogs.Operations import Operations
 
 
 class TestOperations(TestCase):

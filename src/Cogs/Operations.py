@@ -5,10 +5,10 @@ from json import load, dump
 from dateutil.parser import parse
 from calendar import month_name, day_name
 from random import choice
-from Utils.Errors import SignUpError
-from Utils.ReactionUtils import check_valid_reaction
-from Utils.SignupUtils import SignupUtils
-from Utils.Validators import Validators
+from ..Utils.Errors import SignUpError
+from ..Utils.ReactionUtils import check_valid_reaction
+from ..Utils.SignupUtils import SignupUtils
+from ..Utils.Validators import Validators
 from re import sub
 
 
