@@ -4,6 +4,7 @@ from ..Cogs.Operations import Operations
 
 
 class TestOperations(TestCase):
+    pass
     # def test_add_signup(self):
     #     self.fail()
     #
