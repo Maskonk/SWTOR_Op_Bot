@@ -424,7 +424,6 @@ class Operations(Cog):
                     op["Sign-ups"][f"Alternate_{r}"] += [sign_up_name]
                 return op
 
-        # if it gets here -> all roles were full & nothing changed
         return op    
 
     @staticmethod
