@@ -419,11 +419,11 @@ class Operations(Cog):
             if not await Operations.check_role_full(op, role):
                 roles.remove(role)
                 op["Sign-ups"][role] += [name]
+                op["Signed"] += 1
 
                 for r in roles:
                     op["Sign-ups"][f"Alternate_{r}"] += [sign_up_name]
                 return op
-
         return op    
 
     @staticmethod
