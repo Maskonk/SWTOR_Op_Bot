@@ -1,5 +1,5 @@
 from unittest import TestCase
-from ..Utils.SignupUtils import SignupUtils
+from src.Utils.SignupUtils import SignupUtils
 import asyncio
 
 

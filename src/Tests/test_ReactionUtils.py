@@ -1,6 +1,6 @@
 from unittest import TestCase
 import asyncio
-from ..Utils.ReactionUtils import check_valid_reaction
+from src.Utils.ReactionUtils import check_valid_reaction
 
 
 class Test(TestCase):
