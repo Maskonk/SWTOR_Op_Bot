@@ -119,9 +119,18 @@ class TestOperations(TestCase):
         ops["Signed"] = 1
         self.assertDictEqual(ops, result)
 
-    # def test_add_reserve(self):
-    #     self.fail()
-    #
+    def test_add_reserve(self):
+        ops = {"Size": "8", "Sign-ups": {"Tank": [], "Dps": [], "Healer": [], "Reserve": [],
+                                         "Alternate_Tank": [], "Alternate_Dps": [], "Alternate_Healer": []},
+               "Signed": 0}
+        ops2 = deepcopy(ops)
+        loop = asyncio.new_event_loop()
+        result = loop.run_until_complete(Operations.add_reserve(ops2, "Test", "Tank"))
+        loop.close()
+
+        ops["Sign-ups"]["Reserve"] += ["Test (Tank)"]
+        self.assertDictEqual(ops, result)
+
     # def test_remove_signup(self):
     #     self.fail()
     #
