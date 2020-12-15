@@ -45,3 +45,9 @@ class Test(TestCase):
         result = loop.run_until_complete(check_valid_reaction("Thumbs_up"))
         loop.close()
         self.assertEqual(None, result)
+
+    def test_check_valid_reaction_dual_role_Tank_Dps(self):
+        loop = asyncio.new_event_loop()
+        result = loop.run_until_complete(check_valid_reaction("TankDPS"))
+        loop.close()
+        self.assertEqual(("Dps", "Tank"), result)
