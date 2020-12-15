@@ -373,7 +373,7 @@ class Operations(Cog):
     @staticmethod
     async def add_signup(op: dict, sign_up_name, main_role, alt_role: str = None) -> dict:
         """
-        Adds a user with given name and roles to the given operation
+        Adds a user with given name and roles to the given operation. Should never be called for reserve.
         :param op: The operation to be updated.
         :param sign_up_name: The user's nick name.
         :param main_role: The main role of the user.
@@ -642,10 +642,9 @@ class Operations(Cog):
                     temp_role = main_role
                     main_role = alt_role
                     alt_role = temp_role
-                    # await ctx.send(f"{temp_role} is full. You have been signed as {main_role}.")
                     del temp_role
 
-        if (main_role == "Reserve"):
+        if main_role == "Reserve":
             op = await Operations.add_reserve(op, sign_up_name, alt_role)
         else:
             op = await Operations.add_signup(op, sign_up_name, main_role, alt_role)
