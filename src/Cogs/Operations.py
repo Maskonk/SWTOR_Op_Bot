@@ -5,10 +5,10 @@ from json import load, dump
 from dateutil.parser import parse
 from calendar import month_name, day_name
 from random import choice
-from ..Utils.Errors import SignUpError
-from ..Utils.ReactionUtils import check_valid_reaction
-from ..Utils.SignupUtils import SignupUtils
-from ..Utils.Validators import Validators
+from src.Utils.Errors import SignUpError
+from src.Utils.ReactionUtils import check_valid_reaction
+from src.Utils.SignupUtils import SignupUtils
+from src.Utils.Validators import Validators
 from re import sub
 
 
@@ -675,7 +675,7 @@ class Operations(Cog):
         try:
             guild = self.bot.get_guild(payload.guild_id)
             user = guild.get_member(payload.user_id)
-            await self.add_to_operation(op, id, payload.guild_id, user.display_name, role, None)
+            await self.add_to_operation(op, id, payload.guild_id, user.display_name, role[0], role[1])
         except SignUpError:
             pass
 
@@ -694,6 +694,6 @@ class Operations(Cog):
             return
         guild = self.bot.get_guild(payload.guild_id)
         user = guild.get_member(payload.user_id)
-        if not await SignupUtils.check_role_change(op, user.display_name, role, None):
+        if not await SignupUtils.check_role_change(op, user.display_name, role[0], role[1]):
             op = await self.remove_signup(op, user.display_name)
             await self.write_operation(op, id, payload.guild_id)
