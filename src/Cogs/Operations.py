@@ -458,7 +458,6 @@ class Operations(Cog):
             name = sub("\s\(\w+\)", "", user)
             if user_nick == name:
                 op["Sign-ups"]["Reserve"].pop(i)
-                return op
         op["Signed"] -= 1
         return op
 

@@ -131,12 +131,72 @@ class TestOperations(TestCase):
         ops["Sign-ups"]["Reserve"] += ["Test (Tank)"]
         self.assertDictEqual(ops, result)
 
-    # def test_remove_signup(self):
-    #     self.fail()
-    #
-    # def test_is_owner_or_admin(self):
-    #     self.fail()
-    #
+    def test_remove_signup_one_role_Tank(self):
+        ops = {"Size": "8", "Sign-ups": {"Tank": ["Test"], "Dps": [], "Healer": [], "Reserve": [],
+                                         "Alternate_Tank": [], "Alternate_Dps": [], "Alternate_Healer": []},
+               "Signed": 1}
+        ops2 = deepcopy(ops)
+        loop = asyncio.new_event_loop()
+        result = loop.run_until_complete(Operations.remove_signup(ops2, "Test"))
+        loop.close()
+
+        ops["Sign-ups"]["Tank"].remove("Test")
+        ops["Signed"] = 0
+        self.assertDictEqual(ops, result)
+
+    def test_remove_signup_one_role_Dps(self):
+        ops = {"Size": "8", "Sign-ups": {"Tank": [], "Dps": ["Test"], "Healer": [], "Reserve": [],
+                                         "Alternate_Tank": [], "Alternate_Dps": [], "Alternate_Healer": []},
+               "Signed": 1}
+        ops2 = deepcopy(ops)
+        loop = asyncio.new_event_loop()
+        result = loop.run_until_complete(Operations.remove_signup(ops2, "Test"))
+        loop.close()
+
+        ops["Sign-ups"]["Dps"].remove("Test")
+        ops["Signed"] = 0
+        self.assertDictEqual(ops, result)
+
+    def test_remove_signup_one_role_Healer(self):
+        ops = {"Size": "8", "Sign-ups": {"Tank": [], "Dps": [], "Healer": ["Test"], "Reserve": [],
+                                         "Alternate_Tank": [], "Alternate_Dps": [], "Alternate_Healer": []},
+               "Signed": 1}
+        ops2 = deepcopy(ops)
+        loop = asyncio.new_event_loop()
+        result = loop.run_until_complete(Operations.remove_signup(ops2, "Test"))
+        loop.close()
+
+        ops["Sign-ups"]["Healer"].remove("Test")
+        ops["Signed"] = 0
+        self.assertDictEqual(ops, result)
+
+    def test_remove_signup_two_roles(self):
+        ops = {"Size": "8", "Sign-ups": {"Tank": [], "Dps": [], "Healer": ["Test (Tank)"], "Reserve": [],
+                                         "Alternate_Tank": ["Test"], "Alternate_Dps": [], "Alternate_Healer": []},
+               "Signed": 1}
+        ops2 = deepcopy(ops)
+        loop = asyncio.new_event_loop()
+        result = loop.run_until_complete(Operations.remove_signup(ops2, "Test"))
+        loop.close()
+
+        ops["Sign-ups"]["Healer"].remove("Test (Tank)")
+        ops["Sign-ups"]["Alternate_Tank"].remove("Test")
+        ops["Signed"] = 0
+        self.assertDictEqual(ops, result)
+
+    def test_remove_signup_reserve(self):
+        ops = {"Size": "8", "Sign-ups": {"Tank": [], "Dps": [], "Healer": [], "Reserve": ["Test (Tank)"],
+                                         "Alternate_Tank": [], "Alternate_Dps": [], "Alternate_Healer": []},
+               "Signed": 1}
+        ops2 = deepcopy(ops)
+        loop = asyncio.new_event_loop()
+        result = loop.run_until_complete(Operations.remove_signup(ops2, "Test"))
+        loop.close()
+
+        ops["Sign-ups"]["Reserve"].remove("Test (Tank)")
+        ops["Signed"] = 0
+        self.assertDictEqual(ops, result)
+
     # def test_parse_date(self):
     #     self.fail()
     #
