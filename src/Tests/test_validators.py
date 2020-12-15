@@ -1,5 +1,5 @@
 from unittest import TestCase
-from ..Utils.Validators import Validators
+from src.Utils.Validators import Validators
 import asyncio
 from dateutil.parser._parser import ParserError
 from datetime import datetime

@@ -1,6 +1,6 @@
 from unittest import TestCase
 import asyncio
-from ..Cogs.Operations import Operations
+from src.Cogs.Operations import Operations
 from copy import deepcopy
 
 
