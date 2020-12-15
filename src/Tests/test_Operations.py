@@ -208,6 +208,39 @@ class TestOperations(TestCase):
 
         self.assertFalse(result)
 
+    def test_check_role_full_Tank_true(self):
+        ops = {"Size": "8", "Sign-ups": {"Tank": ["", ""], "Dps": [], "Healer": [], "Reserve": ["Test (Tank)"],
+                                         "Alternate_Tank": [], "Alternate_Dps": [], "Alternate_Healer": []},
+               "Signed": 1}
+        ops2 = deepcopy(ops)
+        loop = asyncio.new_event_loop()
+        result = loop.run_until_complete(Operations.check_role_full(ops2, "Tank"))
+        loop.close()
+
+        self.assertTrue(result)
+
+    def test_check_role_full_Healer_true(self):
+        ops = {"Size": "8", "Sign-ups": {"Tank": [], "Dps": [], "Healer": ["", ""], "Reserve": ["Test (Tank)"],
+                                         "Alternate_Tank": [], "Alternate_Dps": [], "Alternate_Healer": []},
+               "Signed": 1}
+        ops2 = deepcopy(ops)
+        loop = asyncio.new_event_loop()
+        result = loop.run_until_complete(Operations.check_role_full(ops2, "Healer"))
+        loop.close()
+
+        self.assertTrue(result)
+
+    def test_check_role_full_Dps_true(self):
+        ops = {"Size": "8", "Sign-ups": {"Tank": [], "Dps": ["", "", "", ""], "Healer": [], "Reserve": ["Test (Tank)"],
+                                         "Alternate_Tank": [], "Alternate_Dps": [], "Alternate_Healer": []},
+               "Signed": 1}
+        ops2 = deepcopy(ops)
+        loop = asyncio.new_event_loop()
+        result = loop.run_until_complete(Operations.check_role_full(ops2, "Dps"))
+        loop.close()
+
+        self.assertTrue(result)
+
 
     # def test_parse_date(self):
     #     self.fail()

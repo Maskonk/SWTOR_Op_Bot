@@ -577,6 +577,7 @@ class Operations(Cog):
             return False
         elif len(op["Sign-ups"][role]) >= Operations.sizes[str(op["Size"])][role]:
             return True
+        return False
 
     @staticmethod
     async def get_random_operation(operations: dict) -> str:
