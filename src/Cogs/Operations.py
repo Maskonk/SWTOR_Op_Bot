@@ -5,28 +5,29 @@ from json import load, dump
 from dateutil.parser import parse
 from calendar import month_name, day_name
 from random import choice
-from Utils.Errors import SignUpError
-from Utils.ReactionUtils import check_valid_reaction
-from Utils.SignupUtils import *
-from Utils.Validators import *
+from ..Utils.Errors import SignUpError
+from ..Utils.ReactionUtils import check_valid_reaction
+from ..Utils.SignupUtils import SignupUtils
+from ..Utils.Validators import Validators
 from re import sub
 
 
 class Operations(Cog):
+    sizes = {"1": {"Tank": 0, "Dps": 1, "Healer": 0}, "4": {"Tank": 1, "Dps": 1, "Healer": 1},
+             "8": {"Tank": 2, "Dps": 4, "Healer": 2}, "16": {"Tank": 2, "Dps": 10, "Healer": 4},
+             "1t5d": {"Tank": 1, "Dps": 5, "Healer": 2}, "1h5d": {"Tank": 2, "Dps": 5, "Healer": 1},
+             "6d": {"Tank": 1, "Dps": 6, "Healer": 1}, "24": {"Tank": 3, "Dps": 15, "Healer": 6}}
+    operations = {"s&v": "Scum and Villainy", "tfb": "Terror From Beyond", "kp": "Karagga's Palace",
+                  "ev": "Eternity Vault", "ec": "Explosive Conflict", "df": "Dread Fortress",
+                  "dp": "Dread Palace", "dxun": "Dxun", "gftm": "Gods from the Machine",
+                  "tc": "Toborro's Courtyard", "cm": "Colossal Monolith", "gq": "Geonosian Queen",
+                  "wb": "World Boss", "gf": "Group finder", "other": "Other activity", "eyeless": "Eyeless",
+                  "xeno": "Xenoanalyst", "rav": "Ravagers", "tos": "Temple of Sacrifice"}
+    difficulties = {"sm": "Story Mode", "hm": "Veteran Mode", "nim": "Master Mode", "vm": "Veteran mode",
+                         "mm": "Master Mode", "na": ""}
+
     def __init__(self, bot, ops, config):
         self.bot = bot
-        self.operations = {"s&v": "Scum and Villainy", "tfb": "Terror From Beyond", "kp": "Karagga's Palace",
-                           "ev": "Eternity Vault", "ec": "Explosive Conflict", "df": "Dread Fortress",
-                           "dp": "Dread Palace", "dxun": "Dxun", "gftm": "Gods from the Machine",
-                           "tc": "Toborro's Courtyard", "cm": "Colossal Monolith", "gq": "Geonosian Queen",
-                           "wb": "World Boss", "gf": "Group finder", "other": "Other activity", "eyeless": "Eyeless",
-                           "xeno": "Xenoanalyst", "rav": "Ravagers", "tos": "Temple of Sacrifice"}
-        self.sizes = sizes = {"1": {"Tank": 0, "Dps": 1, "Healer": 0}, "4": {"Tank": 1, "Dps": 1, "Healer": 1},
-                              "8": {"Tank": 2, "Dps": 4, "Healer": 2}, "16": {"Tank": 2, "Dps": 10, "Healer": 4},
-                              "1t5d": {"Tank": 1, "Dps": 5, "Healer": 2}, "1h5d": {"Tank": 2, "Dps": 5, "Healer": 1},
-                              "6d": {"Tank": 1, "Dps": 6, "Healer": 1}, "24": {"Tank": 3, "Dps": 15, "Healer": 6}}
-        self.difficulties = {"sm": "Story Mode", "hm": "Veteran Mode", "nim": "Master Mode", "vm": "Veteran mode",
-                             "mm": "Master Mode"}
         self.ops = ops
         self.config = config
 
@@ -80,29 +81,29 @@ class Operations(Cog):
         :param notes: Any notes for the operation.
         """
         config = self.config.get(str(ctx.guild.id), {})
-        if not await validate_operation_channel(ctx.channel.id, config):
+        if not await Validators.validate_operation_channel(ctx.channel.id, config):
             return
 
-        if not await validate_operation_input(operation, self.operations):
+        if not await Validators.validate_operation_input(operation, self.operations):
             await ctx.send("That is not a valid operation.")
             return
 
-        if not await validate_time_input(date, time):
+        if not await Validators.validate_time_input(date, time):
             message = await ctx.send("That date has already passed.")
             await message.delete(delay=10)
             return
 
-        if not await validate_difficulty_input(difficulty):
+        if not await Validators.validate_difficulty_input(difficulty):
             message = await ctx.send("That is not a valid difficulty.")
             await message.delete(delay=10)
             return
 
-        if not await validate_size_input(size, self.sizes):
+        if not await Validators.validate_size_input(size, self.sizes):
             message = await ctx.send("That is not a valid size.")
             await message.delete(delay=10)
             return
 
-        if not await validate_side_input(side):
+        if not await Validators.validate_side_input(side):
             message = await ctx.send("That is not a valid side.")
             await message.delete(delay=10)
             return
@@ -166,7 +167,7 @@ class Operations(Cog):
         :param alt_role: Optional alternative role to sign up as.
         """
         config = self.config.get(str(ctx.guild.id), {})
-        if not await validate_sign_up_channel(ctx.channel.id, config):
+        if not await Validators.validate_sign_up_channel(ctx.channel.id, config):
             return
         op = self.ops.get(str(ctx.guild.id), {}).get(str(op_number))
         r = await self.add_to_operation(op, op_number, ctx.guild.id, ctx.author.display_name, main_role, alt_role)
@@ -180,7 +181,7 @@ class Operations(Cog):
         :param op_number: The operation id to remove sign up from.
         """
         config = self.config.get(str(ctx.guild.id), {})
-        if not await validate_sign_up_channel(ctx.channel.id, config):
+        if not await Validators.validate_sign_up_channel(ctx.channel.id, config):
             return
         op = self.ops.get(str(ctx.guild.id), {}).get(str(op_number))
         if not op:
@@ -188,7 +189,7 @@ class Operations(Cog):
             await message.delete(delay=10)
             return
 
-        if not await check_duplicate(op, ctx.author.display_name):
+        if not await SignupUtils.check_duplicate(op, ctx.author.display_name):
             await ctx.send("You are not currently signed up to that operation.")
             return
 
@@ -206,7 +207,7 @@ class Operations(Cog):
         :param value: The new value of the attribute.
         """
         config = self.config.get(str(ctx.guild.id), {})
-        if not await validate_sign_up_channel(ctx.channel.id, config):
+        if not await Validators.validate_sign_up_channel(ctx.channel.id, config):
             return
         op = self.ops.get(str(ctx.guild.id), {}).get(str(op_number))
         if not op:
@@ -233,31 +234,31 @@ class Operations(Cog):
             value = value[0]
 
         if attribute.capitalize() == "Operation":
-            if not await validate_operation_input(value, self.operations):
+            if not await Validators.validate_operation_input(value, self.operations):
                 await ctx.send("That is not a valid operation.")
                 return
         elif attribute.capitalize() == "Date":
-            if not await validate_time_input(value, op["Time"]):
+            if not await Validators.validate_time_input(value, op["Time"]):
                 message = await ctx.send("That date has already passed.")
                 await message.delete(delay=10)
                 return
         elif attribute.capitalize() == "Time":
-            if not await validate_time_input(op["Date"], value):
+            if not await Validators.validate_time_input(op["Date"], value):
                 message = await ctx.send("That date has already passed.")
                 await message.delete(delay=10)
                 return
         elif attribute.capitalize() == "Difficulty":
-            if not await validate_difficulty_input(value):
+            if not await Validators.validate_difficulty_input(value):
                 message = await ctx.send("That is not a valid difficulty.")
                 await message.delete(delay=10)
                 return
         elif attribute.capitalize() == "Size":
-            if not await validate_size_input(value, self.sizes):
+            if not await Validators.validate_size_input(value, self.sizes):
                 message = await ctx.send("That is not a valid size.")
                 await message.delete(delay=10)
                 return
         elif attribute.capitalize() == "Side":
-            if not await validate_side_input(value):
+            if not await Validators.validate_side_input(value):
                 message = await ctx.send("That is not a valid side.")
                 await message.delete(delay=10)
                 return
@@ -274,7 +275,7 @@ class Operations(Cog):
         :param op_number: The operation id.
         """
         config = self.config.get(str(ctx.guild.id), {})
-        if not await validate_sign_up_channel(ctx.channel.id, config):
+        if not await Validators.validate_sign_up_channel(ctx.channel.id, config):
             return
         op = self.ops.get(str(ctx.guild.id), {}).get(str(op_number))
         if not op:
@@ -304,7 +305,7 @@ class Operations(Cog):
         :param name: The name of the person to be removed.
         """
         config = self.config.get(str(ctx.guild.id), {})
-        if not await validate_sign_up_channel(ctx.channel.id, config):
+        if not await Validators.validate_sign_up_channel(ctx.channel.id, config):
             return
         op = self.ops.get(str(ctx.guild.id), {}).get(str(op_number))
         if not op:
@@ -333,7 +334,7 @@ class Operations(Cog):
         :param alt_role: The alt role of the person to be added.
         """
         config = self.config.get(str(ctx.guild.id), {})
-        if not await validate_sign_up_channel(ctx.channel.id, config):
+        if not await Validators.validate_sign_up_channel(ctx.channel.id, config):
             return
         op = self.ops.get(str(ctx.guild.id), {}).get(str(op_number))
 
@@ -347,7 +348,7 @@ class Operations(Cog):
         A basic user guide on how to use the bot.
         """
         config = self.config.get(str(ctx.guild.id), {})
-        if not await validate_swtor_channel(ctx.channel.id, config):
+        if not await Validators.validate_swtor_channel(ctx.channel.id, config):
             return
         msg = "**Basic user guide:**\n__Creating a new operation:__```-new <operation> <mode> <side> <size> <date> " \
               "<time>``` Will create a new operation, Example:```-new TFB MM Imp 8 22/10/20 19:00```" \
@@ -364,14 +365,15 @@ class Operations(Cog):
     @command(aliases=["random"])
     async def random_operation(self, ctx: context):
         config = self.config.get(str(ctx.guild.id), {})
-        if not await validate_swtor_channel(ctx.channel.id, config):
+        if not await Validators.validate_swtor_channel(ctx.channel.id, config):
             return
         operation = await self.get_random_operation(self.operations)
         await ctx.send(f"The random operation is: {operation}")
 
-    async def add_signup(self, op: dict, sign_up_name, main_role, alt_role: str = None) -> dict:
+    @staticmethod
+    async def add_signup(op: dict, sign_up_name, main_role, alt_role: str = None) -> dict:
         """
-        Adds a user with given name and roles to the given operation
+        Adds a user with given name and roles to the given operation. Should never be called for reserve.
         :param op: The operation to be updated.
         :param sign_up_name: The user's nick name.
         :param main_role: The main role of the user.
@@ -379,7 +381,7 @@ class Operations(Cog):
         :return: dict: The updated operation. 
         """
         if main_role == "Any":
-            op = await self.add_any_signup(op, sign_up_name)
+            op = await Operations.add_any_signup(op, sign_up_name)
         elif alt_role == "Any":
             name = f"{sign_up_name} (Any)"
             op["Sign-ups"][main_role] += [name]
@@ -401,7 +403,8 @@ class Operations(Cog):
         op["Signed"] += 1
         return op
 
-    async def add_any_signup(self, op: dict, sign_up_name) -> dict:
+    @staticmethod
+    async def add_any_signup(op: dict, sign_up_name) -> dict:
         """
         Adds a user with given name to any role as they are available (Dps > Healer > Tank)
         Note: No changes are made if all roles are full.
@@ -413,18 +416,18 @@ class Operations(Cog):
         name = f"{sign_up_name} (Any)"
 
         for role in roles:
-            if not await self.check_role_full(op, role):
+            if not await Operations.check_role_full(op, role):
                 roles.remove(role)
                 op["Sign-ups"][role] += [name]
+                op["Signed"] += 1
 
                 for r in roles:
                     op["Sign-ups"][f"Alternate_{r}"] += [sign_up_name]
                 return op
-
-        # if it gets here -> all roles were full & nothing changed
         return op    
 
-    async def add_reserve(self, op: dict, sign_up_name, reserve_role) -> dict:
+    @staticmethod
+    async def add_reserve(op: dict, sign_up_name, reserve_role) -> dict:
         """
         Adds a user with given name as a reserve with their preferred role
         :param op: The operation to be updated.
@@ -455,7 +458,6 @@ class Operations(Cog):
             name = sub("\s\(\w+\)", "", user)
             if user_nick == name:
                 op["Sign-ups"]["Reserve"].pop(i)
-                return op
         op["Signed"] -= 1
         return op
 
@@ -563,7 +565,8 @@ class Operations(Cog):
         with open('./Ops.json', 'w') as f:
             dump(self.ops, f)
 
-    async def check_role_full(self, op: dict, role: str) -> bool:
+    @staticmethod
+    async def check_role_full(op: dict, role: str) -> bool:
         """
         Checks if the given role is full.
         :param op: The operations details dictionary.
@@ -572,8 +575,9 @@ class Operations(Cog):
         """
         if role == "Reserve" or role == "Any":
             return False
-        elif len(op["Sign-ups"][role]) >= self.sizes[str(op["Size"])][role]:
+        elif len(op["Sign-ups"][role]) >= Operations.sizes[str(op["Size"])][role]:
             return True
+        return False
 
     @staticmethod
     async def get_random_operation(operations: dict) -> str:
@@ -585,7 +589,7 @@ class Operations(Cog):
         return choice(list(operations.keys()))
 
     async def add_to_operation(self, op: dict, op_number: str, guild_id:int, sign_up_name: str,
-                               main_role: str, alt_role: str = None) -> None:
+                               main_role: str, alt_role: str = None) -> bool:
         """
         Adds the given user to the sign ups. (validates parameters)
         :param op: The operation to add the person to.
@@ -597,12 +601,12 @@ class Operations(Cog):
         if not op:
             raise SignUpError("There is no Operation with that number.")
 
-        main_role = await validate_role(main_role)
+        main_role = await Validators.validate_role(main_role)
         if not main_role:
             raise SignUpError("Main role is not valid. Please enter a valid role.")
 
         if alt_role:
-            alt_role = await validate_role(alt_role)
+            alt_role = await Validators.validate_role(alt_role)
             if not alt_role:
                 raise SignUpError("Alternative role is not valid. Please enter a valid role.")
             elif main_role == alt_role:
@@ -613,19 +617,19 @@ class Operations(Cog):
         elif main_role == "Reserve":
             raise SignUpError("You must add a alternative role to sign as reserve.")
 
-        if await check_duplicate(op, sign_up_name):
-            if not await check_role_change(op, sign_up_name, main_role, alt_role):
+        if await SignupUtils.check_duplicate(op, sign_up_name):
+            if not await SignupUtils.check_role_change(op, sign_up_name, main_role, alt_role):
                 raise SignUpError("You have already signed-up for that operation.")
             elif await self.check_role_full(op, main_role):
                 raise SignUpError("That role is full. Your role has not been changed.")
             else:
                 op = await self.remove_signup(op, sign_up_name)
-        elif op["Signed"] >= sum(self.sizes[str(op["Size"])].values()) and main_role != "Reserve":
+        elif op["Signed"] >= sum(Operations.sizes[str(op["Size"])].values()) and main_role != "Reserve":
             op = await self.add_reserve(op, sign_up_name, main_role)
             await self.write_operation(op, op_number, guild_id)
             raise SignUpError("This operation is full you have been placed as a reserve.")
         else:
-            if await self.check_role_full(op, main_role):
+            if await Operations.check_role_full(op, main_role):
                 if not alt_role:
                     op = await self.add_reserve(op, sign_up_name, main_role)
                     await self.write_operation(op, op_number, guild_id)
@@ -638,13 +642,12 @@ class Operations(Cog):
                     temp_role = main_role
                     main_role = alt_role
                     alt_role = temp_role
-                    # await ctx.send(f"{temp_role} is full. You have been signed as {main_role}.")
                     del temp_role
 
-        if (main_role == "Reserve"):
-            op = await self.add_reserve(op, sign_up_name, alt_role)        
+        if main_role == "Reserve":
+            op = await Operations.add_reserve(op, sign_up_name, alt_role)
         else:
-            op = await self.add_signup(op, sign_up_name, main_role, alt_role)
+            op = await Operations.add_signup(op, sign_up_name, main_role, alt_role)
 
         await self.write_operation(op, op_number, guild_id)
         return True
@@ -691,6 +694,6 @@ class Operations(Cog):
             return
         guild = self.bot.get_guild(payload.guild_id)
         user = guild.get_member(payload.user_id)
-        if not await check_role_change(op, user.display_name, role, None):
+        if not await SignupUtils.check_role_change(op, user.display_name, role, None):
             op = await self.remove_signup(op, user.display_name)
             await self.write_operation(op, id, payload.guild_id)
