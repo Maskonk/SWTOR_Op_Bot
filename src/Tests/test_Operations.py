@@ -91,6 +91,34 @@ class TestOperations(TestCase):
         ops["Signed"] = 1
         self.assertDictEqual(ops, result)
 
+    def test_add_any_signup_switches_to_Healer(self):
+        ops = {"Size": "8", "Sign-ups": {"Tank": [], "Dps": ["", "", "", ""], "Healer": [], "Reserve": [],
+                            "Alternate_Tank": [], "Alternate_Dps": [], "Alternate_Healer": []}, "Signed": 0}
+        ops2 = deepcopy(ops)
+        loop = asyncio.new_event_loop()
+        result = loop.run_until_complete(Operations.add_any_signup(ops2, "Test"))
+        loop.close()
+
+        ops["Sign-ups"]["Healer"] += ["Test (Any)"]
+        ops["Sign-ups"]["Alternate_Dps"] += ["Test"]
+        ops["Sign-ups"]["Alternate_Tank"] += ["Test"]
+        ops["Signed"] = 1
+        self.assertDictEqual(ops, result)
+
+    def test_add_any_signup_finally_tries_tank(self):
+        ops = {"Size": "8", "Sign-ups": {"Tank": [], "Dps": ["", "", "", ""], "Healer": ["", ""], "Reserve": [],
+                            "Alternate_Tank": [], "Alternate_Dps": [], "Alternate_Healer": []}, "Signed": 0}
+        ops2 = deepcopy(ops)
+        loop = asyncio.new_event_loop()
+        result = loop.run_until_complete(Operations.add_any_signup(ops2, "Test"))
+        loop.close()
+
+        ops["Sign-ups"]["Tank"] += ["Test (Any)"]
+        ops["Sign-ups"]["Alternate_Dps"] += ["Test"]
+        ops["Sign-ups"]["Alternate_Healer"] += ["Test"]
+        ops["Signed"] = 1
+        self.assertDictEqual(ops, result)
+
     # def test_add_reserve(self):
     #     self.fail()
     #
