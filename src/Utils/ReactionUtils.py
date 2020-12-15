@@ -1,5 +1,6 @@
-async def check_valid_reaction(reaction: str) -> str:
-    emojis = {"🇹": "Tank", "🇩": "Dps", "🇭": "Healer", "Tank": "Tank", "Healer": "Healer", "Dps": "Dps"}
+async def check_valid_reaction(reaction: str) -> tuple:
+    emojis = {"🇹": ("Tank", None), "🇩": ("Dps", None), "🇭": ("Healer", None),
+              "Tank": ("Tank", None), "Healer": ("Healer", None), "Dps": ("Dps", None)}
     if reaction.capitalize() in emojis.keys():
         role = emojis[reaction.capitalize()]
     else:
