@@ -69,3 +69,9 @@ class Test(TestCase):
         result = loop.run_until_complete(check_valid_reaction("TankDPSHealer"))
         loop.close()
         self.assertEqual(("Any", None), result)
+
+    def test_check_valid_reaction_Iona(self):
+        loop = asyncio.new_event_loop()
+        result = loop.run_until_complete(check_valid_reaction("pepeDEEPS"))
+        loop.close()
+        self.assertEqual(("Dps", None), result)
