@@ -7,15 +7,12 @@ class Admin(Cog):
         self.bot = bot
         self.ops = ops
 
-    @command()
+    @command(hidden=True)
     async def delete_all(self, ctx: context) -> None:
         """
         Deletes all operations for the given server.
         """
-        print("Here")
-        print(self.ops)
         self.ops[str(ctx.guild.id)] = []
-        print(self.ops)
         with open('./Ops.json', 'w') as f:
             dump(self.ops, f)
 
