@@ -3,6 +3,7 @@ from discord import Game, Intents
 from discord.ext import commands
 from Cogs.Operations import Operations
 from Cogs.Swtor import Swtor
+from Cogs.Admin import Admin
 from json import load
 from Utils.ReactionUtils import *
 from datetime import datetime
@@ -64,5 +65,6 @@ async def github(ctx):
                    "https://github.com/Maskonk/SWTOR_Op_Bot")
 
 client.add_cog(Operations(client, ops, config))
+client.add_cog(Admin(client, ops))
 client.add_cog(Swtor(client, config))
 client.run(token)
