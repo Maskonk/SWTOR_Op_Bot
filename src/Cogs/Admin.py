@@ -22,10 +22,12 @@ class Admin(Cog):
 
     @command(hidden=True)
     async def reset_ids(self, ctx: context) -> None:
+        """
+        Resets the ids of all operations for the server starting at one.
+        """
         ops = self.ops.get(str(ctx.guild.id), ())
         i = 1
         temp = {}
-        print(ops.keys())
         for op in ops.values():
             await self.edit_pinned_message(op, i, ctx.guild.id)
             temp[i] = op
