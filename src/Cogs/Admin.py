@@ -17,7 +17,6 @@ class Admin(Cog):
         return ctx.author.id in admins or ctx.author.id in [168009927015661568]
 
     @command(hidden=True)
-    # @check(is_server_admin)
     async def delete_all(self, ctx: context) -> None:
         """
         Deletes all operations for the given server.
@@ -28,12 +27,16 @@ class Admin(Cog):
         self.ops[str(ctx.guild.id)] = {}
         with open('./Ops.json', 'w') as f:
             dump(self.ops, f)
+        await ctx.message.add_reaction('\U0001f44d')
 
     @command(hidden=True)
     async def reset_ids(self, ctx: context) -> None:
         """
         Resets the ids of all operations for the server starting at one.
         """
+        if not await self.is_server_admin(ctx):
+            await ctx.send("You are not authorized to use this command.")
+            return
         ops = self.ops.get(str(ctx.guild.id), ())
         i = 1
         temp = {}
@@ -44,6 +47,7 @@ class Admin(Cog):
         self.ops[str(ctx.guild.id)] = temp
         with open('./Ops.json', 'w') as f:
             dump(self.ops, f)
+        await ctx.message.add_reaction('\U0001f44d')
 
     async def make_operation_message(self, dt: datetime, op: dict, op_id: str) -> str:
         """
