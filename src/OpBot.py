@@ -65,6 +65,6 @@ async def github(ctx):
                    "https://github.com/Maskonk/SWTOR_Op_Bot")
 
 client.add_cog(Operations(client, ops, config))
-client.add_cog(Admin(client, ops))
+client.add_cog(Admin(client, ops, config))
 client.add_cog(Swtor(client, config))
 client.run(token)
