@@ -515,7 +515,6 @@ class Operations(Cog):
         channel = guild.get_channel(op["Channel_id"])
         message = get(await channel.history(limit=300).flatten(), id=op["Post_id"])
 
-        # message = await ctx.fetch_message(op["Post_id"])
         await message.edit(content=msg)
 
     async def is_owner_or_admin(self, ctx: context, op: dict) -> bool:
@@ -525,7 +524,7 @@ class Operations(Cog):
         :return: Booleon True is the user owns the operation or is an Admin.
         """
         server_admins = self.config.get(str(ctx.guild.id), {}).get("Admins", [])
-        return ctx.author.id in ([op["Owner_id"], 168009927015661568] + server_admins)
+        return ctx.author.id in ([op["Owner_id"], 168009927015661568, 165463629171261440] + server_admins)
 
     @staticmethod
     async def parse_date(date: str, time: str) -> datetime:
