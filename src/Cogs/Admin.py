@@ -16,7 +16,7 @@ class Admin(Cog):
         admins = self.config.get(str(ctx.guild.id), {}).get("Admins", [])
         return ctx.author.id in admins or ctx.author.id in [168009927015661568]
 
-    @command(hidden=True)
+    @command(hidden=True, aliases=["da", "deleteall"])
     async def delete_all(self, ctx: context) -> None:
         """
         Deletes all operations for the given server.
@@ -35,7 +35,7 @@ class Admin(Cog):
             dump(self.ops, f)
         await ctx.message.add_reaction('\U0001f44d')
 
-    @command(hidden=True)
+    @command(hidden=True, aliases=["ri", "resetids"])
     async def reset_ids(self, ctx: context) -> None:
         """
         Resets the ids of all operations for the server starting at one.
