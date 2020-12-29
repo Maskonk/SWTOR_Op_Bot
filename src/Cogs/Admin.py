@@ -1,4 +1,4 @@
-from discord.ext.commands import Cog, command, context
+from discord.ext.commands import Cog, command, context, check
 from discord.utils import get
 from datetime import datetime
 from json import dump
@@ -14,17 +14,18 @@ class Admin(Cog):
 
     async def is_server_admin(self, ctx: context) -> bool:
         admins = self.config.get(str(ctx.guild.id), {}).get("Admins", [])
-        return ctx.author.id in admins
+        return ctx.author.id in admins or ctx.author.id in [168009927015661568]
 
     @command(hidden=True)
-    @commands.check(is_server_admin)
+    # @check(is_server_admin)
     async def delete_all(self, ctx: context) -> None:
         """
         Deletes all operations for the given server.
         """
         if not await self.is_server_admin(ctx):
+            await ctx.send("You are not authorized to use this command.")
             return
-        self.ops[str(ctx.guild.id)] = []
+        self.ops[str(ctx.guild.id)] = {}
         with open('./Ops.json', 'w') as f:
             dump(self.ops, f)
 
