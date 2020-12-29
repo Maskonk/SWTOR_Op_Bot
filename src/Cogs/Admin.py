@@ -48,7 +48,7 @@ class Admin(Cog):
         temp = {}
         for op in ops.values():
             await self.edit_pinned_message(op, i, ctx.guild.id)
-            temp[i] = op
+            temp[str(i)] = op
             i += 1
         self.ops[str(ctx.guild.id)] = temp
         with open('./Ops.json', 'w') as f:
