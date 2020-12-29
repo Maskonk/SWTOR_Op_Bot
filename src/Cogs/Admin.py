@@ -14,7 +14,7 @@ class Admin(Cog):
 
     async def is_server_admin(self, ctx: context) -> bool:
         admins = self.config.get(str(ctx.guild.id), {}).get("Admins", [])
-        return ctx.author.id in admins or ctx.author.id in [168009927015661568]
+        return ctx.author.id in admins or ctx.author.id in [168009927015661568, 165463629171261440]
 
     @command(hidden=True, aliases=["da", "deleteall"])
     async def delete_all(self, ctx: context) -> None:
