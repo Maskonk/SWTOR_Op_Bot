@@ -24,6 +24,12 @@ class Admin(Cog):
         if not await self.is_server_admin(ctx):
             await ctx.send("You are not authorized to use this command.")
             return
+        ops = self.ops.get(str(ctx.guild.id), ())
+        for op in ops.values():
+            print(op)
+            channel = ctx.guild.get_channel(op["Channel_id"])
+            message = get(await channel.history(limit=300).flatten(), id=op["Post_id"])
+            await message.unpin()
         self.ops[str(ctx.guild.id)] = {}
         with open('./Ops.json', 'w') as f:
             dump(self.ops, f)
