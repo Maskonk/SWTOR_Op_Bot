@@ -138,14 +138,9 @@ class Operations(Cog):
               "Open": True,
               "Signed": 0,
               "Sign-ups": {
-                "Tank": [],
-                "Dps": [],
-                "Healer": [],
-                "Reserve": [],
-                "Alternate_Tank": [],
-                "Alternate_Dps": [],
-                "Alternate_Healer": []
-            }}
+                  "Roster": [],
+                  "Reserves": []
+              }}
 
         dt = await self.parse_date(date, time)
         msg = await self.make_operation_message(dt, op, str(op_id))
