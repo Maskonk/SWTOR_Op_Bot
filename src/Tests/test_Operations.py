@@ -6,13 +6,12 @@ from copy import deepcopy
 
 class TestOperations(TestCase):
     def test_add_signup_Tank_no_alt(self):
-        ops = {"Sign-ups": {"Tank": [], "Dps": [], "Healer": [], "Reserve": [],
-                            "Alternate_Tank": [], "Alternate_Dps": [], "Alternate_Healer": []}, "Signed": 0}
+        ops = {"Sign-ups": {"Roster": [], "Reserves": []}, "Signed": 0}
         ops2 = deepcopy(ops)
         loop = asyncio.new_event_loop()
         result = loop.run_until_complete(Operations.add_signup(ops2, "Test", "Tank", None))
         loop.close()
-        ops["Sign-ups"]["Tank"] += ["Test"]
+        ops["Sign-ups"]["Roster"] += [{"name": "Test", "main-role": "Tank", "alt-role": None}]
         ops["Signed"] = 1
         self.assertEqual(ops, result)
 
