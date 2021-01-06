@@ -366,7 +366,7 @@ class Operations(Cog):
         await ctx.send(f"The random operation is: {operation}")
 
     @staticmethod
-    async def add_signup(op: dict, sign_up_name: str, main_role: str, alt_role: str = None) -> dict:
+    async def add_signup(op: dict, sign_up_name, main_role, alt_role: str = None) -> dict:
         """
         Adds a user with given name and roles to the given operation. Should never be called for reserve.
         :param op: The operation to be updated.
@@ -377,14 +377,29 @@ class Operations(Cog):
         """
         if main_role == "Any":
             op = await Operations.add_any_signup(op, sign_up_name)
-        else:
-            op["Sign-ups"]["Roster"] += [{"name": sign_up_name, "main-role": main_role, "alt-role": alt_role}]
+        elif alt_role == "Any":
+            name = f"{sign_up_name} (Any)"
+            op["Sign-ups"][main_role] += [name]
 
+            alt_roles = ["Tank", "Healer", "Dps"]
+            alt_roles.remove(main_role)
+
+            for r in alt_roles:
+                op["Sign-ups"][f"Alternate_{r}"] += [sign_up_name]
+        else:
+            if alt_role:
+                name = f"{sign_up_name} ({alt_role})"
+                if main_role != "Reserve":
+                    op["Sign-ups"][f"Alternate_{alt_role}"] += [sign_up_name]
+            else:
+                name = sign_up_name
+
+            op["Sign-ups"][main_role] += [name]
         op["Signed"] += 1
         return op
 
     @staticmethod
-    async def add_any_signup(op: dict, sign_up_name: str) -> dict:
+    async def add_any_signup(op: dict, sign_up_name) -> dict:
         """
         Adds a user with given name to any role as they are available (Dps > Healer > Tank)
         Note: No changes are made if all roles are full.
@@ -393,29 +408,34 @@ class Operations(Cog):
         :return: dict: The updated operation. 
         """
         roles = ["Dps", "Healer", "Tank"]
+        name = f"{sign_up_name} (Any)"
 
         for role in roles:
             if not await Operations.check_role_full(op, role):
                 roles.remove(role)
-                op["Sign-ups"]["Roster"] += [{"name": sign_up_name, "main-role": role, "alt-role": "Any"}]
+                op["Sign-ups"][role] += [name]
+                op["Signed"] += 1
+
+                for r in roles:
+                    op["Sign-ups"][f"Alternate_{r}"] += [sign_up_name]
                 return op
         return op    
 
     @staticmethod
-    async def add_reserve(op: dict, sign_up_name: str, reserve_role: str, main: bool = False) -> dict:
+    async def add_reserve(op: dict, sign_up_name, reserve_role) -> dict:
         """
         Adds a user with given name as a reserve with their preferred role
         :param op: The operation to be updated.
         :param sign_up_name: The user's nick name.
-        :param reserve_role: The user's reserve role.
-        :param main: If the user should be moved to the main roster or not.
+        :param reserve_role: The user's reserve role
         :return: dict: The updated operation. 
         """
-        op["Sign-ups"]["Reserves"] += [{"name": sign_up_name, "role": reserve_role, "move-main": main}]
+        name = f"{sign_up_name} ({reserve_role})"
+        op["Sign-ups"]["Reserve"] += [name]
         return op
 
     @staticmethod
-    async def remove_signup(op: dict, user_nick: str) -> dict:
+    async def remove_signup(op: dict, user_nick) -> dict:
         """
         Attempts to removes the user with given name from the operation.
         :param op: The operation to be updated.
@@ -445,11 +465,9 @@ class Operations(Cog):
         :return: String of the message to send composed of the operations details.
         """
         guild = self.bot.get_guild(750036082518917170)
-        emojis = {
-            "Tank": get(guild.emojis, name='Tank'),
-            "Dps": get(guild.emojis, name='DPS'),
-            "Healer": get(guild.emojis, name='Healer')
-        }
+        dps_emoji = get(guild.emojis, name='DPS')
+        heal_emoji = get(guild.emojis, name='Healer')
+        tank_emoji = get(guild.emojis, name='Tank')
         operation_name = self.operations[op['Operation'].lower()]
         difficulty = self.difficulties[op['Difficulty'].lower()]
         notes = op["Notes"]
@@ -457,25 +475,25 @@ class Operations(Cog):
         extension = await self.date_extension(dt.day)
         msg = f"{op_id}: {size}m {operation_name} {difficulty} {op['Side']}\n{day_name[dt.weekday()]} the " \
               f"{extension} of {month_name[dt.month]} " \
-              f"starting at {dt.time().strftime('%H:%M')} CET. "
+              f"starting at {dt.time().strftime('%H:%M')} CET."
         if notes:
             msg += f"\n({notes})\n"
         msg += f"Current signups:\n"
-        roles = ["Tank", "Dps", "Healer"]
-        for r in roles:
-            signups = await self.find_role(op, r)
-            for s in signups:
-                if s.get("alt-role", None):
-                    alt_role = f"({s.get('alt-role', None)})"
-                else:
-                    alt_role = ""
-                msg += f"\n{emojis[r]} - {s.get('name')} {alt_role}"
-            for _ in range(self.sizes[str(op['Size'])][r] - len(signups)):
-                msg += f"\n{emojis[r]} - "
-
+        for tank in op['Sign-ups']['Tank']:
+            msg += f"\n{tank_emoji} - {tank}"
+        for i in range(self.sizes[str(op['Size'])]["Tank"] - len(op['Sign-ups']['Tank'])):
+            msg += f"\n{tank_emoji} - "
+        for dps in op['Sign-ups']['Dps']:
+            msg += f"\n{dps_emoji} - {dps}"
+        for i in range(self.sizes[str(op['Size'])]["Dps"] - len(op['Sign-ups']['Dps'])):
+            msg += f"\n{dps_emoji} - "
+        for heal in op['Sign-ups']['Healer']:
+            msg += f"\n{heal_emoji} - {heal}"
+        for i in range(self.sizes[str(op['Size'])]["Healer"] - len(op['Sign-ups']['Healer'])):
+            msg += f"\n{heal_emoji} - "
         msg += "\nReserves: "
-        for res in op['Sign-ups']['Reserves']:
-            msg += f"{res.get('name')} ({res.get('role', '')}), "
+        for res in op['Sign-ups']['Reserve']:
+            msg += f"{res}, "
 
         msg += f"\nTo sign up use -sign {op_id} <role> <alt role>"
         return msg
@@ -485,7 +503,6 @@ class Operations(Cog):
         Edits the pinned message for the operation.
         :param op: The operation details dictionary.
         :param op_number: The operation id.
-        :param guild_id: The id of the guild.
         """
         dt = await self.parse_date(op["Date"], op["Time"])
         msg = await self.make_operation_message(dt, op, op_number)
@@ -552,7 +569,7 @@ class Operations(Cog):
         """
         if role == "Reserve" or role == "Any":
             return False
-        elif len(await Operations.find_role(op, role)) >= Operations.sizes[str(op["Size"])][role]:
+        elif len(op["Sign-ups"][role]) >= Operations.sizes[str(op["Size"])][role]:
             return True
         return False
 
@@ -602,17 +619,17 @@ class Operations(Cog):
             else:
                 op = await self.remove_signup(op, sign_up_name)
         elif op["Signed"] >= sum(Operations.sizes[str(op["Size"])].values()) and main_role != "Reserve":
-            op = await self.add_reserve(op, sign_up_name, main_role, True)
+            op = await self.add_reserve(op, sign_up_name, main_role)
             await self.write_operation(op, op_number, guild_id)
             raise SignUpError("This operation is full you have been placed as a reserve.")
         else:
             if await Operations.check_role_full(op, main_role):
                 if not alt_role:
-                    op = await self.add_reserve(op, sign_up_name, main_role, True)
+                    op = await self.add_reserve(op, sign_up_name, main_role)
                     await self.write_operation(op, op_number, guild_id)
                     raise SignUpError("That role is full you have been placed as a reserve.")
                 elif await self.check_role_full(op, alt_role):
-                    op = await self.add_reserve(op, sign_up_name, main_role, True)
+                    op = await self.add_reserve(op, sign_up_name, main_role)
                     await self.write_operation(op, op_number, guild_id)
                     raise SignUpError("Those roles are full you have been placed as a reserve.")
                 else:
@@ -622,7 +639,7 @@ class Operations(Cog):
                     del temp_role
 
         if main_role == "Reserve":
-            op = await Operations.add_reserve(op, sign_up_name, alt_role, False)
+            op = await Operations.add_reserve(op, sign_up_name, alt_role)
         else:
             op = await Operations.add_signup(op, sign_up_name, main_role, alt_role)
 
@@ -674,22 +691,3 @@ class Operations(Cog):
         if not await SignupUtils.check_role_change(op, user.display_name, role[0], role[1]):
             op = await self.remove_signup(op, user.display_name)
             await self.write_operation(op, id, payload.guild_id)
-
-    @staticmethod
-    async def count_role(op: dict, role: str) -> int:
-        signups = op.get("Sign-ups", {}).get("Roster", [])
-        count = 0
-        for s in signups:
-            if s.get("main-role", None) == role:
-                count += 1
-        return count
-
-    @staticmethod
-    async def find_role(op: dict, role: str) -> list:
-        signups = op.get("Sign-ups", {}).get("Roster", [])
-        role_signed = []
-        for s in signups:
-            if s.get("main-role", None) == role:
-                role_signed += [s]
-
-        return role_signed
