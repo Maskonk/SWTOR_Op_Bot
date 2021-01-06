@@ -197,9 +197,8 @@ class TestOperations(TestCase):
         self.assertDictEqual(ops, result)
 
     def test_check_role_full_Tank_false(self):
-        ops = {"Size": "8", "Sign-ups": {"Tank": [], "Dps": [], "Healer": [], "Reserve": ["Test (Tank)"],
-                                         "Alternate_Tank": [], "Alternate_Dps": [], "Alternate_Healer": []},
-               "Signed": 1}
+        ops = {"Size": "8", "Sign-ups": {"Roster": [{"name": "Test", "main-role": "Tank", "alt-role": None}],
+                                         "Reserves": []}, "Signed": 1}
         ops2 = deepcopy(ops)
         loop = asyncio.new_event_loop()
         result = loop.run_until_complete(Operations.check_role_full(ops2, "Tank"))
@@ -208,9 +207,9 @@ class TestOperations(TestCase):
         self.assertFalse(result)
 
     def test_check_role_full_Tank_true(self):
-        ops = {"Size": "8", "Sign-ups": {"Tank": ["", ""], "Dps": [], "Healer": [], "Reserve": ["Test (Tank)"],
-                                         "Alternate_Tank": [], "Alternate_Dps": [], "Alternate_Healer": []},
-               "Signed": 1}
+        ops = {"Size": "8", "Sign-ups": {"Roster": [{"name": "Test", "main-role": "Tank", "alt-role": None},
+                                                    {"name": "Test", "main-role": "Tank", "alt-role": "Dps"}],
+                                         "Reserves": []}, "Signed": 2}
         ops2 = deepcopy(ops)
         loop = asyncio.new_event_loop()
         result = loop.run_until_complete(Operations.check_role_full(ops2, "Tank"))
@@ -219,9 +218,9 @@ class TestOperations(TestCase):
         self.assertTrue(result)
 
     def test_check_role_full_Healer_true(self):
-        ops = {"Size": "8", "Sign-ups": {"Tank": [], "Dps": [], "Healer": ["", ""], "Reserve": ["Test (Tank)"],
-                                         "Alternate_Tank": [], "Alternate_Dps": [], "Alternate_Healer": []},
-               "Signed": 1}
+        ops = {"Size": "8", "Sign-ups": {"Roster": [{"name": "Test", "main-role": "Healer", "alt-role": None},
+                                                   {"name": "Test", "main-role": "Healer", "alt-role": "Dps"}],
+                                        "Reserves": []}, "Signed": 2}
         ops2 = deepcopy(ops)
         loop = asyncio.new_event_loop()
         result = loop.run_until_complete(Operations.check_role_full(ops2, "Healer"))
@@ -230,9 +229,11 @@ class TestOperations(TestCase):
         self.assertTrue(result)
 
     def test_check_role_full_Dps_true(self):
-        ops = {"Size": "8", "Sign-ups": {"Tank": [], "Dps": ["", "", "", ""], "Healer": [], "Reserve": ["Test (Tank)"],
-                                         "Alternate_Tank": [], "Alternate_Dps": [], "Alternate_Healer": []},
-               "Signed": 1}
+        ops = {"Size": "8", "Sign-ups": {"Roster": [{"name": "Test", "main-role": "Dps", "alt-role": None},
+                                                   {"name": "Test", "main-role": "Dps", "alt-role": "Dps"},
+                                                   {"name": "Test", "main-role": "Dps", "alt-role": "Dps"},
+                                                   {"name": "Test", "main-role": "Dps", "alt-role": "Dps"}],
+                                        "Reserves": []}, "Signed": 4}
         ops2 = deepcopy(ops)
         loop = asyncio.new_event_loop()
         result = loop.run_until_complete(Operations.check_role_full(ops2, "Dps"))
