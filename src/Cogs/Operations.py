@@ -422,17 +422,14 @@ class Operations(Cog):
         :param user_nick: The user's nick name.
         :return: dict: The updated operation. 
         """
-        for role in ["Tank", "Healer", "Dps"]:
-            for i, user in enumerate(op["Sign-ups"][role]):
-                name = sub("\s\(\w+\)", "", user)
-                if user_nick == name:
-                    op["Sign-ups"][role].pop(i)
-            if user_nick in op["Sign-ups"][f"Alternate_{role}"]:
-                op["Sign-ups"][f"Alternate_{role}"].remove(user_nick)
-        for i, user in enumerate(op["Sign-ups"]["Reserve"]):
-            name = sub("\s\(\w+\)", "", user)
-            if user_nick == name:
-                op["Sign-ups"]["Reserve"].pop(i)
+        for i, user in enumerate(op["Sign-ups"]["Roster"]):
+            if user_nick == user.get("name", None):
+                op["Sign-ups"]["Roster"].pop(i)
+                break
+        for i, user in enumerate(op["Sign-ups"]["Reserves"]):
+            if user_nick == user.get("name", None):
+                op["Sign-ups"]["Reserves"].pop(i)
+                break
         op["Signed"] -= 1
         return op
 
