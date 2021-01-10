@@ -283,8 +283,11 @@ class Operations(Cog):
                            "this operation may update it.")
             return
 
-        message = await ctx.fetch_message(op["Post_id"])
-        await message.unpin()
+        try:
+            message = await ctx.fetch_message(op["Post_id"])
+            await message.unpin()
+        except Exception as e:
+            pass
 
         self.ops[str(ctx.guild.id)].pop(op_number)
         with open('./Ops.json', 'w') as f:
