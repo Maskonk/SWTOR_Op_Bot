@@ -26,7 +26,6 @@ class Admin(Cog):
             return
         ops = self.ops.get(str(ctx.guild.id), ())
         for op in ops.values():
-            print(op)
             channel = ctx.guild.get_channel(op["Channel_id"])
             try:
                 message = get(await channel.history(limit=300).flatten(), id=op["Post_id"])

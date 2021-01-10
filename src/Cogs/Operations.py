@@ -1,4 +1,4 @@
-from discord.ext.commands import Cog, context, command, errors
+from discord.ext.commands import Cog, context, command, errors, Bot
 from discord.utils import get
 from datetime import datetime
 from json import load, dump
@@ -9,7 +9,7 @@ from src.Utils.Errors import SignUpError
 from src.Utils.ReactionUtils import check_valid_reaction
 from src.Utils.SignupUtils import SignupUtils
 from src.Utils.Validators import Validators
-from re import sub
+from typing import Optional
 
 
 class Operations(Cog):
@@ -26,7 +26,7 @@ class Operations(Cog):
     difficulties = {"sm": "Story Mode", "hm": "Veteran Mode", "nim": "Master Mode", "vm": "Veteran mode",
                          "mm": "Master Mode", "na": ""}
 
-    def __init__(self, bot, ops, config):
+    def __init__(self, bot: Bot, ops: dict, config: dict):
         self.bot = bot
         self.ops = ops
         self.config = config
@@ -154,7 +154,7 @@ class Operations(Cog):
             dump(self.ops, f)
 
     @command(aliases=["sign", "join"])
-    async def sign_up(self, ctx: context, op_number: str, main_role: str, alt_role: str = None) -> None:
+    async def sign_up(self, ctx: context, op_number: str, main_role: str, alt_role: Optional[str] = None) -> None:
         """
         Signup to a given operation with the given roles.
         :param op_number: The operation id to sign up to.
@@ -323,7 +323,8 @@ class Operations(Cog):
         await ctx.message.add_reaction('\U0001f44d')
 
     @command(aliases=["add"])
-    async def add_sign_up(self, ctx: context, op_number: str, sign_up_name: str, main_role: str, alt_role=None) -> None:
+    async def add_sign_up(self, ctx: context, op_number: str, sign_up_name: str, main_role: str,
+                          alt_role: Optional[str] = None) -> None:
         """
         Adds the given name to the sign ups.
         :param op_number: The id of the operation.
@@ -369,7 +370,7 @@ class Operations(Cog):
         await ctx.send(f"The random operation is: {operation}")
 
     @staticmethod
-    async def add_signup(op: dict, sign_up_name: str, main_role: str, alt_role: str = None) -> dict:
+    async def add_signup(op: dict, sign_up_name: str, main_role: str, alt_role: Optional[str] = None) -> dict:
         """
         Adds a user with given name and roles to the given operation. Should never be called for reserve.
         :param op: The operation to be updated.
@@ -407,7 +408,7 @@ class Operations(Cog):
         return op    
 
     @staticmethod
-    async def add_reserve(op: dict, sign_up_name: str, reserve_role: str, main: bool = False) -> dict:
+    async def add_reserve(op: dict, sign_up_name: str, reserve_role: str, main: Optional[bool] = False) -> dict:
         """
         Adds a user with given name as a reserve with their preferred role
         :param op: The operation to be updated.
@@ -570,7 +571,7 @@ class Operations(Cog):
         return choice(list(operations.keys()))
 
     async def add_to_operation(self, op: dict, op_number: str, guild_id:int, sign_up_name: str,
-                               main_role: str, alt_role: str = None) -> bool:
+                               main_role: str, alt_role: Optional[str] = None) -> bool:
         """
         Adds the given user to the sign ups. (validates parameters)
         :param op: The operation to add the person to.
