@@ -491,7 +491,9 @@ class Operations(Cog):
         msg = await self.make_operation_message(dt, op, op_number)
         guild = self.bot.get_guild(guild_id)
         channel = guild.get_channel(op["Channel_id"])
-        message = get(await channel.history(limit=300).flatten(), id=op["Post_id"])
+        message = get(await channel.history(limit=150).flatten(), id=op["Post_id"])
+        if not message:
+            message = get(await channel.history(limit=500).flatten(), id=op["Post_id"])
 
         await message.edit(content=msg)
 
