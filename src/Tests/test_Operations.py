@@ -131,55 +131,54 @@ class TestOperations(TestCase):
         self.assertDictEqual(ops, result)
 
     def test_remove_signup_one_role_Tank(self):
-        ops = {"Size": "8", "Sign-ups": {"Tank": ["Test"], "Dps": [], "Healer": [], "Reserve": [],
-                                         "Alternate_Tank": [], "Alternate_Dps": [], "Alternate_Healer": []},
+        ops = {"Size": "8", "Sign-ups": {"Roster": [{"name": "Test", "main-role": "Tank", "alt-role": None}],
+                                         "Reserves": []},
                "Signed": 1}
         ops2 = deepcopy(ops)
         loop = asyncio.new_event_loop()
         result = loop.run_until_complete(Operations.remove_signup(ops2, "Test"))
         loop.close()
 
-        ops["Sign-ups"]["Tank"].remove("Test")
+        ops["Sign-ups"]["Roster"].remove({"name": "Test", "main-role": "Tank", "alt-role": None})
         ops["Signed"] = 0
         self.assertDictEqual(ops, result)
 
     def test_remove_signup_one_role_Dps(self):
-        ops = {"Size": "8", "Sign-ups": {"Tank": [], "Dps": ["Test"], "Healer": [], "Reserve": [],
-                                         "Alternate_Tank": [], "Alternate_Dps": [], "Alternate_Healer": []},
+        ops = {"Size": "8", "Sign-ups": {"Roster": [{"name": "Test", "main-role": "Dps", "alt-role": None}],
+                                         "Reserves": []},
                "Signed": 1}
         ops2 = deepcopy(ops)
         loop = asyncio.new_event_loop()
         result = loop.run_until_complete(Operations.remove_signup(ops2, "Test"))
         loop.close()
 
-        ops["Sign-ups"]["Dps"].remove("Test")
+        ops["Sign-ups"]["Roster"].remove({"name": "Test", "main-role": "Dps", "alt-role": None})
         ops["Signed"] = 0
         self.assertDictEqual(ops, result)
 
     def test_remove_signup_one_role_Healer(self):
-        ops = {"Size": "8", "Sign-ups": {"Tank": [], "Dps": [], "Healer": ["Test"], "Reserve": [],
-                                         "Alternate_Tank": [], "Alternate_Dps": [], "Alternate_Healer": []},
+        ops = {"Size": "8", "Sign-ups": {"Roster": [{"name": "Test", "main-role": "Healer", "alt-role": None}],
+                                         "Reserves": []},
                "Signed": 1}
         ops2 = deepcopy(ops)
         loop = asyncio.new_event_loop()
         result = loop.run_until_complete(Operations.remove_signup(ops2, "Test"))
         loop.close()
 
-        ops["Sign-ups"]["Healer"].remove("Test")
+        ops["Sign-ups"]["Roster"].remove({"name": "Test", "main-role": "Healer", "alt-role": None})
         ops["Signed"] = 0
         self.assertDictEqual(ops, result)
 
     def test_remove_signup_two_roles(self):
-        ops = {"Size": "8", "Sign-ups": {"Tank": [], "Dps": [], "Healer": ["Test (Tank)"], "Reserve": [],
-                                         "Alternate_Tank": ["Test"], "Alternate_Dps": [], "Alternate_Healer": []},
+        ops = {"Size": "8", "Sign-ups": {"Roster": [{"name": "Test", "main-role": "Dps", "alt-role": "Tank"}],
+                                         "Reserves": []},
                "Signed": 1}
         ops2 = deepcopy(ops)
         loop = asyncio.new_event_loop()
         result = loop.run_until_complete(Operations.remove_signup(ops2, "Test"))
         loop.close()
 
-        ops["Sign-ups"]["Healer"].remove("Test (Tank)")
-        ops["Sign-ups"]["Alternate_Tank"].remove("Test")
+        ops["Sign-ups"]["Roster"].remove({"name": "Test", "main-role": "Dps", "alt-role": "Tank"})
         ops["Signed"] = 0
         self.assertDictEqual(ops, result)
 
