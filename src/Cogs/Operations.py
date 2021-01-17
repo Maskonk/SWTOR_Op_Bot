@@ -125,7 +125,7 @@ class Operations(Cog):
                 operation = await self.get_random_operation(self.operations)
 
         op = {"Operation": operation,
-              "Size": size,
+              "Size": (size, self.sizes[size]),
               "Difficulty": difficulty,
               "Side": side,
               "Date": date,
@@ -456,7 +456,7 @@ class Operations(Cog):
         operation_name = self.operations[op['Operation'].lower()]
         difficulty = self.difficulties[op['Difficulty'].lower()]
         notes = op["Notes"]
-        size = sum(self.sizes[str(op['Size'])].values())
+        size = sum(op["Size"][1].values())
         extension = await self.date_extension(dt.day)
         msg = f"{op_id}: {size}m {operation_name} {difficulty} {op['Side']}\n{day_name[dt.weekday()]} the " \
               f"{extension} of {month_name[dt.month]} " \
@@ -473,7 +473,7 @@ class Operations(Cog):
                 else:
                     alt_role = ""
                 msg += f"\n{emojis[r]} - {s.get('name')} {alt_role}"
-            for _ in range(self.sizes[str(op['Size'])][r] - len(signups)):
+            for _ in range(op["Size"][1][r] - len(signups)):
                 msg += f"\n{emojis[r]} - "
 
         msg += "\nReserves: "
@@ -557,7 +557,7 @@ class Operations(Cog):
         """
         if role == "Reserve" or role == "Any":
             return False
-        elif len(await Operations.find_role(op, role)) >= Operations.sizes[str(op["Size"])][role]:
+        elif len(await Operations.find_role(op, role)) >= op["Size"][1][role]:
             return True
         return False
 
@@ -606,7 +606,7 @@ class Operations(Cog):
                 raise SignUpError("That role is full. Your role has not been changed.")
             else:
                 op = await self.remove_signup(op, sign_up_name)
-        elif op["Signed"] >= sum(Operations.sizes[str(op["Size"])].values()) and main_role != "Reserve":
+        elif op["Signed"] >= sum(op["Size"][1].values()) and main_role != "Reserve":
             op = await self.add_reserve(op, sign_up_name, main_role, True)
             await self.write_operation(op, op_number, guild_id)
             raise SignUpError("This operation is full you have been placed as a reserve.")
@@ -634,12 +634,12 @@ class Operations(Cog):
         await self.write_operation(op, op_number, guild_id)
         return True
 
-    @sign_up.error
-    @add_sign_up.error
-    async def sign_up_error_handler(self, ctx: context, error):
-        if isinstance(error, errors.CommandInvokeError):
-            message = await ctx.send(error.__cause__)
-            await message.delete(delay=10)
+    # @sign_up.error
+    # @add_sign_up.error
+    # async def sign_up_error_handler(self, ctx: context, error):
+    #     if isinstance(error, errors.CommandInvokeError):
+    #         message = await ctx.send(error.__cause__)
+    #         await message.delete(delay=10)
 
     @Cog.listener()
     async def on_raw_reaction_add(self, payload):
