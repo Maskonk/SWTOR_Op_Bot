@@ -38,19 +38,20 @@ class Validators():
         :param role: The role of the user.
         :return: The long version of the users role.
         """
-        if role.lower() in ["t", "tank", "d", "dps", "h", "heals", "healer", "heal", "a", "any", "r", "reserve"]:
-            if role[0].lower() == "t":
-                return "Tank"
-            elif role[0].lower() == "d":
-                return "Dps"
-            elif role[0].lower() == "h":
-                return "Healer"
-            elif role[0].lower() == "a":
-                return "Any"
-            elif role[0].lower() == "r":
-                return "Reserve"
+        if role.lower() in ["t", "tank"]:
+            return "Tank"
+        elif role.lower() in ["d", "dps", "damage", "dd"]:
+            return "Dps"
+        elif role.lower() in ["h", "healer", "heals", "heal"]:
+            return "Healer"
+        elif role.lower() in ["a", "any", "all"]:
+            return "Any"
+        elif role.lower() in ["r", "reserve"]:
+            return "Reserve"
+        elif role.lower() in ["dwt", "dt"]:
+            return "Dwt"
         else:
-            return ""
+            raise ValueError("Invalid role.")
 
     @staticmethod
     async def validate_side_input(side: str) -> str:
@@ -64,7 +65,7 @@ class Validators():
         elif side.lower() in ["rep", "reps", "republic", "pub", "r"]:
             return "Rep"
         else:
-            return None
+            raise ValueError("Invalid side.")
 
     @staticmethod
     async def validate_size_input(size: str, sizes: dict) -> bool:
