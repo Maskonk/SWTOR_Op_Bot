@@ -6,6 +6,18 @@ from datetime import datetime
 
 
 class TestValidators(TestCase):
+    sizes = {"1": {"Tank": 0, "Dps": 1, "Healer": 0}, "4": {"Tank": 1, "Dps": 1, "Healer": 1},
+             "8": {"Tank": 2, "Dps": 4, "Healer": 2}, "16": {"Tank": 2, "Dps": 10, "Healer": 4},
+             "1t5d": {"Tank": 1, "Dps": 5, "Healer": 2}, "1h5d": {"Tank": 2, "Dps": 5, "Healer": 1},
+             "6d": {"Tank": 1, "Dps": 6, "Healer": 1}, "24": {"Tank": 3, "Dps": 15, "Healer": 6}}
+
+    operations = {"s&v": "Scum and Villainy", "tfb": "Terror From Beyond", "kp": "Karagga's Palace",
+                  "ev": "Eternity Vault", "ec": "Explosive Conflict", "df": "Dread Fortress",
+                  "dp": "Dread Palace", "dxun": "Dxun", "gftm": "Gods from the Machine",
+                  "tc": "Toborro's Courtyard", "cm": "Colossal Monolith", "gq": "Geonosian Queen",
+                  "wb": "World Boss", "gf": "Group finder", "other": "Other activity", "eyeless": "Eyeless",
+                  "xeno": "Xenoanalyst", "rav": "Ravagers", "tos": "Temple of Sacrifice"}
+
     def test_validate_time_input_valid(self):
         loop = asyncio.new_event_loop()
         result = loop.run_until_complete(Validators.validate_time_input("11/12/2021", "11:20"))
@@ -38,15 +50,16 @@ class TestValidators(TestCase):
 
     def test_validate_role_valid(self):
         loop = asyncio.new_event_loop()
-        result = loop.run_until_complete(Validators.validate_role("t"))
+        result = loop.run_until_complete(Validators.validate_role("dwt"))
         loop.close()
-        self.assertEqual("Tank", result)
+        self.assertEqual("Dwt", result)
 
     def test_validate_role_invalid(self):
         loop = asyncio.new_event_loop()
-        result = loop.run_until_complete(Validators.validate_role("x"))
+        with self.assertRaises(Exception) as context:
+            loop.run_until_complete(Validators.validate_role("blue"))
         loop.close()
-        self.assertEqual("", result)
+        self.assertTrue("Invalid role." in str(context.exception))
 
     def test_validate_side_input_valid(self):
         loop = asyncio.new_event_loop()
@@ -56,51 +69,32 @@ class TestValidators(TestCase):
 
     def test_validate_side_input_invalid(self):
         loop = asyncio.new_event_loop()
-        result = loop.run_until_complete(Validators.validate_side_input("blue"))
+        with self.assertRaises(Exception) as context:
+            loop.run_until_complete(Validators.validate_side_input("blue"))
         loop.close()
-        self.assertEqual(None, result)
+        self.assertTrue("Invalid side." in str(context.exception))
 
     def test_validate_size_input_valid(self):
-        sizes = {"1": {"Tank": 0, "Dps": 1, "Healer": 0}, "4": {"Tank": 1, "Dps": 1, "Healer": 1},
-                 "8": {"Tank": 2, "Dps": 4, "Healer": 2}, "16": {"Tank": 2, "Dps": 10, "Healer": 4},
-                 "1t5d": {"Tank": 1, "Dps": 5, "Healer": 2}, "1h5d": {"Tank": 2, "Dps": 5, "Healer": 1},
-                 "6d": {"Tank": 1, "Dps": 6, "Healer": 1}, "24": {"Tank": 3, "Dps": 15, "Healer": 6}}
         loop = asyncio.new_event_loop()
-        result = loop.run_until_complete(Validators.validate_size_input("1t5d", sizes))
+        result = loop.run_until_complete(Validators.validate_size_input("1t5d", self.sizes))
         loop.close()
         self.assertTrue(result)
 
     def test_validate_size_input_invalid(self):
-        sizes = {"1": {"Tank": 0, "Dps": 1, "Healer": 0}, "4": {"Tank": 1, "Dps": 1, "Healer": 1},
-                 "8": {"Tank": 2, "Dps": 4, "Healer": 2}, "16": {"Tank": 2, "Dps": 10, "Healer": 4},
-                 "1t5d": {"Tank": 1, "Dps": 5, "Healer": 2}, "1h5d": {"Tank": 2, "Dps": 5, "Healer": 1},
-                 "6d": {"Tank": 1, "Dps": 6, "Healer": 1}, "24": {"Tank": 3, "Dps": 15, "Healer": 6}}
         loop = asyncio.new_event_loop()
-        result = loop.run_until_complete(Validators.validate_size_input("22", sizes))
+        result = loop.run_until_complete(Validators.validate_size_input("22", self.sizes))
         loop.close()
         self.assertFalse(result)
 
     def test_validate_operation_input_valid(self):
-        operations = {"s&v": "Scum and Villainy", "tfb": "Terror From Beyond", "kp": "Karagga's Palace",
-                      "ev": "Eternity Vault", "ec": "Explosive Conflict", "df": "Dread Fortress",
-                      "dp": "Dread Palace", "dxun": "Dxun", "gftm": "Gods from the Machine",
-                      "tc": "Toborro's Courtyard", "cm": "Colossal Monolith", "gq": "Geonosian Queen",
-                      "wb": "World Boss", "gf": "Group finder", "other": "Other activity", "eyeless": "Eyeless",
-                      "xeno": "Xenoanalyst", "rav": "Ravagers", "tos": "Temple of Sacrifice"}
         loop = asyncio.new_event_loop()
-        result = loop.run_until_complete(Validators.validate_operation_input("dp", operations))
+        result = loop.run_until_complete(Validators.validate_operation_input("dp", self.operations))
         loop.close()
         self.assertTrue(result)
 
     def test_validate_operation_input_invalid(self):
-        operations = {"s&v": "Scum and Villainy", "tfb": "Terror From Beyond", "kp": "Karagga's Palace",
-                      "ev": "Eternity Vault", "ec": "Explosive Conflict", "df": "Dread Fortress",
-                      "dp": "Dread Palace", "dxun": "Dxun", "gftm": "Gods from the Machine",
-                      "tc": "Toborro's Courtyard", "cm": "Colossal Monolith", "gq": "Geonosian Queen",
-                      "wb": "World Boss", "gf": "Group finder", "other": "Other activity", "eyeless": "Eyeless",
-                      "xeno": "Xenoanalyst", "rav": "Ravagers", "tos": "Temple of Sacrifice"}
         loop = asyncio.new_event_loop()
-        result = loop.run_until_complete(Validators.validate_operation_input("vp", operations))
+        result = loop.run_until_complete(Validators.validate_operation_input("vp", self.operations))
         loop.close()
         self.assertFalse(result)
 
