@@ -1,6 +1,7 @@
 from discord.ext.commands import Cog, context, command
 from random import choice
 from Utils.Validators import Validators
+from typing import Optional
 
 
 class Swtor(Cog):
@@ -15,7 +16,7 @@ class Swtor(Cog):
         self.config = config
 
     @command()
-    async def spec(self, ctx: context, tag: str = "all", side: str = "imp") -> None:
+    async def spec(self, ctx: context, tag: Optional[str] = "all", side: Optional[str] = "imp") -> None:
         """
         Returns a random spec for a given role.
         :param tag: Tag to search for:
