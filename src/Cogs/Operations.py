@@ -618,13 +618,20 @@ class Operations(Cog):
         else:
             if await Operations.check_role_full(op, main_role):
                 if not alt_role:
-                    op = await self.add_reserve(op, sign_up_name, main_role, True)
-                    await self.write_operation(op, op_number, guild_id)
-                    raise SignUpError("That role is full you have been placed as a reserve.")
+                    if main_role in ["Dwt", "Dwh"]:
+                        main_role = "Dps"
+                    else:
+                        op = await self.add_reserve(op, sign_up_name, main_role, True)
+                        await self.write_operation(op, op_number, guild_id)
+                        raise SignUpError("That role is full you have been placed as a reserve.")
                 elif await self.check_role_full(op, alt_role):
-                    op = await self.add_reserve(op, sign_up_name, main_role, True)
-                    await self.write_operation(op, op_number, guild_id)
-                    raise SignUpError("Those roles are full you have been placed as a reserve.")
+                    if main_role in ["Dwt", "Dwh"] or alt_role in ["Dwt", "Dwh"]:
+                        alt_role = main_role
+                        main_role = "Dps"
+                    else:
+                        op = await self.add_reserve(op, sign_up_name, main_role, True)
+                        await self.write_operation(op, op_number, guild_id)
+                        raise SignUpError("Those roles are full you have been placed as a reserve.")
                 else:
                     temp_role = main_role
                     main_role = alt_role
