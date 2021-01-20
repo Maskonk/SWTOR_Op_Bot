@@ -251,7 +251,8 @@ class Operations(Cog):
                 await message.delete(delay=10)
                 return
         elif attribute.capitalize() == "Size":
-            if not await Validators.validate_size_input(value, self.sizes):
+            value = await Validators.validate_size_input(value, self.sizes)
+            if not value:
                 message = await ctx.send("That is not a valid size.")
                 await message.delete(delay=10)
                 return
@@ -641,6 +642,7 @@ class Operations(Cog):
     @sign_up.error
     @add_sign_up.error
     @new_operation.error
+    @update_operation.error
     async def sign_up_error_handler(self, ctx: context, error):
         if isinstance(error, errors.CommandInvokeError):
             message = await ctx.send(error.__cause__)
