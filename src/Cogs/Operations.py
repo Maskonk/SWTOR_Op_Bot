@@ -100,7 +100,8 @@ class Operations(Cog):
             await message.delete(delay=10)
             return
 
-        if not await Validators.validate_size_input(size, self.sizes):
+        size = await Validators.validate_size_input(size, self.sizes)
+        if not size:
             message = await ctx.send("That is not a valid size.")
             await message.delete(delay=10)
             return
@@ -127,7 +128,7 @@ class Operations(Cog):
                 operation = await self.get_random_operation(self.operations)
 
         op = {"Operation": operation,
-              "Size": (size, self.sizes[size]),
+              "Size": size,
               "Difficulty": difficulty,
               "Side": side,
               "Date": date,
@@ -639,6 +640,7 @@ class Operations(Cog):
 
     @sign_up.error
     @add_sign_up.error
+    @new_operation.error
     async def sign_up_error_handler(self, ctx: context, error):
         if isinstance(error, errors.CommandInvokeError):
             message = await ctx.send(error.__cause__)
