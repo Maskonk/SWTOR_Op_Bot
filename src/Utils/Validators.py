@@ -48,8 +48,10 @@ class Validators():
             return "Any"
         elif role.lower() in ["r", "reserve"]:
             return "Reserve"
-        elif role.lower() in ["dwt", "dt"]:
+        elif role.lower() in ["dwt", "dt", "dpswt"]:
             return "Dwt"
+        elif role.lower() in ["dwh", "dh", "dpswh"]:
+            return "Dwh"
         else:
             raise ValueError("Invalid role.")
 

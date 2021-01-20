@@ -16,7 +16,9 @@ class Operations(Cog):
     sizes = {"1": {"Tank": 0, "Dps": 1, "Healer": 0}, "4": {"Tank": 1, "Dps": 1, "Healer": 1},
              "8": {"Tank": 2, "Dps": 4, "Healer": 2}, "16": {"Tank": 2, "Dps": 10, "Healer": 4},
              "1t5d": {"Tank": 1, "Dps": 5, "Healer": 2}, "1h5d": {"Tank": 2, "Dps": 5, "Healer": 1},
-             "6d": {"Tank": 1, "Dps": 6, "Healer": 1}, "24": {"Tank": 3, "Dps": 15, "Healer": 6}}
+             "6d": {"Tank": 1, "Dps": 6, "Healer": 1}, "24": {"Tank": 3, "Dps": 15, "Healer": 6},
+             "dwt": {"Tank": 1, "Dwt": 1, "Dps": 4, "Healer": 2}, "dwh": {"Tank": 2, "Dps": 4, "Dwh": 1, "Healer": 1},
+             "6dw": {"Tank": 1, "Dwt": 1, "Dps": 4, "Dwh": 1, "Healer": 1}}
     operations = {"s&v": "Scum and Villainy", "tfb": "Terror From Beyond", "kp": "Karagga's Palace",
                   "ev": "Eternity Vault", "ec": "Explosive Conflict", "df": "Dread Fortress",
                   "dp": "Dread Palace", "dxun": "Dxun", "gftm": "Gods from the Machine",
@@ -450,7 +452,9 @@ class Operations(Cog):
         guild = self.bot.get_guild(750036082518917170)
         emojis = {
             "Tank": get(guild.emojis, name='Tank'),
+            "Dwt": get(guild.emojis, name='DwT'),
             "Dps": get(guild.emojis, name='DPS'),
+            "Dwh": get(guild.emojis, name='DwH'),
             "Healer": get(guild.emojis, name='Healer')
         }
         operation_name = self.operations[op['Operation'].lower()]
@@ -464,8 +468,7 @@ class Operations(Cog):
         if notes:
             msg += f"\n({notes})\n"
         msg += f"Current signups:\n"
-        roles = ["Tank", "Dps", "Healer"]
-        for r in roles:
+        for r in ["Tank", "Dwt", "Dps", "Dwh", "Healer"]:
             signups = await self.find_role(op, r)
             for s in signups:
                 if s.get("alt-role", None):
@@ -473,7 +476,7 @@ class Operations(Cog):
                 else:
                     alt_role = ""
                 msg += f"\n{emojis[r]} - {s.get('name')} {alt_role}"
-            for _ in range(op["Size"][1][r] - len(signups)):
+            for _ in range(op["Size"][1].get(r, 0) - len(signups)):
                 msg += f"\n{emojis[r]} - "
 
         msg += "\nReserves: "
@@ -557,7 +560,7 @@ class Operations(Cog):
         """
         if role == "Reserve" or role == "Any":
             return False
-        elif len(await Operations.find_role(op, role)) >= op["Size"][1][role]:
+        elif len(await Operations.find_role(op, role)) >= op["Size"][1].get(role, 0):
             return True
         return False
 
@@ -634,12 +637,12 @@ class Operations(Cog):
         await self.write_operation(op, op_number, guild_id)
         return True
 
-    # @sign_up.error
-    # @add_sign_up.error
-    # async def sign_up_error_handler(self, ctx: context, error):
-    #     if isinstance(error, errors.CommandInvokeError):
-    #         message = await ctx.send(error.__cause__)
-    #         await message.delete(delay=10)
+    @sign_up.error
+    @add_sign_up.error
+    async def sign_up_error_handler(self, ctx: context, error):
+        if isinstance(error, errors.CommandInvokeError):
+            message = await ctx.send(error.__cause__)
+            await message.delete(delay=10)
 
     @Cog.listener()
     async def on_raw_reaction_add(self, payload):
