@@ -69,7 +69,7 @@ class TestOperations(TestCase):
         self.assertDictEqual(ops, result)
 
     def test_add_any_signup_default_to_Dps(self):
-        ops = {"Size": "8", "Sign-ups": {"Roster": []}, "Signed": 0}
+        ops = {"Size": ("8", {"Dps": 1}), "Sign-ups": {"Roster": []}, "Signed": 0}
         ops2 = deepcopy(ops)
         loop = asyncio.new_event_loop()
         result = loop.run_until_complete(Operations.add_any_signup(ops2, "Test"))
@@ -80,7 +80,8 @@ class TestOperations(TestCase):
         self.assertDictEqual(ops, result)
 
     def test_add_any_signup_switches_to_Healer(self):
-        ops = {"Size": "8", "Sign-ups": {"Roster": [{"name": "Test1", "main-role": "Dps", "alt-role": "Any"},
+        ops = {"Size": ("8", {"Dps": 4, "Healer": 1}),
+               "Sign-ups": {"Roster": [{"name": "Test1", "main-role": "Dps", "alt-role": "Any"},
                                                     {"name": "Test2", "main-role": "Dps", "alt-role": "Any"},
                                                     {"name": "Test3", "main-role": "Dps", "alt-role": "Any"},
                                                     {"name": "Test4", "main-role": "Dps", "alt-role": "Any"}]},
@@ -95,7 +96,8 @@ class TestOperations(TestCase):
         self.assertDictEqual(ops, result)
 
     def test_add_any_signup_finally_tries_Tank(self):
-        ops = {"Size": "8", "Sign-ups": {"Roster": [{"name": "Test1", "main-role": "Dps", "alt-role": "Any"},
+        ops = {"Size": ("8", {"Dps": 4, "Healer": 2, "Tank": 1}),
+               "Sign-ups": {"Roster": [{"name": "Test1", "main-role": "Dps", "alt-role": "Any"},
                                                     {"name": "Test2", "main-role": "Dps", "alt-role": "Any"},
                                                     {"name": "Test3", "main-role": "Dps", "alt-role": "Any"},
                                                     {"name": "Test4", "main-role": "Dps", "alt-role": "Any"},
@@ -188,7 +190,8 @@ class TestOperations(TestCase):
         self.assertDictEqual(ops, result)
 
     def test_check_role_full_Tank_false(self):
-        ops = {"Size": "8", "Sign-ups": {"Roster": [{"name": "Test", "main-role": "Tank", "alt-role": None}],
+        ops = {"Size": ("8", {"Tank": 2}),
+               "Sign-ups": {"Roster": [{"name": "Test", "main-role": "Tank", "alt-role": None}],
                                          "Reserves": []}, "Signed": 1}
         ops2 = deepcopy(ops)
         loop = asyncio.new_event_loop()
@@ -198,7 +201,8 @@ class TestOperations(TestCase):
         self.assertFalse(result)
 
     def test_check_role_full_Tank_true(self):
-        ops = {"Size": "8", "Sign-ups": {"Roster": [{"name": "Test", "main-role": "Tank", "alt-role": None},
+        ops = {"Size": ("8", {"Tank": 2}),
+               "Sign-ups": {"Roster": [{"name": "Test", "main-role": "Tank", "alt-role": None},
                                                     {"name": "Test", "main-role": "Tank", "alt-role": "Dps"}],
                                          "Reserves": []}, "Signed": 2}
         ops2 = deepcopy(ops)
@@ -209,7 +213,8 @@ class TestOperations(TestCase):
         self.assertTrue(result)
 
     def test_check_role_full_Healer_true(self):
-        ops = {"Size": "8", "Sign-ups": {"Roster": [{"name": "Test", "main-role": "Healer", "alt-role": None},
+        ops = {"Size": ("8", {"Healer": 2}) ,
+               "Sign-ups": {"Roster": [{"name": "Test", "main-role": "Healer", "alt-role": None},
                                                    {"name": "Test", "main-role": "Healer", "alt-role": "Dps"}],
                                         "Reserves": []}, "Signed": 2}
         ops2 = deepcopy(ops)
@@ -220,7 +225,8 @@ class TestOperations(TestCase):
         self.assertTrue(result)
 
     def test_check_role_full_Dps_true(self):
-        ops = {"Size": "8", "Sign-ups": {"Roster": [{"name": "Test", "main-role": "Dps", "alt-role": None},
+        ops = {"Size": ("8", {"Dps": 4}),
+               "Sign-ups": {"Roster": [{"name": "Test", "main-role": "Dps", "alt-role": None},
                                                    {"name": "Test", "main-role": "Dps", "alt-role": "Dps"},
                                                    {"name": "Test", "main-role": "Dps", "alt-role": "Dps"},
                                                    {"name": "Test", "main-role": "Dps", "alt-role": "Dps"}],
