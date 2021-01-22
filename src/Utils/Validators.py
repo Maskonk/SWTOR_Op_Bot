@@ -1,6 +1,7 @@
 from dateutil.parser import parse
 from datetime import datetime
 from dateutil.parser._parser import ParserError
+from re import search
 
 
 class Validators():
@@ -38,19 +39,22 @@ class Validators():
         :param role: The role of the user.
         :return: The long version of the users role.
         """
-        if role.lower() in ["t", "tank", "d", "dps", "h", "heals", "healer", "heal", "a", "any", "r", "reserve"]:
-            if role[0].lower() == "t":
-                return "Tank"
-            elif role[0].lower() == "d":
-                return "Dps"
-            elif role[0].lower() == "h":
-                return "Healer"
-            elif role[0].lower() == "a":
-                return "Any"
-            elif role[0].lower() == "r":
-                return "Reserve"
+        if role.lower() in ["t", "tank"]:
+            return "Tank"
+        elif role.lower() in ["d", "dps", "damage", "dd"]:
+            return "Dps"
+        elif role.lower() in ["h", "healer", "heals", "heal"]:
+            return "Healer"
+        elif role.lower() in ["a", "any", "all"]:
+            return "Any"
+        elif role.lower() in ["r", "reserve"]:
+            return "Reserve"
+        elif role.lower() in ["dwt", "dt", "dpswt"]:
+            return "Dwt"
+        elif role.lower() in ["dwh", "dh", "dpswh"]:
+            return "Dwh"
         else:
-            return ""
+            raise ValueError("Invalid role.")
 
     @staticmethod
     async def validate_side_input(side: str) -> str:
@@ -64,17 +68,24 @@ class Validators():
         elif side.lower() in ["rep", "reps", "republic", "pub", "r"]:
             return "Rep"
         else:
-            return None
+            raise ValueError("Invalid side.")
 
     @staticmethod
-    async def validate_size_input(size: str, sizes: dict) -> bool:
+    async def validate_size_input(size: str, sizes: dict) -> tuple:
         """
         Checks the users input to ensure the size input is valid.
         :param size: The size input by the user.
         :param sizes: Dictionary of valid sizes to check against.
         :return: Booleon True if the size input is valid.
         """
-        return str(size) in sizes.keys()
+
+        if size in sizes.keys():
+            return sum(sizes.get(size).values()), sizes.get(size)
+        else:
+            size_dict = await Validators.parse_size(size)
+            if sum(size_dict.values()) > 24:
+                raise ValueError("The maximum size for an operation is 24 people.")
+            return sum(size_dict.values()), size_dict
 
     @staticmethod
     async def validate_operation_input(op: str, operations: dict) -> bool:
@@ -127,3 +138,30 @@ class Validators():
         if not config_id_list:
             return True
         return input_channel_id in config_id_list
+
+    @staticmethod
+    async def parse_size(size: str) -> dict:
+        """
+        Parses the users size input looking for roles and the amount related to them. Called if the user inputs a
+        non-standard size.
+        :param size: The users input for size.
+        :return: Dict containing
+        """
+        size = size.lower()
+        size_dict = {}
+        match = search("(\d+)d[1-9]+", size)
+
+        if not match:
+            match = search("(\d+)d$", size)
+        size_dict["Dps"] = int(match.group(1)) if match else 0
+
+        roles = {"dwt": "Dwt", "dwh": "Dwh", "t": "Tank", "h": "Healer"}
+
+        for r in roles:
+            match = search(f"(\d+){r}", size)
+            size_dict[roles.get(r)] = int(match.group(1)) if match else 0
+
+        if sum(size_dict.values()) == 0:
+            raise ValueError("No valid role sizes found. There must be at least one valid role.")
+
+        return size_dict

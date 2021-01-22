@@ -16,7 +16,9 @@ class Operations(Cog):
     sizes = {"1": {"Tank": 0, "Dps": 1, "Healer": 0}, "4": {"Tank": 1, "Dps": 1, "Healer": 1},
              "8": {"Tank": 2, "Dps": 4, "Healer": 2}, "16": {"Tank": 2, "Dps": 10, "Healer": 4},
              "1t5d": {"Tank": 1, "Dps": 5, "Healer": 2}, "1h5d": {"Tank": 2, "Dps": 5, "Healer": 1},
-             "6d": {"Tank": 1, "Dps": 6, "Healer": 1}, "24": {"Tank": 3, "Dps": 15, "Healer": 6}}
+             "6d": {"Tank": 1, "Dps": 6, "Healer": 1}, "24": {"Tank": 3, "Dps": 15, "Healer": 6},
+             "dwt": {"Tank": 1, "Dwt": 1, "Dps": 4, "Healer": 2}, "dwh": {"Tank": 2, "Dps": 4, "Dwh": 1, "Healer": 1},
+             "6dw": {"Tank": 1, "Dwt": 1, "Dps": 4, "Dwh": 1, "Healer": 1}}
     operations = {"s&v": "Scum and Villainy", "tfb": "Terror From Beyond", "kp": "Karagga's Palace",
                   "ev": "Eternity Vault", "ec": "Explosive Conflict", "df": "Dread Fortress",
                   "dp": "Dread Palace", "dxun": "Dxun", "gftm": "Gods from the Machine",
@@ -98,7 +100,8 @@ class Operations(Cog):
             await message.delete(delay=10)
             return
 
-        if not await Validators.validate_size_input(size, self.sizes):
+        size = await Validators.validate_size_input(size, self.sizes)
+        if not size:
             message = await ctx.send("That is not a valid size.")
             await message.delete(delay=10)
             return
@@ -248,7 +251,8 @@ class Operations(Cog):
                 await message.delete(delay=10)
                 return
         elif attribute.capitalize() == "Size":
-            if not await Validators.validate_size_input(value, self.sizes):
+            value = await Validators.validate_size_input(value, self.sizes)
+            if not value:
                 message = await ctx.send("That is not a valid size.")
                 await message.delete(delay=10)
                 return
@@ -450,13 +454,15 @@ class Operations(Cog):
         guild = self.bot.get_guild(750036082518917170)
         emojis = {
             "Tank": get(guild.emojis, name='Tank'),
+            "Dwt": get(guild.emojis, name='DwT'),
             "Dps": get(guild.emojis, name='DPS'),
+            "Dwh": get(guild.emojis, name='DwH'),
             "Healer": get(guild.emojis, name='Healer')
         }
         operation_name = self.operations[op['Operation'].lower()]
         difficulty = self.difficulties[op['Difficulty'].lower()]
         notes = op["Notes"]
-        size = sum(self.sizes[str(op['Size'])].values())
+        size = sum(op["Size"][1].values())
         extension = await self.date_extension(dt.day)
         msg = f"{op_id}: {size}m {operation_name} {difficulty} {op['Side']}\n{day_name[dt.weekday()]} the " \
               f"{extension} of {month_name[dt.month]} " \
@@ -464,8 +470,7 @@ class Operations(Cog):
         if notes:
             msg += f"\n({notes})\n"
         msg += f"Current signups:\n"
-        roles = ["Tank", "Dps", "Healer"]
-        for r in roles:
+        for r in ["Tank", "Dwt", "Dps", "Dwh", "Healer"]:
             signups = await self.find_role(op, r)
             for s in signups:
                 if s.get("alt-role", None):
@@ -473,7 +478,7 @@ class Operations(Cog):
                 else:
                     alt_role = ""
                 msg += f"\n{emojis[r]} - {s.get('name')} {alt_role}"
-            for _ in range(self.sizes[str(op['Size'])][r] - len(signups)):
+            for _ in range(op["Size"][1].get(r, 0) - len(signups)):
                 msg += f"\n{emojis[r]} - "
 
         msg += "\nReserves: "
@@ -557,7 +562,7 @@ class Operations(Cog):
         """
         if role == "Reserve" or role == "Any":
             return False
-        elif len(await Operations.find_role(op, role)) >= Operations.sizes[str(op["Size"])][role]:
+        elif len(await Operations.find_role(op, role)) >= op["Size"][1].get(role, 0):
             return True
         return False
 
@@ -606,20 +611,27 @@ class Operations(Cog):
                 raise SignUpError("That role is full. Your role has not been changed.")
             else:
                 op = await self.remove_signup(op, sign_up_name)
-        elif op["Signed"] >= sum(Operations.sizes[str(op["Size"])].values()) and main_role != "Reserve":
+        elif op["Signed"] >= sum(op["Size"][1].values()) and main_role != "Reserve":
             op = await self.add_reserve(op, sign_up_name, main_role, True)
             await self.write_operation(op, op_number, guild_id)
             raise SignUpError("This operation is full you have been placed as a reserve.")
         else:
             if await Operations.check_role_full(op, main_role):
                 if not alt_role:
-                    op = await self.add_reserve(op, sign_up_name, main_role, True)
-                    await self.write_operation(op, op_number, guild_id)
-                    raise SignUpError("That role is full you have been placed as a reserve.")
+                    if main_role in ["Dwt", "Dwh"]:
+                        main_role = "Dps"
+                    else:
+                        op = await self.add_reserve(op, sign_up_name, main_role, True)
+                        await self.write_operation(op, op_number, guild_id)
+                        raise SignUpError("That role is full you have been placed as a reserve.")
                 elif await self.check_role_full(op, alt_role):
-                    op = await self.add_reserve(op, sign_up_name, main_role, True)
-                    await self.write_operation(op, op_number, guild_id)
-                    raise SignUpError("Those roles are full you have been placed as a reserve.")
+                    if main_role in ["Dwt", "Dwh"] or alt_role in ["Dwt", "Dwh"]:
+                        alt_role = main_role
+                        main_role = "Dps"
+                    else:
+                        op = await self.add_reserve(op, sign_up_name, main_role, True)
+                        await self.write_operation(op, op_number, guild_id)
+                        raise SignUpError("Those roles are full you have been placed as a reserve.")
                 else:
                     temp_role = main_role
                     main_role = alt_role
@@ -636,6 +648,8 @@ class Operations(Cog):
 
     @sign_up.error
     @add_sign_up.error
+    @new_operation.error
+    @update_operation.error
     async def sign_up_error_handler(self, ctx: context, error):
         if isinstance(error, errors.CommandInvokeError):
             message = await ctx.send(error.__cause__)
