@@ -82,9 +82,10 @@ class TestValidators(TestCase):
 
     def test_validate_size_input_invalid(self):
         loop = asyncio.new_event_loop()
-        result = loop.run_until_complete(Validators.validate_size_input("22", self.sizes))
+        with self.assertRaises(Exception) as context:
+            loop.run_until_complete(Validators.validate_size_input("blue", {"Dps": 4}))
         loop.close()
-        self.assertFalse(result)
+        self.assertTrue("No valid role sizes found. There must be at least one valid role." in str(context.exception))
 
     def test_validate_operation_input_valid(self):
         loop = asyncio.new_event_loop()
