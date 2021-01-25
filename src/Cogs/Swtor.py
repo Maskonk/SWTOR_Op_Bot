@@ -118,27 +118,43 @@ class Swtor(Cog):
         await ctx.send(f"Oh magic ball {' '.join(question)}\nThe magic ball says:\n{choice(responses)}")
 
     @command()
-    async def excuse(self, ctx: context) -> None:
+    async def excuse(self, ctx: context, subject: str = "attend") -> None:
         """
         Provides an silly excuse for not attending a session.
         """
         config = self.config.get(str(ctx.guild.id), {})
         if not await Validators.validate_swtor_channel(ctx.channel.id, config):
             return
-        excuses = [
-            "my sister's boyfriend's neighbour's best friend's duck died, they are giving it a Viking funeral.",
-            "my electricity provider decided to be greener so cut all power it gets from "
-            "fossil fuels. Unfortunately this means they can't power as many homes including mine.",
-            "a goose stole my PCs power cable.",
-            "I am pretty sure assassins are after me so I have to go into hiding.",
-            "my brother joined a cult that worships Gatters as their deity, I have to go shock him to his senses.",
-            "my religion believes that the world ends next week and it is my duty to make as much chaos and "
-            "mayhem as I can, so that even if it doesn't it looks like it has.", "I am too busy farming credits.",
-            "I am partying in my stronghold with some Twi'lek dancers.",
-            "my slave rebelled and now I can't find my gear.", "I have become a toxic PvPer now.",
-            "this GF PuG I am in can't kill this boss.", "there is no one to carry me.",
-            "the latest bug prevents me joining.", "I bought all the Operation achievements I missed and am now "
-            "looking for a NiM Dxun group since my achievements say I am a pro NiM player.", "I'm quiting SWTOR.",
-            "I am too busy dummy parsing."]
-        excuses += config.get("Excuses", [])
-        await ctx.send(f"I can't make it {choice(excuses)}")
+        excuse_list = {
+            "attend": {"opening": "I can't make it", "excuses": [
+                "my sister's boyfriend's neighbour's best friend's duck died, they are giving it a Viking funeral.",
+                "my electricity provider decided to be greener so cut all power it gets from "
+                "fossil fuels. Unfortunately this means they can't power as many homes including mine.",
+                "a goose stole my PCs power cable.",
+                "I am pretty sure assassins are after me so I have to go into hiding.",
+                "my brother joined a cult that worships Gatters as their deity, I have to go shock him to his senses.",
+                "my religion believes that the world ends next week and it is my duty to make as much chaos and "
+                "mayhem as I can, so that even if it doesn't it looks like it has.", "I am too busy farming credits.",
+                "I am partying in my stronghold with some Twi'lek dancers.",
+                "my slave rebelled and now I can't find my gear.", "I have become a toxic PvPer now.",
+                "this GF PuG I am in can't kill this boss.", "there is no one to carry me.",
+                "the latest bug prevents me joining.", "I bought all the Operation achievements I missed and am now "
+                "looking for a NiM Dxun group since my achievements say I am a pro NiM player.", "I'm quiting SWTOR.",
+                "I am too busy dummy parsing."]},
+            "dps": {"opening": "My numbers are low because", "excuses": ["I was doing mechanics.", "I'm not Qdobs.",
+                                                                         "I had to move.", "I'm a clicker.",
+                                                                         "my keybinds are messed up.",
+                                                                         "someone ninja pulled", "I'm a healer.",
+                                                                         "It was Story mode, who cares?"]},
+            "heal": {"opening": "I couldn't heal you because", "excuses": ["I don't like you.",
+                                                                           "I asked the other healer to do it, blame "
+                                                                           "them.", "you were line of sighting me.",
+                                                                           "I'm a Sniper."]},
+            "agro": {"opening": "I lost agro because", "excuses": ["someone ninja pulled.", "my taunt was on cooldown.",
+                                                                   "the Marauder taunted.", "the Sorc pulled me.",
+                                                                   "my co-tank is sabotaging me.",
+                                                                   "Jonas wasn't my co-tank.", "I'm a DPS", ]}}
+        opener = excuse_list.get(subject.lower(), {}).get("opening", [])
+        excuses = excuse_list.get(subject.lower(), {}).get("excuses", [])
+        excuses += config.get("Excuses", {}).get(subject.lower(), [])
+        await ctx.send(f"{opener} {choice(excuses)}")
