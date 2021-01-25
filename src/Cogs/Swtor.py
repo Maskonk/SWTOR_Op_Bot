@@ -157,4 +157,7 @@ class Swtor(Cog):
         opener = excuse_list.get(subject.lower(), {}).get("opening", [])
         excuses = excuse_list.get(subject.lower(), {}).get("excuses", [])
         excuses += config.get("Excuses", {}).get(subject.lower(), [])
-        await ctx.send(f"{opener} {choice(excuses)}")
+        if excuses:
+            await ctx.send(f"{opener} {choice(excuses)}")
+        else:
+            await ctx.send("There are not excuses for that.")
