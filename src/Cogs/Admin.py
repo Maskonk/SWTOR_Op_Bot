@@ -66,35 +66,38 @@ class Admin(Cog):
         :return: String of the message to send composed of the operations details.
         """
         guild = self.bot.get_guild(750036082518917170)
-        dps_emoji = get(guild.emojis, name='DPS')
-        heal_emoji = get(guild.emojis, name='Healer')
-        tank_emoji = get(guild.emojis, name='Tank')
+        emojis = {
+            "Tank": get(guild.emojis, name='Tank'),
+            "Dwt": get(guild.emojis, name='DwT'),
+            "Dps": get(guild.emojis, name='DPS'),
+            "Dwh": get(guild.emojis, name='DwH'),
+            "Healer": get(guild.emojis, name='Healer')
+        }
         operation_name = Operations.operations[op['Operation'].lower()]
         difficulty = Operations.difficulties[op['Difficulty'].lower()]
         notes = op["Notes"]
-        size = sum(Operations.sizes[str(op['Size'])].values())
+        size = sum(op["Size"][1].values())
         extension = await Operations.date_extension(dt.day)
         msg = f"{op_id}: {size}m {operation_name} {difficulty} {op['Side']}\n{day_name[dt.weekday()]} the " \
               f"{extension} of {month_name[dt.month]} " \
-              f"starting at {dt.time().strftime('%H:%M')} CET."
+              f"starting at {dt.time().strftime('%H:%M')} CET. "
         if notes:
             msg += f"\n({notes})\n"
         msg += f"Current signups:\n"
-        for tank in op['Sign-ups']['Tank']:
-            msg += f"\n{tank_emoji} - {tank}"
-        for i in range(Operations.sizes[str(op['Size'])]["Tank"] - len(op['Sign-ups']['Tank'])):
-            msg += f"\n{tank_emoji} - "
-        for dps in op['Sign-ups']['Dps']:
-            msg += f"\n{dps_emoji} - {dps}"
-        for i in range(Operations.sizes[str(op['Size'])]["Dps"] - len(op['Sign-ups']['Dps'])):
-            msg += f"\n{dps_emoji} - "
-        for heal in op['Sign-ups']['Healer']:
-            msg += f"\n{heal_emoji} - {heal}"
-        for i in range(Operations.sizes[str(op['Size'])]["Healer"] - len(op['Sign-ups']['Healer'])):
-            msg += f"\n{heal_emoji} - "
+        for r in ["Tank", "Dwt", "Dps", "Dwh", "Healer"]:
+            signups = await Operations.find_role(op, r)
+            for s in signups:
+                if s.get("alt-role", None):
+                    alt_role = f"({s.get('alt-role', None)})"
+                else:
+                    alt_role = ""
+                msg += f"\n{emojis[r]} - {s.get('name')} {alt_role}"
+            for _ in range(op["Size"][1].get(r, 0) - len(signups)):
+                msg += f"\n{emojis[r]} - "
+
         msg += "\nReserves: "
-        for res in op['Sign-ups']['Reserve']:
-            msg += f"{res}, "
+        for res in op['Sign-ups']['Reserves']:
+            msg += f"{res.get('name')} ({res.get('role', '')}), "
 
         msg += f"\nTo sign up use -sign {op_id} <role> <alt role>"
         return msg
