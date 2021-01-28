@@ -44,7 +44,7 @@ class Operations(Cog):
             return
         msg = "The Operations I currently have listed are: \n"
         for op in ops:
-            msg += f"{op}: {ops[op]['Operation'].upper()} {ops[op]['Size']}m {ops[op]['Difficulty']} " \
+            msg += f"{op}: {ops[op]['Operation'].upper()} {ops[op]['Size'][0]}m {ops[op]['Difficulty']} " \
                    f"at {ops[op]['Time']} on {ops[op]['Date']} organiser {ops[op]['Owner_name']}\n"
         message = await ctx.send(msg)
         await ctx.message.delete(delay=30)
