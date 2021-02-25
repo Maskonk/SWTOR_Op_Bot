@@ -713,24 +713,25 @@ class Operations(Cog):
 
         return role_signed
 
-    @staticmethod
-    async def manage_overflow(op: dict, op_number: str, guild_id: int, sign_up_name: str,
+    async def manage_role_changes(self, op: dict, op_number: str, guild_id: int, sign_up_name: str,
                                main_role: str, alt_role: Optional[str] = None) -> bool:
         """
-        Adds the given user to the sign ups. (validates parameters)
+        Checks if any existing signup can be switched to a different role to allow a new signup.
         :param op: The operation to add the person to.
         :param op_number: The id of the operation.
         :param sign_up_name: The name of the person to be added.
         :param main_role: The main role of the person to be added.
         :param alt_role: The alternative role of the person to be added.
         """
+        # TODO: Add code for any role
+        # TODO: Modify add_to_operation method to use this
         alts = await Operations.find_role(op, alt_role)
         for sign in alts[-1::-1]:
             if not await Operations.check_role_full(op, sign["alt-role"]) and sign["alt-role"]:
                 op = await Operations.remove_signup(op, sign["name"])
                 op = await Operations.add_signup(op, sign["name"], sign["alt-role"], sign["main-role"])
                 op = await Operations.add_signup(op, sign_up_name, alt_role, main_role)
-                await Operations.write_operation(op, op_number, guild_id)
+                await self.write_operation(op, op_number, guild_id)
                 return True
 
         mains = await Operations.find_role(op, main_role)
@@ -739,6 +740,6 @@ class Operations(Cog):
                 op = await Operations.remove_signup(op, sign["name"])
                 op = await Operations.add_signup(op, sign["name"], sign["alt-role"], sign["main-role"])
                 op = await Operations.add_signup(op, sign_up_name, main_role, alt_role)
-                await Operations.write_operation(op, op_number, guild_id)
+                await self.write_operation(op, op_number, guild_id)
                 return True
         return False
