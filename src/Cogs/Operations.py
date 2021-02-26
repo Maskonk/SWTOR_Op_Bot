@@ -727,7 +727,8 @@ class Operations(Cog):
         # TODO: Modify add_to_operation method to use this
         alts = await Operations.find_role(op, alt_role)
         for sign in alts[-1::-1]:
-            if not await Operations.check_role_full(op, sign["alt-role"]) and sign["alt-role"]:
+            if not await Operations.check_role_full(op, sign["alt-role"]) and sign["alt-role"] \
+                    or sign["alt-role"] == "Any":
                 op = await Operations.remove_signup(op, sign["name"])
                 op = await Operations.add_signup(op, sign["name"], sign["alt-role"], sign["main-role"])
                 op = await Operations.add_signup(op, sign_up_name, alt_role, main_role)
@@ -743,3 +744,8 @@ class Operations(Cog):
                 await self.write_operation(op, op_number, guild_id)
                 return True
         return False
+
+    @command()
+    async def apples(self, ctx):
+        op = self.ops.get(str(ctx.guild.id), {}).get(str(1))
+        await self.manage_role_changes(op, "1", ctx.guild.id, "Bob", "Tank", None)
