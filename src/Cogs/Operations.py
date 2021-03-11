@@ -532,10 +532,16 @@ class Operations(Cog):
         :return: String of the Number extension.
         """
         if number % 10 == 1:
+            if number == 11:
+                return '11th'
             return '%dst' % number
         if number % 10 == 2:
+            if number == 12:
+                return '12th'
             return '%dnd' % number
         if number % 10 == 3:
+            if number == 13:
+                return '13th'
             return '%drd' % number
         if (number % 10 >= 4) or (number % 10 == 0):
             return '%dth' % number
